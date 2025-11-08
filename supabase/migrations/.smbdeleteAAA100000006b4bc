@@ -1,0 +1,21 @@
+
+UPDATE public.station_codes sc
+SET
+    station_name = mo.station_name,
+    longitude = mo.longitude,
+    latitude = mo.latitude
+FROM (
+    SELECT DISTINCT ON (station_id)
+        station_id,
+        station_name,
+        longitude,
+        latitude
+    FROM
+        public.marine_observations
+    WHERE
+        station_name IS NOT NULL
+        AND longitude IS NOT NULL
+        AND latitude IS NOT NULL
+) AS mo
+WHERE
+    sc.station_id = mo.station_id;

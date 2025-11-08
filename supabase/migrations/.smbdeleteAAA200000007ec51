@@ -1,0 +1,16 @@
+-- Add additional tide data columns to tide_data table
+-- Migration: Add dateSun, dateMoon, moolNormal, mool7, mool8 columns
+
+ALTER TABLE tide_data 
+ADD COLUMN date_sun VARCHAR(10),
+ADD COLUMN date_moon VARCHAR(10), 
+ADD COLUMN mool_normal VARCHAR(50),
+ADD COLUMN mool7 VARCHAR(50),
+ADD COLUMN mool8 VARCHAR(50);
+
+-- Add comments for documentation
+COMMENT ON COLUMN tide_data.date_sun IS 'Sun date in YYYY/MM/DD format';
+COMMENT ON COLUMN tide_data.date_moon IS 'Moon date in YYYY/MM/DD format';
+COMMENT ON COLUMN tide_data.mool_normal IS 'Normal tide phase (어깨사리 등)';
+COMMENT ON COLUMN tide_data.mool7 IS 'Tide phase at 7th day';
+COMMENT ON COLUMN tide_data.mool8 IS 'Tide phase at 8th day';

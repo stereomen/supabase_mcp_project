@@ -1,0 +1,10 @@
+-- 既存の複合プライマリキーを削除し、新しい自動増分IDをプライマリキーとして追加します。
+-- これにより、観測日と観測所名が同じでも、異なる時間の潮汐データを個別のレコードとして保存できます。
+
+-- 1. 既存のプライマリキー制約を削除
+ALTER TABLE public.tide_data DROP CONSTRAINT IF EXISTS tide_data_pkey;
+
+-- 2. 新しいIDカラムを主キーとして追加
+ALTER TABLE public.tide_data ADD COLUMN id BIGSERIAL PRIMARY KEY;
+
+COMMENT ON COLUMN public.tide_data.id IS '各レコードの一意な識別子';

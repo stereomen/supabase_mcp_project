@@ -1,0 +1,802 @@
+[
+  {
+    "event_message": "shutdown",
+    "event_type": "Shutdown",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "956c7a06-6182-412a-8ba6-10db04a5deba",
+    "level": "log",
+    "timestamp": 1756156277962000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "496fad82-1a30-48b5-98e0-9f8d9965b03c",
+    "level": "log",
+    "timestamp": 1756156206289000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "3f8ce50d-530a-4b36-8a3c-809ff004bed2",
+    "level": "log",
+    "timestamp": 1756156206289000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d420dd8d-4faa-44a2-954a-06637e6d1e51",
+    "level": "log",
+    "timestamp": 1756156206289000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "c49c1abf-a887-4de6-8c01-44cee51e8b7c",
+    "level": "log",
+    "timestamp": 1756156206289000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "4c2296f3-a648-4921-a24d-22b14d7b9384",
+    "level": "log",
+    "timestamp": 1756156206289000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "2720497d-786b-41a6-b2a5-c8ef43057bc0",
+    "level": "log",
+    "timestamp": 1756156206288000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9770d337-b82d-4280-bf7e-5f1b255a837f",
+    "level": "log",
+    "timestamp": 1756156206288000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "64b59a02-a8c9-4537-9141-911ef2ed0392",
+    "level": "log",
+    "timestamp": 1756156206288000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "7f4dccfc-b2f3-4a0a-97ef-54b6af04c580",
+    "level": "log",
+    "timestamp": 1756156206288000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f863398b-8929-4f9f-8c75-1480189476f5",
+    "level": "log",
+    "timestamp": 1756156206288000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "e641085c-f6c7-4b6f-8c0b-d0d8aa107d92",
+    "level": "log",
+    "timestamp": 1756156206287000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0894f4f7-99e1-4c4f-8447-7df76144f601",
+    "level": "log",
+    "timestamp": 1756156206287000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "54900f12-c7ef-414a-95c1-fa5212b90983",
+    "level": "log",
+    "timestamp": 1756156206287000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "7e71200f-8519-41f4-b142-3a14f3a0b113",
+    "level": "log",
+    "timestamp": 1756156206287000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5c70fca7-7066-4a4f-9d82-bc254fd757eb",
+    "level": "log",
+    "timestamp": 1756156206287000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "e4e8b742-1302-4fc2-93fe-d8eb67e0f0e9",
+    "level": "log",
+    "timestamp": 1756156206286000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5b5c1626-b3da-4899-a9ca-ff37167ce849",
+    "level": "log",
+    "timestamp": 1756156206286000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "cdd8d602-6a25-40a2-8f6f-82bbf2ab0d4c",
+    "level": "log",
+    "timestamp": 1756156206286000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d5bf7f45-f572-4a27-a39f-e6fc1b9f9fab",
+    "level": "log",
+    "timestamp": 1756156206286000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "6af3921e-2e8a-4b12-a8f5-6596c2729a34",
+    "level": "log",
+    "timestamp": 1756156206286000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "7082ae07-cd5d-490f-8820-9e22a8e9a3ec",
+    "level": "log",
+    "timestamp": 1756156206285000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "8af3d45b-3eb6-4d0c-a1d4-b7271bc9512d",
+    "level": "log",
+    "timestamp": 1756156206285000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "8bf8af14-4b72-4acb-9712-2c0925a88796",
+    "level": "log",
+    "timestamp": 1756156206285000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d90cd370-e41a-4739-82ad-7cf69db48c87",
+    "level": "log",
+    "timestamp": 1756156206285000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "e10639a1-2e0b-4e6b-9b07-d482b016dfc8",
+    "level": "log",
+    "timestamp": 1756156206285000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "db8859d9-4ef0-4389-b0de-376ac5012bc4",
+    "level": "log",
+    "timestamp": 1756156206284000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "569c3800-cf99-4b5c-a159-8bf83884e481",
+    "level": "log",
+    "timestamp": 1756156206284000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "51bcb812-eced-490e-bc12-dd81b2cb2cee",
+    "level": "log",
+    "timestamp": 1756156206284000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "12fa435b-7afe-4d64-8e2d-701bc3222fa0",
+    "level": "log",
+    "timestamp": 1756156206284000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "3d816c4d-5395-4360-9227-2f34b36c7521",
+    "level": "log",
+    "timestamp": 1756156206284000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "bf79fa19-7392-4d96-a4f8-33fae9bcf172",
+    "level": "log",
+    "timestamp": 1756156206283000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "a701a236-9804-4a28-a8c6-6d431539eb65",
+    "level": "log",
+    "timestamp": 1756156206283000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "38f0c681-bb02-4da5-9f4b-19931cc407e1",
+    "level": "log",
+    "timestamp": 1756156206283000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "373294d4-8146-4f76-b682-169b6baf1b41",
+    "level": "log",
+    "timestamp": 1756156206283000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "485c4774-79c3-4abe-9429-b33ddd1bd99e",
+    "level": "log",
+    "timestamp": 1756156206283000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "a12f94c8-3c18-4a4a-82d4-14e8599691df",
+    "level": "log",
+    "timestamp": 1756156206282000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ec5d62e9-793c-4ec7-9c6c-e71e55cddef0",
+    "level": "log",
+    "timestamp": 1756156206282000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "db787e4f-b6be-43e9-8ef5-189f34de52d4",
+    "level": "log",
+    "timestamp": 1756156206282000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "67072d64-fccd-45ee-bafd-e14ce9d197f0",
+    "level": "log",
+    "timestamp": 1756156206282000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "39a9a3d6-2030-4d0a-bbbd-8e65d61d9c80",
+    "level": "log",
+    "timestamp": 1756156206282000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b7b4ae9d-6c01-48a2-ba6f-3ba95fa85500",
+    "level": "log",
+    "timestamp": 1756156206281000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0b3e5fc2-00bc-4de7-9c55-6c06119ab0ee",
+    "level": "log",
+    "timestamp": 1756156206281000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "af472434-2546-4d7a-bdc5-6d7e508c9525",
+    "level": "log",
+    "timestamp": 1756156206281000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0e2e8ab6-0870-44fa-8e6f-7f93e90dbc3e",
+    "level": "log",
+    "timestamp": 1756156206281000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "63034e23-a015-4f2d-84e0-74b10d9c396d",
+    "level": "log",
+    "timestamp": 1756156206281000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "a4979873-ee56-4459-9c8e-0e2b46590144",
+    "level": "log",
+    "timestamp": 1756156206280000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d456953d-26db-4b17-a470-f3a49cd9c131",
+    "level": "log",
+    "timestamp": 1756156206280000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ebe42b72-2ff3-4043-a382-783c398caec7",
+    "level": "log",
+    "timestamp": 1756156206280000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "21dbbaec-6d19-4113-897c-3bf9a672f124",
+    "level": "log",
+    "timestamp": 1756156206280000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "690770bb-708c-4a4f-80b3-5159ce852a43",
+    "level": "log",
+    "timestamp": 1756156206280000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0aba7411-380f-4602-9b78-f592f898cec6",
+    "level": "log",
+    "timestamp": 1756156206279000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "532b3e85-d160-41c7-ae51-40c9e28b7edd",
+    "level": "log",
+    "timestamp": 1756156206279000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "dbf58ead-320b-4f43-8a2b-34b4696247d9",
+    "level": "log",
+    "timestamp": 1756156206279000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "08302541-a9a1-4e48-becc-ef1375140493",
+    "level": "log",
+    "timestamp": 1756156206279000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "bef7091c-3066-4a39-a35a-e66781ab094b",
+    "level": "log",
+    "timestamp": 1756156206279000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "69811c77-d111-4133-9428-51e91e859fc6",
+    "level": "log",
+    "timestamp": 1756156206278000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d3ce2e8c-4769-4d3a-adbc-21a65f3a3378",
+    "level": "log",
+    "timestamp": 1756156206278000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "832fdc7f-065a-4e8d-b778-c2369208df5d",
+    "level": "log",
+    "timestamp": 1756156206278000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "884326e5-4caa-4cb7-a045-3724f785853a",
+    "level": "log",
+    "timestamp": 1756156206278000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "fbc28a25-d0d9-4a32-a519-9c0328e7e4a7",
+    "level": "log",
+    "timestamp": 1756156206278000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "abaa13d1-dff9-4664-9610-e32456dba9fd",
+    "level": "log",
+    "timestamp": 1756156206277000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ac42811d-7fee-48b5-9418-c19951ef870d",
+    "level": "log",
+    "timestamp": 1756156206277000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ffa1e10c-b510-4822-adaa-38e16955cfd2",
+    "level": "log",
+    "timestamp": 1756156206277000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "48378932-0590-4f28-832c-7e8bbce39c8e",
+    "level": "log",
+    "timestamp": 1756156206277000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "de2ea0d2-47d1-460e-a12b-d0693c5e3628",
+    "level": "log",
+    "timestamp": 1756156206277000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "dfb4e38b-285a-4a29-bf2f-155381f8e23f",
+    "level": "log",
+    "timestamp": 1756156206276000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0d6f3fda-907b-439c-8569-99e29fdd5e59",
+    "level": "log",
+    "timestamp": 1756156206276000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "7305319b-0224-43df-a3e8-70ebcfe72875",
+    "level": "log",
+    "timestamp": 1756156206276000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9e49ef90-0113-4ab1-8b29-98aa552c1a15",
+    "level": "log",
+    "timestamp": 1756156206276000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ca789f05-cb21-4d34-a7c5-2df9ba9f1957",
+    "level": "log",
+    "timestamp": 1756156206276000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "fc0e4e3b-9205-4192-b0f0-a056d1eadbb1",
+    "level": "log",
+    "timestamp": 1756156206275000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "bc45006b-cb3a-4d8c-a376-8549c7424bb2",
+    "level": "log",
+    "timestamp": 1756156206275000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0402b203-40b4-4167-a35d-d119432c3ff0",
+    "level": "log",
+    "timestamp": 1756156206275000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "21373349-d600-47a0-8c55-7696a9a7f99b",
+    "level": "log",
+    "timestamp": 1756156206275000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "252c50cd-4e20-4eea-9238-fec3146373f2",
+    "level": "log",
+    "timestamp": 1756156206275000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "8710ca0d-a5c5-45f7-9bc9-4e6ab699e915",
+    "level": "log",
+    "timestamp": 1756156206274000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "801ad8db-90d9-434b-b3b4-5efc94bd7f6e",
+    "level": "log",
+    "timestamp": 1756156206274000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0a2194ff-1ae4-466b-994b-a211108557da",
+    "level": "log",
+    "timestamp": 1756156206274000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: C, REG_NAME: 알 수 없음\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0a69e9d0-a11f-4e03-b83e-6d6b19e8af55",
+    "level": "log",
+    "timestamp": 1756156206274000
+  },
+  {
+    "event_message": "marine 라인 6: [ \"12A10000\", \"202508260600\", \"202509010000\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "861bb6f1-7b1e-4563-a83f-f10e60a3ffa0",
+    "level": "log",
+    "timestamp": 1756156206273000
+  },
+  {
+    "event_message": "marine 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "20f74740-0c3d-45e9-819c-25f76925c471",
+    "level": "log",
+    "timestamp": 1756156206273000
+  },
+  {
+    "event_message": "marine 파싱된 데이터 개수: 143\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9d664204-9804-4139-916f-def4d1d340d8",
+    "level": "log",
+    "timestamp": 1756156206273000
+  },
+  {
+    "event_message": "marine 파싱된 레코드: {\n  REG_ID: \"12A10000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202509010000\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5534433e-37bb-411b-86d8-ea5b920a8076",
+    "level": "log",
+    "timestamp": 1756156206273000
+  },
+  {
+    "event_message": "marine 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "26fd8ece-ab19-4d26-b56c-a9c676f8d85a",
+    "level": "log",
+    "timestamp": 1756156206273000
+  },
+  {
+    "event_message": "marine 라인 5: [ \"12A10000\", \"202508260600\", \"202508311200\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "2442f75a-ee5c-4a77-bac3-1396096b550f",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 파싱된 레코드: {\n  REG_ID: \"12A10000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508311200\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "770f720a-fe64-443b-b459-c9b9f6dd4990",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 라인 4: [ \"12A10000\", \"202508260600\", \"202508310000\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9ccf0693-5b39-4db0-ac1d-7905d41c0a14",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 파싱된 레코드: {\n  REG_ID: \"12A10000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508310000\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5d4c6a32-e9d8-45a6-a2cd-99bf5f1f64a5",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 라인 3: [ \"12A10000\", \"202508260600\", \"202508301200\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "18f72eb9-e3b6-4877-8c3d-984c8fd517d5",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "e7d89907-ab3a-4859-b866-033b3e68d041",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "4d2f1ab3-bec5-4fce-9019-1cc5dd3a6d44",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 헤더: [\n  \"REG_ID\", \"TM_FC\",\n  \"TM_EF\",  \"MOD\",\n  \"STN\",    \"C\",\n  \"WH_A\",   \"WH_B\",\n  \"SKY\",    \"PRE\",\n  \"WF\"\n]\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "7091877b-f07c-43fb-b47d-802236c71e5e",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 헤더 개수: 11\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5530e581-0760-4afe-b1bb-7e26266f8c8c",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 라인 2: [ \"12A10000\", \"202508260600\", \"202508300000\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d2f666ba-23f2-40c9-a370-faed23d44284",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 파싱된 레코드: {\n  REG_ID: \"12A10000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508300000\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "1e6ca369-a8ef-41aa-b0c3-35b53ab3b65d",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "bfb5f3e1-f659-4e8c-8cb2-09d1c0d27e1f",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 총 라인 수: 146\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "41c94844-fcda-4863-b307-487903041cc2",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 파싱된 레코드: {\n  REG_ID: \"12A10000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508301200\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "61fedf3d-ce88-4bc5-a7cb-e370df46b5f0",
+    "level": "log",
+    "timestamp": 1756156206272000
+  },
+  {
+    "event_message": "marine 응답 첫 500자: #START7777\n# REG_ID TM_FC        TM_EF        MOD STN C WH_A WH_B SKY  PRE  WF\n12A10000,202508260600,202508300000,A02,109,2,0.5,1.5,WB03,WB00,구름많음,=\n12A10000,202508260600,202508301200,A02,109,2,0.5,1.5,WB03,WB00,구름많음,=\n12A10000,202508260600,202508310000,A02,109,2,0.5,1.5,WB03,WB00,구름많음,=\n12A10000,202508260600,202508311200,A02,109,2,1.0,2.0,WB03,WB00,구름많음,=\n12A10000,202508260600,202509010000,A02,109,2,1.0,2.0,WB04,WB09,흐리고 비,=\n12A10000,202508260600,202509011200,A02,109,2,1.0,2.0,WB04,WB09,흐리고 비,=\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "347113c4-3874-4503-9f0e-64f66996acae",
+    "level": "log",
+    "timestamp": 1756156206271000
+  }
+]

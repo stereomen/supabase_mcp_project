@@ -1,0 +1,9 @@
+
+ALTER TABLE public.station_codes
+ADD COLUMN station_name TEXT,
+ADD COLUMN longitude NUMERIC,
+ADD COLUMN latitude NUMERIC;
+
+COMMENT ON COLUMN public.station_codes.station_name IS '관측소 이름';
+COMMENT ON COLUMN public.station_codes.longitude IS '경도';
+COMMENT ON COLUMN public.station_codes.latitude IS '위도';

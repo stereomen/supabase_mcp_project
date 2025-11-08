@@ -1,0 +1,80 @@
+-- 기상청 중기예보 데이터를 저장할 통합 테이블 생성
+-- 중기 육상예보, 중기 기온예보, 중기 해상예보를 모두 포함
+CREATE TABLE public.medium_term_forecasts (
+    id SERIAL PRIMARY KEY,
+    
+    -- API 공통 필드
+    reg_id text NOT NULL, -- 예보구역코드
+    reg_sp text NOT NULL CHECK (reg_sp IN ('A', 'C', 'I')), -- 특성 (A:육상, C:도시, I:해상)
+    stn_id text NOT NULL, -- 발표관서번호
+    stn text NOT NULL, -- 발표관서
+    tm_fc timestamptz NOT NULL, -- 발표시각 (KST -> UTC 변환)
+    tm_ef timestamptz NOT NULL, -- 발효시각 (KST -> UTC 변환)
+    mod text NOT NULL CHECK (mod IN ('A01', 'A02')), -- 구간 (A01:24시간, A02:12시간)
+    c text NOT NULL, -- 발표코드
+    
+    -- 예보 데이터
+    sky text, -- 하늘상태코드 (WB01:맑음, WB02:구름조금, WB03:구름많음, WB04:흐림)
+    pre text, -- 강수유무코드 (WB09:비, WB11:비/눈, WB13:눈/비, WB12:눈)
+    conf text, -- 신뢰도
+    wf text, -- 예보
+    rn_st smallint, -- 강수확률 (%)
+    
+    -- 기온 정보
+    min_temp smallint, -- 아침최저기온 (°C)
+    max_temp smallint, -- 낮최고기온 (°C)
+    min_temp_l smallint, -- 아침최저기온 하한 기온범위 (°C)
+    min_temp_h smallint, -- 아침최저기온 상한 기온범위 (°C)
+    max_temp_l smallint, -- 낮최고기온 하한 기온범위 (°C)
+    max_temp_h smallint, -- 낮최고기온 상한 기온범위 (°C)
+    
+    -- 해상 정보 (해상예보에서만 사용)
+    wh_a decimal(4,2), -- 파고1 (m)
+    wh_b decimal(4,2), -- 파고2 (m)
+    
+    -- 원본 데이터 추적용
+    forecast_type text NOT NULL CHECK (forecast_type IN ('land', 'temperature', 'marine')), -- 예보 타입
+    reg_name text NOT NULL, -- 지역명 (추가 정보)
+    
+    -- 데이터 관리
+    created_at timestamptz DEFAULT NOW() NOT NULL,
+    updated_at timestamptz DEFAULT NOW() NOT NULL,
+    
+    -- 중복 데이터 방지를 위한 복합 키
+    CONSTRAINT medium_term_forecasts_unique UNIQUE (reg_id, tm_fc, tm_ef, mod, forecast_type)
+);
+
+-- 인덱스 생성
+CREATE INDEX IF NOT EXISTS idx_medium_term_forecasts_reg_id ON medium_term_forecasts(reg_id);
+CREATE INDEX IF NOT EXISTS idx_medium_term_forecasts_tm_fc ON medium_term_forecasts(tm_fc DESC);
+CREATE INDEX IF NOT EXISTS idx_medium_term_forecasts_tm_ef ON medium_term_forecasts(tm_ef);
+CREATE INDEX IF NOT EXISTS idx_medium_term_forecasts_type ON medium_term_forecasts(forecast_type);
+CREATE INDEX IF NOT EXISTS idx_medium_term_forecasts_reg_sp ON medium_term_forecasts(reg_sp);
+
+-- 테이블과 컬럼 설명 추가
+COMMENT ON TABLE public.medium_term_forecasts IS '기상청 중기예보 데이터 통합 테이블 (육상/기온/해상예보 포함)';
+COMMENT ON COLUMN public.medium_term_forecasts.reg_id IS '예보구역코드';
+COMMENT ON COLUMN public.medium_term_forecasts.reg_sp IS '특성 (A:육상, C:도시, I:해상)';
+COMMENT ON COLUMN public.medium_term_forecasts.stn_id IS '발표관서번호';
+COMMENT ON COLUMN public.medium_term_forecasts.stn IS '발표관서명';
+COMMENT ON COLUMN public.medium_term_forecasts.tm_fc IS '발표시각 (UTC)';
+COMMENT ON COLUMN public.medium_term_forecasts.tm_ef IS '발효시각 (UTC)';
+COMMENT ON COLUMN public.medium_term_forecasts.mod IS '구간 (A01:24시간, A02:12시간)';
+COMMENT ON COLUMN public.medium_term_forecasts.c IS '발표코드';
+COMMENT ON COLUMN public.medium_term_forecasts.sky IS '하늘상태코드 (WB01:맑음, WB02:구름조금, WB03:구름많음, WB04:흐림)';
+COMMENT ON COLUMN public.medium_term_forecasts.pre IS '강수유무코드 (WB09:비, WB11:비/눈, WB13:눈/비, WB12:눈)';
+COMMENT ON COLUMN public.medium_term_forecasts.conf IS '신뢰도';
+COMMENT ON COLUMN public.medium_term_forecasts.wf IS '예보';
+COMMENT ON COLUMN public.medium_term_forecasts.rn_st IS '강수확률 (%)';
+COMMENT ON COLUMN public.medium_term_forecasts.min_temp IS '아침최저기온 (°C)';
+COMMENT ON COLUMN public.medium_term_forecasts.max_temp IS '낮최고기온 (°C)';
+COMMENT ON COLUMN public.medium_term_forecasts.wh_a IS '파고1 (m)';
+COMMENT ON COLUMN public.medium_term_forecasts.wh_b IS '파고2 (m)';
+COMMENT ON COLUMN public.medium_term_forecasts.forecast_type IS '예보 타입 (land:육상예보, temperature:기온예보, marine:해상예보)';
+COMMENT ON COLUMN public.medium_term_forecasts.reg_name IS '지역명';
+
+-- RLS 활성화
+ALTER TABLE public.medium_term_forecasts ENABLE ROW LEVEL SECURITY;
+
+-- 공개 읽기 정책 추가
+CREATE POLICY "Enable read access for all users" ON public.medium_term_forecasts FOR SELECT USING (true);

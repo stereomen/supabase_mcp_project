@@ -1,0 +1,77 @@
+-- supabase/migrations/20250716230000_final_rpc_with_string_comparison.sql
+
+-- Drop previous versions to ensure a clean state
+DROP FUNCTION IF EXISTS public.get_marine_observations_by_station_id(integer, text, text);
+DROP FUNCTION IF EXISTS public.get_marine_observations_by_station_id(integer, text);
+
+-- Recreate with simple, robust string comparison logic
+CREATE OR REPLACE FUNCTION get_marine_observations_by_station_id(
+    p_station_id INT,
+    p_date TEXT, -- YYYY-MM-DD
+    p_time TEXT DEFAULT NULL -- HHMM
+)
+RETURNS TABLE (
+    observation_time_kst VARCHAR(14),
+    significant_wave_height REAL,
+    wind_direction REAL,
+    wind_speed REAL,
+    gust_wind_speed REAL,
+    water_temperature REAL,
+    air_temperature REAL,
+    pressure REAL,
+    humidity REAL
+) AS $$
+DECLARE
+    target_kst_string VARCHAR(14);
+BEGIN
+    -- If p_time is not provided, return all observations for the KST day
+    IF p_time IS NULL THEN
+        RETURN QUERY
+        SELECT
+            mo.observation_time_kst,
+            mo.significant_wave_height,
+            mo.wind_direction,
+            mo.wind_speed,
+            mo.gust_wind_speed,
+            mo.water_temperature,
+            mo.air_temperature,
+            mo.pressure,
+            mo.humidity
+        FROM
+            public.marine_observations mo
+        WHERE
+            mo.station_id = p_station_id
+            AND LEFT(mo.observation_time_kst, 8) = REPLACE(p_date, '-', '')
+        ORDER BY
+            mo.observation_time_kst;
+
+    -- If p_time is provided, use simple string comparison
+    ELSE
+        -- Construct the target string 'YYYYMMDDHHMI'
+        target_kst_string := REPLACE(p_date, '-', '') || p_time;
+
+        RETURN QUERY
+        SELECT
+            s.observation_time_kst,
+            s.significant_wave_height,
+            s.wind_direction,
+            s.wind_speed,
+            s.gust_wind_speed,
+            s.water_temperature,
+            s.air_temperature,
+            s.pressure,
+            s.humidity
+        FROM
+            public.marine_observations s
+        WHERE
+            s.station_id = p_station_id
+            -- Filter for observations on or before the target string
+            AND s.observation_time_kst <= target_kst_string
+            -- And ensure it's on the same day to prevent grabbing previous days' data
+            AND LEFT(s.observation_time_kst, 8) = REPLACE(p_date, '-', '')
+        ORDER BY
+            s.observation_time_kst DESC
+        LIMIT 1;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;

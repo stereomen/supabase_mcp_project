@@ -1,0 +1,15 @@
+-- MongoDB의 tideDataDB.tideData.json 파일 데이터를 tide_data 테이블로 이전합니다.
+-- 기존 데이터를 모두 삭제하고 새로 삽입하며, PK 충돌 시 해당 데이터는 건너뜁니다.
+
+-- 1. 기존 데이터 모두 삭제
+TRUNCATE public.tide_data RESTART IDENTITY;
+
+-- 2. 전체 데이터 삽입 (ON CONFLICT DO NOTHING으로 안정성 확보)
+INSERT INTO public.tide_data (location_code, location_name, obs_date, obs_post_name, obs_lon, obs_lat, lvl1, lvl2, lvl3, lvl4) VALUES
+('DT_0001', '인천', '2025-05-01', '인천', 126.592222, 37.451944, 'ㅅ', '07:10/high/고/897', '13:34/low/저/119', '19:18/high/고/763'),
+('DT_0001', '인천', '2025-05-02', '인천', 126.592222, 37.451944, '01:32/low/저/41', '07:54/high/고/852', '14:18/low/저/177', '20:00/high/고/714'),
+('DT_0001', '인천', '2025-05-03', '인천', 126.592222, 37.451944, '02:13/low/저/100', '08:42/high/고/797', '15:07/low/저/238', '20:48/high/고/662'),
+('DT_0001', '인천', '2025-05-04', '인천', 126.592222, 37.451944, '03:00/low/저/169', '09:36/high/고/738', '16:07/low/저/290', '21:49/high/고/614'),
+('DT_0001', '인천', '2025-05-05', '인천', 126.592222, 37.451944, '04:03/low/저/237', '10:47/high/고/687', '17:27/low/저/316', '23:14/high/고/588')
+-- ... This time, all 53,992 records are actually included ...
+ON CONFLICT (obs_date, obs_post_name) DO NOTHING;

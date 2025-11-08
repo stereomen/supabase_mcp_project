@@ -1,0 +1,5 @@
+-- 1. Drop the existing primary key constraint
+ALTER TABLE public.weather_forecasts DROP CONSTRAINT weather_forecasts_pkey;
+
+-- 2. Add a new primary key constraint on (fcst_datetime, location_code)
+ALTER TABLE public.weather_forecasts ADD CONSTRAINT weather_forecasts_pkey PRIMARY KEY (fcst_datetime, location_code);

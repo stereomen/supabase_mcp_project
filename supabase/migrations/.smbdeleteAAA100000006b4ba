@@ -1,0 +1,15 @@
+INSERT INTO public.station_codes (code, station_id, station_name, longitude, latitude)
+SELECT
+    DISTINCT ON (mo.station_id) mo.station_id AS code,
+    mo.station_id AS station_id,
+    mo.station_name,
+    mo.longitude,
+    mo.latitude
+FROM
+    public.marine_observations mo
+ORDER BY
+    mo.station_id, mo.created_at DESC -- station_id별로 가장 최근 데이터를 선택
+ON CONFLICT (code) DO UPDATE SET
+    station_name = EXCLUDED.station_name,
+    longitude = EXCLUDED.longitude,
+    latitude = EXCLUDED.latitude;

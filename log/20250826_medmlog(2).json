@@ -1,0 +1,1650 @@
+[
+  {
+    "event_message": "shutdown",
+    "event_type": "Shutdown",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "a181b1de-7d97-4ddc-8145-67153d6ae6ae",
+    "level": "log",
+    "timestamp": 1756172593533000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: I, REG_NAME: 동해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "14869069-af19-4983-a8ce-101d50cdc012",
+    "level": "log",
+    "timestamp": 1756172523538000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: I, REG_NAME: 동해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "e56501ed-b6ca-4d20-b2b4-98430af7ca5b",
+    "level": "log",
+    "timestamp": 1756172523538000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: I, REG_NAME: 동해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "76639cc9-45f8-47f8-98f6-8b85d5314101",
+    "level": "log",
+    "timestamp": 1756172523537000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: I, REG_NAME: 동해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5d41faeb-652f-4d1b-962d-1ff2a7805795",
+    "level": "log",
+    "timestamp": 1756172523537000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: I, REG_NAME: 동해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "3c1181b0-eaa1-49ca-a329-72b96b71e3e0",
+    "level": "log",
+    "timestamp": 1756172523537000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: I, REG_NAME: 동해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5cb6ca40-f8af-4f56-b404-ddf001b5535d",
+    "level": "log",
+    "timestamp": 1756172523537000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: I, REG_NAME: 동해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0c92f73b-accd-4381-a993-950fa01626f2",
+    "level": "log",
+    "timestamp": 1756172523537000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: I, REG_NAME: 동해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "fc87d7b6-9066-4302-9d2b-8bf0bdb76b60",
+    "level": "log",
+    "timestamp": 1756172523537000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "67893b3f-c543-491a-b506-6458af8bb4a9",
+    "level": "log",
+    "timestamp": 1756172523536000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d1ff2ff1-2916-40e1-84e9-51dfc905541c",
+    "level": "log",
+    "timestamp": 1756172523536000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: I, REG_NAME: 동해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "56ff0a91-dd32-4a06-bcba-3d6a059e0cd4",
+    "level": "log",
+    "timestamp": 1756172523536000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5de9084e-1409-4db1-82c4-da280bbd5bd0",
+    "level": "log",
+    "timestamp": 1756172523536000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ea8e79c6-fcf5-4077-b0f5-118fdac95924",
+    "level": "log",
+    "timestamp": 1756172523536000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12C10000, REG_SP: I, REG_NAME: 동해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "1db8b977-a678-4214-bc51-a8dc01d29d85",
+    "level": "log",
+    "timestamp": 1756172523536000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "afe50c65-b47f-4e58-a7c2-68e3021e7b0c",
+    "level": "log",
+    "timestamp": 1756172523535000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "951a71bc-70e1-43c6-8838-46516b993436",
+    "level": "log",
+    "timestamp": 1756172523535000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ec8baa5b-57ce-45c5-bdcc-b9a63137d822",
+    "level": "log",
+    "timestamp": 1756172523535000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b9bc6ec2-5282-467d-868e-3b37ffc3e251",
+    "level": "log",
+    "timestamp": 1756172523535000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "42df70e3-37b2-4c51-8a61-7c24f7fb6db7",
+    "level": "log",
+    "timestamp": 1756172523535000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5465068c-af2e-4321-8ce6-972fd796fcd0",
+    "level": "log",
+    "timestamp": 1756172523535000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B20000, REG_SP: I, REG_NAME: 남해동부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "3e57054e-236f-44ec-80bf-61a7436fcb45",
+    "level": "log",
+    "timestamp": 1756172523534000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0d452da0-4f13-4ba9-9378-d47fc2a004b1",
+    "level": "log",
+    "timestamp": 1756172523534000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5af75295-eaad-4006-81e8-affe92c1e2bb",
+    "level": "log",
+    "timestamp": 1756172523534000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5364c5d1-b3aa-4c15-8de6-86c7eb3f588f",
+    "level": "log",
+    "timestamp": 1756172523534000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b6d60f32-aa1a-4877-9a9c-3882bdc5fd66",
+    "level": "log",
+    "timestamp": 1756172523534000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "bf0858c6-1ee1-4af4-a752-313301bf4e61",
+    "level": "log",
+    "timestamp": 1756172523534000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "8d3a53cc-5f19-4b8d-91f6-b3bffa492322",
+    "level": "log",
+    "timestamp": 1756172523533000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "838c4471-fc7e-4d31-910d-21d45bb8c407",
+    "level": "log",
+    "timestamp": 1756172523533000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9fb2df04-7114-4bde-92a9-d79926d5faed",
+    "level": "log",
+    "timestamp": 1756172523533000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "31aa7df8-438d-4a19-91a6-5bd8a5618edf",
+    "level": "log",
+    "timestamp": 1756172523533000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ef3c6069-b8e8-4cef-bb06-40dd4a6110e1",
+    "level": "log",
+    "timestamp": 1756172523533000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10500, REG_SP: I, REG_NAME: 제주도해상\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "dd3ff79d-d735-43a4-8f02-1a0a10be470e",
+    "level": "log",
+    "timestamp": 1756172523533000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "1904b4fe-b55f-41a0-b043-549385a82fdf",
+    "level": "log",
+    "timestamp": 1756172523532000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "3d5d5b1b-a06e-4be4-9543-1f0dca6da1cf",
+    "level": "log",
+    "timestamp": 1756172523532000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "4463c9ea-c9b1-4665-9336-eac725ef760a",
+    "level": "log",
+    "timestamp": 1756172523532000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "fc789b04-f693-474b-8723-c80b49659999",
+    "level": "log",
+    "timestamp": 1756172523532000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ec3bf9c7-0a80-4f45-937a-8bb137b2986e",
+    "level": "log",
+    "timestamp": 1756172523532000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "4f806a6f-c53a-4a6b-b186-ba5766981541",
+    "level": "log",
+    "timestamp": 1756172523532000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "35f8564e-7415-4ab3-8e78-e7928f6a0a67",
+    "level": "log",
+    "timestamp": 1756172523531000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "834e318a-9b6a-404d-a7db-391cb7a605ca",
+    "level": "log",
+    "timestamp": 1756172523531000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "1408b912-38ed-42cd-abc0-5d53f3c6fe30",
+    "level": "log",
+    "timestamp": 1756172523531000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b58f9db6-964c-45f6-b438-72d66c7e2a47",
+    "level": "log",
+    "timestamp": 1756172523531000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f44a7fe4-cce1-4cd6-b9f8-cae4f25bfb1b",
+    "level": "log",
+    "timestamp": 1756172523531000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12B10000, REG_SP: I, REG_NAME: 남해서부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "135efb53-e562-491d-8293-62e86f73a0ab",
+    "level": "log",
+    "timestamp": 1756172523531000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "53eaf110-e020-44ba-a7c7-f57485f2b270",
+    "level": "log",
+    "timestamp": 1756172523530000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "dd46114d-ad7d-43a6-9699-975f3692c67b",
+    "level": "log",
+    "timestamp": 1756172523530000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "adf69cb8-3431-46fe-a854-4b985576bfaf",
+    "level": "log",
+    "timestamp": 1756172523530000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "380bcb78-0a89-432e-81a8-ffb97189850e",
+    "level": "log",
+    "timestamp": 1756172523530000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "6aed3e51-3d0c-4c9c-b074-12b32de6c7a5",
+    "level": "log",
+    "timestamp": 1756172523530000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b15392eb-fbc6-4bdd-beab-8c58f03b8f51",
+    "level": "log",
+    "timestamp": 1756172523530000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "312e837c-0190-44a9-8a0b-050d92dd28b4",
+    "level": "log",
+    "timestamp": 1756172523529000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "3b47a93f-36d4-4ebe-a578-7499577e2b3e",
+    "level": "log",
+    "timestamp": 1756172523529000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f818e51e-23d5-419a-859d-b92823a57f77",
+    "level": "log",
+    "timestamp": 1756172523529000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "4c135b23-a55f-420a-8717-942773a41613",
+    "level": "log",
+    "timestamp": 1756172523529000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A30000, REG_SP: I, REG_NAME: 서해남부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d1c74e77-f6df-4f8a-a987-904e2f90b6c3",
+    "level": "log",
+    "timestamp": 1756172523529000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "4195a226-6f6c-4416-9c9c-6528011ee135",
+    "level": "log",
+    "timestamp": 1756172523528000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "fceefe5d-8329-4460-85e2-02ecc3c1115a",
+    "level": "log",
+    "timestamp": 1756172523528000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "1950cfa8-6858-455d-ad20-81f6f51ede26",
+    "level": "log",
+    "timestamp": 1756172523528000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "185a7950-0498-4917-a361-061c936fac11",
+    "level": "log",
+    "timestamp": 1756172523528000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "cb162d0a-74fc-4b92-84e2-a397a7000453",
+    "level": "log",
+    "timestamp": 1756172523528000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f7585b83-e0fd-4e1f-9573-eb5a0557b0c5",
+    "level": "log",
+    "timestamp": 1756172523528000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "40ff51b6-750c-4040-876e-c614d4f84a0c",
+    "level": "log",
+    "timestamp": 1756172523527000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "fca38b74-a12c-4dff-8255-d2d9b090f51e",
+    "level": "log",
+    "timestamp": 1756172523527000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5499847f-524d-4288-bb5b-b51a5b604c4f",
+    "level": "log",
+    "timestamp": 1756172523527000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "16d6011f-417b-45be-b6c8-5c531271037d",
+    "level": "log",
+    "timestamp": 1756172523527000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "74517e3d-9389-455f-8de1-0509901d627a",
+    "level": "log",
+    "timestamp": 1756172523527000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A20000, REG_SP: I, REG_NAME: 서해중부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "bbb6ef7c-e753-4245-a033-14628183d6e2",
+    "level": "log",
+    "timestamp": 1756172523527000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "7293738a-b742-4e87-93b6-a553352a5e6d",
+    "level": "log",
+    "timestamp": 1756172523526000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "76dbe751-8b75-4a5d-a133-ff85cbb6f293",
+    "level": "log",
+    "timestamp": 1756172523526000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "237dcc5c-1487-4d53-9b0a-b045a8911095",
+    "level": "log",
+    "timestamp": 1756172523526000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "2e7d9dba-c329-498f-898e-694443148c69",
+    "level": "log",
+    "timestamp": 1756172523526000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "a7167303-7642-4fa6-8702-bc3ce2ea8a8f",
+    "level": "log",
+    "timestamp": 1756172523526000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "3589effc-564e-45e4-830e-cd567931c02c",
+    "level": "log",
+    "timestamp": 1756172523525000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ae736c6b-4f86-4b27-b3f2-0484adc6cf43",
+    "level": "log",
+    "timestamp": 1756172523525000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "999c3287-01fb-4cdd-9047-3aad019b1594",
+    "level": "log",
+    "timestamp": 1756172523525000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 12A10000, REG_SP: I, REG_NAME: 서해북부\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "47e52e10-fe52-4fa7-b84e-63f10451098e",
+    "level": "log",
+    "timestamp": 1756172523525000
+  },
+  {
+    "event_message": "marine 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "382aaca6-ce1c-4864-9f7d-59509dc3242f",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 라인 5: [ \"12A10000\", \"202508260600\", \"202508311200\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "e14614ad-7ca0-4ce9-8e3d-808bc9d52fb2",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 라인 6: [ \"12A10000\", \"202508260600\", \"202509010000\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "85a9828f-44ea-4ac6-8ba7-3073d6fee4ba",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "3927ccdc-c7d9-4d2e-900d-9672597a699d",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 파싱된 레코드: {\n  REG_ID: \"12A10000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508311200\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9c9a5342-db7f-498f-9c1a-35777742a906",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 파싱된 레코드: {\n  REG_ID: \"12A10000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508301200\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "e26f6c61-59a8-4665-9cc4-1092152d79d6",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 파싱된 레코드: {\n  REG_ID: \"12A10000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508310000\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "1e0b84d1-0f7d-48c1-b6bb-d16a6b679190",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "964f8854-de92-4da2-9d45-a8b13df34208",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 라인 3: [ \"12A10000\", \"202508260600\", \"202508301200\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "dc721024-b02f-41a2-961f-34a3b51c9eb2",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 파싱된 데이터 개수: 143\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "95240c87-b244-4b43-b821-150c4b352b2b",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "47da6b34-a91f-4ec4-9576-b13a1502b665",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 파싱된 레코드: {\n  REG_ID: \"12A10000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202509010000\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9f91d957-81ce-4d56-be42-8cc064c65455",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 라인 4: [ \"12A10000\", \"202508260600\", \"202508310000\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "669d9488-c385-4bd6-b204-73702b440cc0",
+    "level": "log",
+    "timestamp": 1756172523524000
+  },
+  {
+    "event_message": "marine 총 라인 수: 146\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "733e9682-1504-4df5-a2e0-d0e165038e89",
+    "level": "log",
+    "timestamp": 1756172523523000
+  },
+  {
+    "event_message": "marine 응답 길이: 10014\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "38f4458a-79f5-4a8e-894e-176d2c5feadd",
+    "level": "log",
+    "timestamp": 1756172523523000
+  },
+  {
+    "event_message": "marine 파싱된 레코드: {\n  REG_ID: \"12A10000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508300000\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "65f9a1b2-a9d9-4495-a701-b9c058765ed5",
+    "level": "log",
+    "timestamp": 1756172523523000
+  },
+  {
+    "event_message": "marine 헤더: [\n  \"REG_ID\", \"TM_FC\",\n  \"TM_EF\",  \"MOD\",\n  \"STN\",    \"C\",\n  \"WH_A\",   \"WH_B\",\n  \"SKY\",    \"PRE\",\n  \"WF\"\n]\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "98b3997b-ced5-4d5b-876e-1aa5cdca1948",
+    "level": "log",
+    "timestamp": 1756172523523000
+  },
+  {
+    "event_message": "marine 헤더 개수: 11\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "31f00684-31d0-4eba-8f8c-ff7d934f7a16",
+    "level": "log",
+    "timestamp": 1756172523523000
+  },
+  {
+    "event_message": "marine 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "a3bbe21e-1fc9-4833-a292-24b60a0c8cc2",
+    "level": "log",
+    "timestamp": 1756172523523000
+  },
+  {
+    "event_message": "marine 라인 2: [ \"12A10000\", \"202508260600\", \"202508300000\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "db8bda26-25aa-46a6-9eb9-e7913c36818b",
+    "level": "log",
+    "timestamp": 1756172523523000
+  },
+  {
+    "event_message": "marine 응답 첫 500자: #START7777\n# REG_ID TM_FC        TM_EF        MOD STN C WH_A WH_B SKY  PRE  WF\n12A10000,202508260600,202508300000,A02,109,2,0.5,1.5,WB03,WB00,구름많음,=\n12A10000,202508260600,202508301200,A02,109,2,0.5,1.5,WB03,WB00,구름많음,=\n12A10000,202508260600,202508310000,A02,109,2,0.5,1.5,WB03,WB00,구름많음,=\n12A10000,202508260600,202508311200,A02,109,2,1.0,2.0,WB03,WB00,구름많음,=\n12A10000,202508260600,202509010000,A02,109,2,1.0,2.0,WB04,WB09,흐리고 비,=\n12A10000,202508260600,202509011200,A02,109,2,1.0,2.0,WB04,WB09,흐리고 비,=\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f720aca7-6864-4a47-9067-a5c58a05a46a",
+    "level": "log",
+    "timestamp": 1756172523523000
+  },
+  {
+    "event_message": "temperature 예보 완료: 1421개 레코드\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "cecce2f0-d2bc-45a7-b178-76d11da75bf9",
+    "level": "log",
+    "timestamp": 1756172523323000
+  },
+  {
+    "event_message": "marine 예보 처리 중...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "30282db8-10af-430a-8b0f-b698a47f4a7d",
+    "level": "log",
+    "timestamp": 1756172523323000
+  },
+  {
+    "event_message": "temperature 예보 완료: 1421개 레코드\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "cecce2f0-d2bc-45a7-b178-76d11da75bf9",
+    "level": "log",
+    "timestamp": 1756172523323000
+  },
+  {
+    "event_message": "Fetching marine forecast from: https://apihub.kma.go.kr/api/typ01/url/fct_afs_wo.php?disp=1&authKey=L7BLiqT7RsiwS4qk-8bIhQ\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "c740da0e-97ac-46ab-bfce-0660868ad6a1",
+    "level": "log",
+    "timestamp": 1756172523323000
+  },
+  {
+    "event_message": "marine 예보 처리 중...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "30282db8-10af-430a-8b0f-b698a47f4a7d",
+    "level": "log",
+    "timestamp": 1756172523323000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F20000, REG_SP: A, REG_NAME: 전라남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "a57717d0-0801-491d-a8c1-0170a13f3c46",
+    "level": "log",
+    "timestamp": 1756172519315000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F20000, REG_SP: A, REG_NAME: 전라남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "96045a50-2959-4438-971e-8cd959199ec5",
+    "level": "log",
+    "timestamp": 1756172519314000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F20000, REG_SP: A, REG_NAME: 전라남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "093af5e1-1790-42a6-806d-e01ae2544da8",
+    "level": "log",
+    "timestamp": 1756172519314000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F20000, REG_SP: A, REG_NAME: 전라남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "78cd0470-5059-4585-9a00-76418c003795",
+    "level": "log",
+    "timestamp": 1756172519314000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F20000, REG_SP: A, REG_NAME: 전라남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f50e2336-ed73-4433-afb0-e78664cf4546",
+    "level": "log",
+    "timestamp": 1756172519314000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F20000, REG_SP: A, REG_NAME: 전라남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9a3aa79f-686c-4576-a715-41edf90ef32d",
+    "level": "log",
+    "timestamp": 1756172519314000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F20000, REG_SP: A, REG_NAME: 전라남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b0943ac3-0da9-467f-94c9-082536c4d9f2",
+    "level": "log",
+    "timestamp": 1756172519314000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "dafa9f70-37cb-474b-b406-ebf4110d9a94",
+    "level": "log",
+    "timestamp": 1756172519313000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F20000, REG_SP: A, REG_NAME: 전라남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "134ccf0e-7d22-4500-b6e3-e1c06a25a2f0",
+    "level": "log",
+    "timestamp": 1756172519313000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d0a4cf27-2b3d-451f-9768-4eaed14b48cf",
+    "level": "log",
+    "timestamp": 1756172519313000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "705b5b1a-2829-466b-bafa-7a3a1e8a22bb",
+    "level": "log",
+    "timestamp": 1756172519313000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "e07eb738-bf2a-4dbb-aa9b-ac5acd6faa1a",
+    "level": "log",
+    "timestamp": 1756172519313000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "462eb5e2-8447-44fa-9ab2-1a8091113b73",
+    "level": "log",
+    "timestamp": 1756172519313000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5dfce0f2-dfce-4b3a-b69d-f8e0b320a0ca",
+    "level": "log",
+    "timestamp": 1756172519312000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "3adee484-5ac9-486e-b9c9-882dc33ac32d",
+    "level": "log",
+    "timestamp": 1756172519312000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "3934c653-f593-4d5e-aed5-1ecdf30b53f7",
+    "level": "log",
+    "timestamp": 1756172519312000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0e0b5bbc-6c19-4c04-b996-6888b17c9d29",
+    "level": "log",
+    "timestamp": 1756172519312000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "6cce87ed-d2d0-4b61-9488-ab191d8fbba9",
+    "level": "log",
+    "timestamp": 1756172519312000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d5cc8ad6-6ca1-4071-b9de-a627710d358c",
+    "level": "log",
+    "timestamp": 1756172519312000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11F10000, REG_SP: A, REG_NAME: 전북자치도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b524c451-8e94-4fe3-be57-b599417742d8",
+    "level": "log",
+    "timestamp": 1756172519312000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "84c80319-a75d-494c-9565-d7fe1efac7b9",
+    "level": "log",
+    "timestamp": 1756172519311000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "94a1c9c0-caa8-4bb6-abfc-bdefabcc6fb2",
+    "level": "log",
+    "timestamp": 1756172519311000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f3d8618c-d2fb-4f34-a08d-6d59c934194d",
+    "level": "log",
+    "timestamp": 1756172519311000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "1dcd4686-e933-43e8-891b-d31d3d635dfa",
+    "level": "log",
+    "timestamp": 1756172519311000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "4a9bd31d-13ea-4116-9e40-f9a67b3a1245",
+    "level": "log",
+    "timestamp": 1756172519311000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "8d1fe0bf-4825-4ce7-b4f9-d735ddc14a31",
+    "level": "log",
+    "timestamp": 1756172519311000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "e911ab6c-99ca-4a11-81dd-47fe64855ebd",
+    "level": "log",
+    "timestamp": 1756172519310000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d7f5eba5-e5f7-4cc3-b512-8aec08aa8d88",
+    "level": "log",
+    "timestamp": 1756172519310000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "51b0497d-4851-41c8-9533-3fce4d1f9c7b",
+    "level": "log",
+    "timestamp": 1756172519310000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0f366e3f-4d96-4ccf-a516-84333e8d24ed",
+    "level": "log",
+    "timestamp": 1756172519310000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "2ab0b8ae-ee24-49ad-aa56-8d92a9cdde26",
+    "level": "log",
+    "timestamp": 1756172519310000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D20000, REG_SP: A, REG_NAME: 강원영동\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "fe419238-cecb-4918-8c92-e6a5c41eebc5",
+    "level": "log",
+    "timestamp": 1756172519310000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9a5e691c-50c0-4ff8-926a-b3c56b50c2e2",
+    "level": "log",
+    "timestamp": 1756172519309000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0bdf69d2-a07c-4e49-8224-0b3953ecc7e4",
+    "level": "log",
+    "timestamp": 1756172519309000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ccec7b1e-0c22-44c0-b805-3dff5ef17cc9",
+    "level": "log",
+    "timestamp": 1756172519309000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d6fdfefc-61bd-4bec-8414-2880a19d5d97",
+    "level": "log",
+    "timestamp": 1756172519309000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "64a6613e-9316-49be-903b-73fecb137af2",
+    "level": "log",
+    "timestamp": 1756172519309000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9b6c189b-80ac-45a4-934d-b2df2e3a5ee4",
+    "level": "log",
+    "timestamp": 1756172519309000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "47c0dc24-1b6a-42b5-a587-75278ff6ad34",
+    "level": "log",
+    "timestamp": 1756172519309000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9bafa2a4-d656-4ef4-91a3-084199fdcc53",
+    "level": "log",
+    "timestamp": 1756172519308000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "27ad6087-c136-4948-a6d7-8ebd29058edd",
+    "level": "log",
+    "timestamp": 1756172519308000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "54a5313b-556c-415b-b747-2ccee1c9750f",
+    "level": "log",
+    "timestamp": 1756172519308000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "16b3be1a-f56e-4559-b183-1740d041d8aa",
+    "level": "log",
+    "timestamp": 1756172519308000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "c77ce15d-4174-4581-bb45-b8ecfe9e6228",
+    "level": "log",
+    "timestamp": 1756172519308000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11D10000, REG_SP: A, REG_NAME: 강원영서\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "49fcdd0b-bf14-4aa0-b3db-ddbadca1507b",
+    "level": "log",
+    "timestamp": 1756172519308000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "a2c53da1-8bbe-4498-8ac1-9d9270bfaef3",
+    "level": "log",
+    "timestamp": 1756172519307000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "97c85e8b-c7ac-4135-b6c1-8e7f6b029767",
+    "level": "log",
+    "timestamp": 1756172519307000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "5cf533d2-53e7-4f3e-951b-c880271bdd00",
+    "level": "log",
+    "timestamp": 1756172519307000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d14b5404-a215-4eba-8ee0-5d04ec74f814",
+    "level": "log",
+    "timestamp": 1756172519307000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "8f0aaa24-a15b-4f3d-a718-e905278d2829",
+    "level": "log",
+    "timestamp": 1756172519307000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "7d60c103-b16b-4b96-92fc-07e0c35c8417",
+    "level": "log",
+    "timestamp": 1756172519307000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "7cd6af6f-00b5-4514-8409-e9dfeaa9eb5d",
+    "level": "log",
+    "timestamp": 1756172519306000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "47759106-a8a8-42d3-85e9-665e913f4bf7",
+    "level": "log",
+    "timestamp": 1756172519306000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "eb1002ad-0c47-4e37-950e-7d5e7389ac84",
+    "level": "log",
+    "timestamp": 1756172519306000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "050bf1d3-c57c-4708-987a-b097e46658d7",
+    "level": "log",
+    "timestamp": 1756172519306000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C20000, REG_SP: A, REG_NAME: 충청남도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "cf9ca95f-ca54-4c47-b0ee-843d6216fd34",
+    "level": "log",
+    "timestamp": 1756172519306000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b2ec8950-1364-46ce-9833-dc14406ddd5b",
+    "level": "log",
+    "timestamp": 1756172519306000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "8bf85921-acc2-44b1-81be-77107295fcc1",
+    "level": "log",
+    "timestamp": 1756172519305000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f9af0fe0-1c75-43e8-ade9-ae43d2913b4b",
+    "level": "log",
+    "timestamp": 1756172519305000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "e2cf74b5-09c9-4f92-b7ec-d2062d12c748",
+    "level": "log",
+    "timestamp": 1756172519305000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "40a976fc-316c-49d7-8a38-0eae7a20951b",
+    "level": "log",
+    "timestamp": 1756172519305000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "cd4bbf3c-3354-469e-b5d0-1773a467f1fa",
+    "level": "log",
+    "timestamp": 1756172519305000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11C10000, REG_SP: A, REG_NAME: 충청북도\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "fd43c07e-d417-4e5a-b435-69e1d50a806a",
+    "level": "log",
+    "timestamp": 1756172519305000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "9a6e7d11-1080-42ef-8c73-3f91d66a71d5",
+    "level": "log",
+    "timestamp": 1756172519304000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "933949c0-0b4a-4ae1-98d4-41bce72c10f7",
+    "level": "log",
+    "timestamp": 1756172519304000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "7419502b-ebcf-4fe0-8392-0ce5dc72e0ab",
+    "level": "log",
+    "timestamp": 1756172519304000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "d596c0a0-2ae1-414d-8139-c715b90f18e0",
+    "level": "log",
+    "timestamp": 1756172519304000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "8fd12abf-aa75-4064-90b6-36497c9b0078",
+    "level": "log",
+    "timestamp": 1756172519304000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "eb5e7e63-f227-4584-80b9-ccb6dbd8b662",
+    "level": "log",
+    "timestamp": 1756172519303000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "bc10f3e8-a3c7-4ede-8193-7428b612ae88",
+    "level": "log",
+    "timestamp": 1756172519303000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "411de1b1-d17e-4713-a3b1-7e42a203652b",
+    "level": "log",
+    "timestamp": 1756172519303000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "cf1c7037-5546-416c-b43b-34298e2d8d59",
+    "level": "log",
+    "timestamp": 1756172519303000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b9973023-834b-42ba-983e-6f6cb4ef8440",
+    "level": "log",
+    "timestamp": 1756172519303000
+  },
+  {
+    "event_message": "처리 중 REG_ID: 11B00000, REG_SP: A, REG_NAME: 서울.인천.경기\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "31f36e3b-9b08-488e-909b-38544071a29a",
+    "level": "log",
+    "timestamp": 1756172519302000
+  },
+  {
+    "event_message": "land 파싱된 데이터 개수: 165\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b67d36ed-ec39-4090-befa-a47e3ca3acd6",
+    "level": "log",
+    "timestamp": 1756172519300000
+  },
+  {
+    "event_message": "land 파싱된 레코드: {\n  REG_ID: \"11B00000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202509010000\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "a9fdb18e-b511-4677-8e82-f9cb5bab1b42",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 파싱된 레코드: {\n  REG_ID: \"11B00000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508310000\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "13af7453-b034-4fb8-b70d-8fa8ae86d5e8",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ae0bd812-b16f-48df-8227-d431598fdeda",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 파싱된 레코드: {\n  REG_ID: \"11B00000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508311200\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "0bb96449-e7bc-4038-855e-f0f3a485e00c",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 라인 5: [ \"11B00000\", \"202508260600\", \"202508311200\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f2fb2f24-cc64-470a-a42c-29837cd13926",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "cf52e32d-6730-4a2e-acb9-dce31ed524ce",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "50688f73-956d-4b01-9b8a-d1f6a91a390f",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "dac5ecf0-6d38-4148-98ef-b539d28e3890",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 라인 4: [ \"11B00000\", \"202508260600\", \"202508310000\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f42b7d4c-3732-4b74-8d6c-9e211dedb3d9",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 유효한 레코드 발견!\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "79b916c5-667a-4ec0-8f47-1e9fefea6e28",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 라인 6: [ \"11B00000\", \"202508260600\", \"202509010000\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ae21cff0-95fa-4ed7-852a-c04028edeb5e",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 라인 3: [ \"11B00000\", \"202508260600\", \"202508301200\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "7d4b0478-51ac-4a49-b69e-d7d75e07e266",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 파싱된 레코드: {\n  REG_ID: \"11B00000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508300000\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ef42885e-9c5f-4d7b-8cc6-9f07d5fab2ea",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 파싱된 레코드: {\n  REG_ID: \"11B00000\",\n  TM_FC: \"202508260600\",\n  TM_EF: \"202508301200\",\n  MOD: \"A02\"\n}\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b2fd7aa8-39a9-4988-9cfe-7c445ad424b3",
+    "level": "log",
+    "timestamp": 1756172519299000
+  },
+  {
+    "event_message": "land 라인 2: [ \"11B00000\", \"202508260600\", \"202508300000\", \"A02\", \"109\" ] ...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "8e491453-88d1-47aa-ad58-a325198a428b",
+    "level": "log",
+    "timestamp": 1756172519298000
+  },
+  {
+    "event_message": "land 헤더 개수: 11\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "ca47c9a8-c3d1-47d1-81dc-0a8c7ae00610",
+    "level": "log",
+    "timestamp": 1756172519298000
+  },
+  {
+    "event_message": "land 헤더: [\n  \"REG_ID\", \"TM_FC\",\n  \"TM_EF\",  \"MOD\",\n  \"STN\",    \"C\",\n  \"SKY\",    \"PRE\",\n  \"CONF\",   \"WF\",\n  \"RN_ST\"\n]\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "12dfaa9d-e5e3-4c7c-9e68-4e2afb92dcc3",
+    "level": "log",
+    "timestamp": 1756172519298000
+  },
+  {
+    "event_message": "land 응답 첫 500자: #START7777\n# REG_ID TM_FC        TM_EF        MOD STN C SKY  PRE  CONF WF    RN_ST\n11B00000,202508260600,202508300000,A02,109,2,WB04,WB00,없음,흐림,40,=\n11B00000,202508260600,202508301200,A02,109,2,WB04,WB00,없음,흐림,40,=\n11B00000,202508260600,202508310000,A02,109,2,WB04,WB00,없음,흐림,40,=\n11B00000,202508260600,202508311200,A02,109,2,WB04,WB00,없음,흐림,40,=\n11B00000,202508260600,202509010000,A02,109,2,WB04,WB09,없음,흐리고 비,80,=\n11B00000,202508260600,202509011200,A02,109,2,WB04,WB09,없음,흐리고 비,90,=\n11B00000,202508\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "40b92dd6-4862-4fa8-be86-5cc7dbec6e33",
+    "level": "log",
+    "timestamp": 1756172519296000
+  },
+  {
+    "event_message": "land 총 라인 수: 168\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "fa45ac89-25ad-456b-b6cc-4ed82ac0aa15",
+    "level": "log",
+    "timestamp": 1756172519296000
+  },
+  {
+    "event_message": "land 응답 길이: 11229\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "f53b742f-479f-489e-a6dd-82a56fef54c7",
+    "level": "log",
+    "timestamp": 1756172519296000
+  },
+  {
+    "event_message": "Fetching land forecast from: https://apihub.kma.go.kr/api/typ01/url/fct_afs_wl.php?disp=1&authKey=L7BLiqT7RsiwS4qk-8bIhQ\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "6a90d9c5-0b2a-4b27-b3e1-d55ee5532169",
+    "level": "log",
+    "timestamp": 1756172518526000
+  },
+  {
+    "event_message": "지역 정보 239개 KMA 공식 데이터로 로드됨\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "464820e9-fbc9-485c-b593-a67bc405b734",
+    "level": "log",
+    "timestamp": 1756172518525000
+  },
+  {
+    "event_message": "land 예보 처리 중...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "c36c68b4-612b-4257-8ebe-c04f2d5c5154",
+    "level": "log",
+    "timestamp": 1756172518525000
+  },
+  {
+    "event_message": "지역 정보 239개 로드됨\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "6e372dbe-4d0f-4aa3-b3d4-7b40fad91707",
+    "level": "log",
+    "timestamp": 1756172518525000
+  },
+  {
+    "event_message": "지역 정보 239개 KMA 공식 데이터로 로드됨\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "464820e9-fbc9-485c-b593-a67bc405b734",
+    "level": "log",
+    "timestamp": 1756172518525000
+  },
+  {
+    "event_message": "중기예보 데이터 수집 시작...\n",
+    "event_type": "Log",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "23f7c54f-55e3-4b9e-9401-af5953472e19",
+    "level": "log",
+    "timestamp": 1756172518525000
+  },
+  {
+    "event_message": "booted (time: 29ms)",
+    "event_type": "Boot",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b44b3f04-d97a-484c-b112-5723aaa8630b",
+    "level": "log",
+    "timestamp": 1756172518515000
+  },
+  {
+    "event_message": "booted (time: 29ms)",
+    "event_type": "Boot",
+    "function_id": "b101a805-4474-4535-9ae1-a3e76262f3ba",
+    "id": "b44b3f04-d97a-484c-b112-5723aaa8630b",
+    "level": "log",
+    "timestamp": 1756172518515000
+  }
+]

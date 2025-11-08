@@ -1,0 +1,12 @@
+CREATE TABLE public.tide_weather_region (
+    code TEXT PRIMARY KEY,
+    nx SMALLINT NOT NULL,
+    ny SMALLINT NOT NULL,
+    name TEXT
+);
+
+COMMENT ON TABLE public.tide_weather_region IS '날씨 예보 및 조수 정보와 연관된 지역 코드, 격자 좌표, 이름 매핑 테이블';
+COMMENT ON COLUMN public.tide_weather_region.code IS '지역 코드 (예: DT_0020)';
+COMMENT ON COLUMN public.tide_weather_region.nx IS '기상청 예보지점 X 좌표';
+COMMENT ON COLUMN public.tide_weather_region.ny IS '기상청 예보지점 Y 좌표';
+COMMENT ON COLUMN public.tide_weather_region.name IS '지역 한글 이름';

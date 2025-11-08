@@ -1,0 +1,5 @@
+
+ALTER TABLE public.station_codes
+ADD COLUMN station_name TEXT,
+ADD COLUMN longitude NUMERIC,
+ADD COLUMN latitude NUMERIC;

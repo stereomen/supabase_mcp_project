@@ -1,0 +1,187 @@
+event_message,event_type,function_id,id,level,timestamp
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,41e40901-f1ea-456a-8682-7b89e3fbf5b0,log,1755660511802000
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,d9ae9562-9bef-49ea-8ef8-589eb01e0b57,log,1755660507604000
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,258e543d-e6ef-40cb-9154-b82d8c357700,log,1755660503151000
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,d9b54fd4-eef4-4a69-af31-78f4d73132f8,log,1755660498801000
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,d0b90ac3-12e3-43c9-bd9b-a15eb01f0bd6,log,1755660494461000
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,11b10e89-9068-413c-9c18-ca8375fb7862,log,1755660485401000
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,16c62e29-84de-4e4d-b4df-082b499c37f6,log,1755660480844000
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,180d87b1-2555-4500-a3f0-1a4b51006f8f,log,1755660476335000
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,b9330980-f255-42e9-9712-fe04af4b8343,log,1755660467469000
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,5cdecc97-2399-42e1-ae39-56b627dbd146,log,1755660462976000
+shutdown,Shutdown,55211477-d9a1-46c2-b72b-6cca9ead9e7a,50fe963f-0deb-4aa8-8c87-ae96a9e561fc,log,1755660458354000
+"[MAIN] doWeatherFetch completed successfully
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,cea62538-87ba-4e9b-99a7-51aca5e4ad25,log,1755660440594000
+"Batch starting at 120 finished successfully.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,8121f238-c1a9-488b-8c93-572ea54ac5fa,log,1755660440430000
+"All batches processed. Chain complete.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,b69652cc-fff9-4369-a7c8-03709dce1fbf,log,1755660440430000
+"Final batch summary: Processed 6 locations, Upserted 414 records.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,974fd84d-ea88-4362-8139-0ba48c41034b,log,1755660440430000
+"Grand total: Processed 126 unique locations across all batches, Upserted 9246 records in total.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,4238d705-c73f-4d9b-b939-73533df9dd04,log,1755660440430000
+"Upserting 414 records for this batch...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,e1ec510f-a283-4d7b-9426-072bf6206172,log,1755660439661000
+"Total unique grid locations: 126
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,5e941da2-467c-43bb-9919-095bc6082181,log,1755660437225000
+"Processing 6 locations in this batch.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,939f34ff-89f2-4747-b8b6-57e1f1e00971,log,1755660437225000
+"[FETCH] Getting latest base date time...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,a2b120a9-2c8b-418d-9a4a-fad5bd67792b,log,1755660437225000
+"[FETCH] Base date time: 20250820 1100
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,47466a3f-4695-4493-aee7-64501b4ce645,log,1755660437225000
+"[FETCH] Database query result - error: null
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,e781c7a8-84db-46f2-9899-b4436766a849,log,1755660437224000
+"[FETCH] Database query result - data count: 134
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,4362fadd-fa57-4d14-a6fb-c2bc59f693b9,log,1755660437224000
+"[MAIN] doWeatherFetch completed successfully
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,9f8a273a-294f-4f1a-b85f-9d9a00e3eb6f,log,1755660437063000
+"[FETCH] Fetching locations from database...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,9f06e357-e6eb-404b-be75-f2c4741778c1,log,1755660436839000
+"Starting weather fetch for batch: startIndex=120, batchSize=10, totalRecordsUpsertedSoFar=8832
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,7dc117f9-3f8d-4396-b66e-0cac3b0dcd0a,log,1755660436802000
+"[MAIN] Parsed params: startIndex=120, batchSize=10, totalRecordsUpserted=8832
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,4c32a58d-f26e-404d-af35-ce5bb425e8d6,log,1755660436801000
+"[MAIN] Request body: {""startIndex"":120,""batchSize"":10,""totalRecordsUpserted"":8832}
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,8ceda979-835e-4ab2-9424-a3048595e410,log,1755660436801000
+"[MAIN] About to call doWeatherFetch...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,b0abc8dc-dd42-4212-9f04-1e8499fbe788,log,1755660436801000
+"[FETCH] Environment check - SERVICE_ROLE_KEY: present
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,88e0912e-c6bc-4726-96c5-99d587715159,log,1755660436801000
+"[FETCH] Environment check - SUPABASE_URL: present
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,1ae0e1b7-3889-4ff2-bc45-34528ffe38f7,log,1755660436801000
+"[FETCH] Starting doWeatherFetch with params: startIndex=120, batchSize=10, totalRecordsUpsertedSoFar=8832
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,7f4730e9-f356-4d89-9e3c-183daf61f63b,log,1755660436801000
+"[MAIN] Processing main request
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,60b6666c-46e9-467c-8716-0d5abdff22a2,log,1755660436800000
+"[MAIN] Parsing request body...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,b56f71fa-a656-45a4-bec5-258bdd3a0548,log,1755660436800000
+"[MAIN] Function started, method: POST
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,8e1e26db-aff7-4dba-a6ba-a364bbd25005,log,1755660436800000
+"Listening on http://localhost:9999/
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,3a327b3d-1ee1-45db-ac83-b084bbda7e99,log,1755660436796000
+booted (time: 29ms),Boot,55211477-d9a1-46c2-b72b-6cca9ead9e7a,d2be9405-c06f-44b3-8b8b-8887512d9bd1,log,1755660436778000
+"Batch starting at 110 finished successfully.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,3687d346-ff8c-4d58-96bc-b92f2c4c42ba,log,1755660436681000
+"Invoking next batch at startIndex: 120
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,3ac9696c-7106-4fc4-a45d-1d2d1494afd3,log,1755660436681000
+"Upserting 690 records for this batch...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,876b46d2-65eb-4f39-8ce5-7c86281086fb,log,1755660436057000
+"[FETCH] Getting latest base date time...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,778db8de-8cb2-4a23-b90d-e81d75476290,log,1755660432987000
+"Processing 10 locations in this batch.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,7ecaf822-5854-428e-8539-45a181135f64,log,1755660432987000
+"Total unique grid locations: 126
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,f5c8866f-8c36-4aa1-80a4-bf3d2a175717,log,1755660432987000
+"[FETCH] Base date time: 20250820 1100
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,ca4ce626-725a-47bc-ad06-24748bbfafca,log,1755660432987000
+"[FETCH] Database query result - data count: 134
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,d682126b-a881-4881-a58c-4ab9cb1e1093,log,1755660432986000
+"[FETCH] Database query result - error: null
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,596e8390-5ef5-4636-87b8-457b52294d10,log,1755660432986000
+"[MAIN] doWeatherFetch completed successfully
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,487e0506-2caf-45ec-aa4d-98a2423fbb7c,log,1755660432854000
+"[FETCH] Fetching locations from database...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,b42352c1-bb4d-4ec0-bacd-60c8153f17fc,log,1755660432597000
+"[MAIN] About to call doWeatherFetch...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,37b40987-eb31-4ad0-ba45-ec70206d16f4,log,1755660432594000
+"[MAIN] Parsed params: startIndex=110, batchSize=10, totalRecordsUpserted=8142
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,f717e0c0-d470-4bcf-97fb-4b6583778f8d,log,1755660432594000
+"[FETCH] Environment check - SUPABASE_URL: present
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,2ba918ea-3df8-4481-9a7e-37f30101615e,log,1755660432594000
+"[MAIN] Request body: {""startIndex"":110,""batchSize"":10,""totalRecordsUpserted"":8142}
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,1887fb6b-3701-4b5c-94f3-85566cb9e59b,log,1755660432594000
+"[FETCH] Starting doWeatherFetch with params: startIndex=110, batchSize=10, totalRecordsUpsertedSoFar=8142
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,ed4976e9-56c5-46d6-91a4-48e1fc19dd5e,log,1755660432594000
+"[FETCH] Environment check - SERVICE_ROLE_KEY: present
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,c016d8df-b972-4fe2-af37-a6367c1b8161,log,1755660432594000
+"Starting weather fetch for batch: startIndex=110, batchSize=10, totalRecordsUpsertedSoFar=8142
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,502074f9-4786-45ff-b37d-b4d290ce39de,log,1755660432594000
+"[MAIN] Function started, method: POST
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,0074e7d8-9446-49bd-860f-f421b0090d1e,log,1755660432593000
+"[MAIN] Processing main request
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,586b5927-fdf8-4898-99a7-2ad5e97b1b6d,log,1755660432593000
+"[MAIN] Parsing request body...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,d65d6716-aad5-4ae3-a9ee-bf8bb4e539d4,log,1755660432593000
+"Listening on http://localhost:9999/
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,b8e8e324-cb1d-4fbf-92bc-962721817be6,log,1755660432590000
+booted (time: 29ms),Boot,55211477-d9a1-46c2-b72b-6cca9ead9e7a,84024121-aa1a-4b34-b188-cae39175c9fd,log,1755660432576000
+"Batch starting at 100 finished successfully.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,26e320b0-b52c-4182-b14a-5e136da25673,log,1755660432476000
+"Invoking next batch at startIndex: 110
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,2d096c7b-0796-4ce7-8fa8-aad5f09951d7,log,1755660432476000
+"Upserting 690 records for this batch...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,35266e65-e07b-43b0-9f46-483c0c989091,log,1755660431630000
+"[FETCH] Database query result - error: null
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,97bf9b0e-a0c7-4a1e-84c2-9a64036ebef7,log,1755660428541000
+"Processing 10 locations in this batch.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,bc527e28-eab0-4ea2-9547-b28cb6c09599,log,1755660428541000
+"[FETCH] Getting latest base date time...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,d636c1a0-a3c4-4bc2-a6ca-f01c0fcee09f,log,1755660428541000
+"[FETCH] Base date time: 20250820 1100
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,7e838bd7-bbc7-4516-b255-8b9f743ccf96,log,1755660428541000
+"[FETCH] Database query result - data count: 134
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,531500ac-8113-485e-8c96-23946ba299da,log,1755660428541000
+"Total unique grid locations: 126
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,1c86acb7-fa0f-4737-9588-0bca60e607b3,log,1755660428541000
+"[MAIN] doWeatherFetch completed successfully
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,372ffba6-0944-4314-be66-37514d20b6da,log,1755660428400000
+"[FETCH] Fetching locations from database...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,523226bc-86ac-4d3e-adac-3a8d290c567d,log,1755660428150000
+"[FETCH] Environment check - SERVICE_ROLE_KEY: present
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,3e1890c5-0203-4bf9-b589-6bbd9790457c,log,1755660428148000
+"[FETCH] Starting doWeatherFetch with params: startIndex=100, batchSize=10, totalRecordsUpsertedSoFar=7452
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,bd4115d1-45a7-4677-a862-fcc018c9d168,log,1755660428148000
+"[FETCH] Environment check - SUPABASE_URL: present
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,fb590e5f-f4d6-4e73-a4a7-da2d298b990e,log,1755660428148000
+"[MAIN] Request body: {""startIndex"":100,""batchSize"":10,""totalRecordsUpserted"":7452}
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,9a475967-e7f0-409e-a354-37597617a279,log,1755660428148000
+"[MAIN] About to call doWeatherFetch...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,5410e7b8-d99b-4127-877e-921efa0fea47,log,1755660428148000
+"Starting weather fetch for batch: startIndex=100, batchSize=10, totalRecordsUpsertedSoFar=7452
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,de824046-a007-45f3-964b-4335e3967038,log,1755660428148000
+"[MAIN] Parsed params: startIndex=100, batchSize=10, totalRecordsUpserted=7452
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,d804dd2e-d975-4681-a12d-bd3fa656a64a,log,1755660428148000
+"[MAIN] Processing main request
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,0511c625-d963-49f8-b999-28a848cb52f2,log,1755660428147000
+"[MAIN] Function started, method: POST
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,f787f0f7-d287-4d8d-835c-9f24356590ab,log,1755660428147000
+"[MAIN] Parsing request body...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,6f1508a4-44e4-4fa3-8162-9b768854524a,log,1755660428147000
+"Listening on http://localhost:9999/
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,2eb7d190-0c19-41c2-9bd3-c4007ccb3959,log,1755660428144000
+booted (time: 37ms),Boot,55211477-d9a1-46c2-b72b-6cca9ead9e7a,59e99474-8ba9-46b2-9803-102d0a0a83bb,log,1755660428133000
+"Invoking next batch at startIndex: 100
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,08873b84-66a7-46d5-a174-a3173192b802,log,1755660428016000
+"Batch starting at 90 finished successfully.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,6593b4ed-12c7-4d76-9bb6-7b03b9ae68a8,log,1755660428015000
+"Upserting 828 records for this batch...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,e9ee203d-560f-4ea2-a16c-dba048a2ee95,log,1755660427292000
+"Processing 10 locations in this batch.
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,6a7f54c8-e672-4f25-b64d-5233f808d88f,log,1755660424203000
+"Total unique grid locations: 126
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,16042a56-84bf-43c0-86af-2d3b961d1a03,log,1755660424203000
+"[FETCH] Base date time: 20250820 1100
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,3bf1ce26-77f4-4177-8c90-6ef153e97a11,log,1755660424203000
+"[FETCH] Getting latest base date time...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,5c681e37-287f-486d-b4db-b23f65a4e7ee,log,1755660424203000
+"[FETCH] Database query result - data count: 134
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,86460599-784e-4f38-95aa-6fac2c8dae6d,log,1755660424202000
+"[FETCH] Database query result - error: null
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,7dcab677-b637-4c00-a9a6-5ca4e3058d58,log,1755660424202000
+"[MAIN] doWeatherFetch completed successfully
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,3204189b-ef3d-4775-85f9-aaf6caa87e0b,log,1755660424059000
+"[FETCH] Fetching locations from database...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,592ae7a8-24bd-45f4-ae02-31728417b198,log,1755660423798000
+"[MAIN] Parsed params: startIndex=90, batchSize=10, totalRecordsUpserted=6624
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,51d01502-0aff-495a-9637-7c62d21c8715,log,1755660423795000
+"[FETCH] Environment check - SUPABASE_URL: present
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,3cc79d3c-6808-4cec-9b4a-07575068bc54,log,1755660423795000
+"Starting weather fetch for batch: startIndex=90, batchSize=10, totalRecordsUpsertedSoFar=6624
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,9b3022fb-415d-4f7d-ba5d-14a89c7c80c3,log,1755660423795000
+"[FETCH] Environment check - SERVICE_ROLE_KEY: present
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,b4bc5e22-02cf-44e7-96c6-18ea9533957e,log,1755660423795000
+"[MAIN] About to call doWeatherFetch...
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,331c3b93-d7cc-4d6e-9459-6b7fbd98c434,log,1755660423795000
+"[FETCH] Starting doWeatherFetch with params: startIndex=90, batchSize=10, totalRecordsUpsertedSoFar=6624
+",Log,55211477-d9a1-46c2-b72b-6cca9ead9e7a,5a92f591-79a5-46eb-b0f1-382a46f9b42f,log,1755660423795000

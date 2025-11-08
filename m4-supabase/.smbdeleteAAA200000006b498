@@ -1,0 +1,194 @@
+# M4 환경 Supabase 빠른 시작 가이드
+
+M4 맥미니 + Docker 환경에서 Supabase 프로젝트를 빠르게 시작하는 방법입니다.
+
+## 🚀 빠른 설치 (5분)
+
+### 1단계: CLI 설치
+```bash
+# 자동 설치 스크립트 실행 (전역 설치 포함)
+./m4-supabase/install-supabase-cli.sh
+
+# 또는 수동 전역 설치
+curl -sSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_arm64.tar.gz | tar -xz -C /tmp
+chmod +x /tmp/supabase
+sudo cp /tmp/supabase /usr/local/bin/supabase
+```
+
+### 2단계: PostgreSQL 클라이언트 설치
+```bash
+sudo apt-get update && sudo apt-get install -y postgresql-client
+```
+
+### 2단계: 액세스 토큰 설정
+```bash
+# Personal Access Token 생성
+# https://supabase.com/dashboard/account/tokens 접속하여 토큰 생성
+
+# 환경변수 설정
+export SUPABASE_ACCESS_TOKEN="sbp_your_token_here"
+
+# 영구 설정 (권장)
+echo 'export SUPABASE_ACCESS_TOKEN="sbp_your_token_here"' >> ~/.bashrc
+```
+
+### 3단계: 환경변수 확인
+```bash
+# .env 파일 내용 확인
+cat .env
+
+# 환경변수 로드
+source .env
+
+# 연결 테스트
+curl -I $SUPABASE_URL
+```
+
+## ⚡ 핵심 명령어
+
+### CLI 사용 (전역 설치 완료)
+```bash
+# 버전 확인 (PATH 설정 불필요)
+supabase --version
+
+# 프로젝트 목록 확인
+supabase projects list
+
+# 도움말
+supabase --help
+```
+
+### 데이터베이스 확인
+```bash
+# REST API로 테이블 목록 확인
+source .env
+curl -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+     -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+     "$SUPABASE_URL/rest/v1/" | jq '.'
+```
+
+### 함수 배포
+```bash
+# 특정 함수 배포 (프로젝트 참조 필요)
+supabase functions deploy get-kma-weather --project-ref iwpgvdtfpwazzfeniusk --no-verify-jwt
+
+# 모든 함수 배포
+supabase functions deploy --project-ref iwpgvdtfpwazzfeniusk --no-verify-jwt
+
+# 간편 배포 스크립트 사용
+./deploy.sh get-kma-weather
+```
+
+## 📁 프로젝트 구조
+
+```
+프로젝트/
+├── .env                          # 환경변수 설정
+├── m4-supabase/                  # M4 환경 문서
+│   ├── README.md                 # 상세 가이드
+│   ├── install-supabase-cli.sh   # 설치 스크립트
+│   ├── troubleshooting.md        # 문제 해결
+│   └── quick-start.md            # 이 파일
+├── supabase/
+│   ├── functions/                # Edge Functions
+│   │   ├── get-kma-weather/      # 기상 데이터 수집
+│   │   ├── get-medm-weather/     # 중기예보 수집
+│   │   └── ...
+│   └── migrations/               # 데이터베이스 스키마
+└── docs/                         # 프로젝트 문서
+```
+
+## 🔧 주요 작업들
+
+### 새 함수 생성
+```bash
+# 함수 생성
+supabase functions new my-function --project-ref iwpgvdtfpwazzfeniusk
+
+# 함수 개발 (TypeScript)
+# supabase/functions/my-function/index.ts 편집
+
+# 함수 배포
+supabase functions deploy my-function --project-ref iwpgvdtfpwazzfeniusk --no-verify-jwt
+
+# 또는 간편 스크립트 사용
+./deploy.sh my-function
+```
+
+### 데이터베이스 작업
+```bash
+# 스키마 확인 (REST API 사용)
+curl -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+     "$SUPABASE_URL/rest/v1/" | jq '.paths | keys'
+
+# 테이블 데이터 확인
+curl -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+     "$SUPABASE_URL/rest/v1/weather_forecasts?limit=5" | jq '.'
+```
+
+### 로그 확인
+```bash
+# 함수 로그 보기
+supabase functions logs get-kma-weather --project-ref iwpgvdtfpwazzfeniusk
+
+# 실시간 로그
+supabase functions logs get-kma-weather --project-ref iwpgvdtfpwazzfeniusk --follow
+```
+
+## 🌐 유용한 REST API 엔드포인트
+
+```bash
+# 기본 URL
+export API_BASE="$SUPABASE_URL/rest/v1"
+export AUTH_HEADER="Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"
+
+# 테이블 목록
+curl -H "$AUTH_HEADER" "$API_BASE/" | jq '.paths | keys'
+
+# 특정 테이블 데이터
+curl -H "$AUTH_HEADER" "$API_BASE/marine_observations?limit=3" | jq '.'
+
+# 테이블 스키마 정보
+curl -H "$AUTH_HEADER" "$API_BASE/" | jq '.definitions.marine_observations'
+```
+
+## 📋 일일 작업 체크리스트
+
+### 프로젝트 시작 시
+- [ ] `export SUPABASE_ACCESS_TOKEN="sbp_your_token"` 토큰 설정
+- [ ] `source .env` 환경변수 로드
+- [ ] `supabase --version` CLI 작동 확인
+- [ ] `curl -I $SUPABASE_URL` 연결 확인
+
+### 개발 중
+- [ ] 함수 코드 수정
+- [ ] `./deploy.sh FUNCTION_NAME` 또는 `supabase functions deploy FUNCTION_NAME --project-ref iwpgvdtfpwazzfeniusk --no-verify-jwt` 배포
+- [ ] 함수 테스트 및 로그 확인
+
+### 문제 발생 시
+- [ ] `m4-supabase/troubleshooting.md` 참고
+- [ ] 환경변수 및 네트워크 연결 확인
+- [ ] REST API 대안 방법 시도
+
+## 🔗 빠른 링크
+
+- **Supabase 대시보드**: https://supabase.com/dashboard
+- **프로젝트 URL**: https://iwpgvdtfpwazzfeniusk.supabase.co
+- **함수 URL**: https://iwpgvdtfpwazzfeniusk.supabase.co/functions/v1/
+
+## 💡 팁과 요령
+
+1. **전역 설치**: CLI가 전역 설치되어 PATH 설정 불필요
+2. **토큰 관리**: Personal Access Token을 `.bashrc`에 영구 설정 권장
+3. **간편 배포**: `./deploy.sh FUNCTION_NAME` 스크립트 활용
+4. **환경변수**: `alias senv='source .env'` 별칭 만들어서 빠른 로드
+5. **API 테스트**: Postman 대신 `curl` + `jq` 조합 사용
+6. **로그 모니터링**: 개발 시 `supabase functions logs --follow` 실시간 확인
+7. **백업**: 중요한 변경 전 `pg_dump` 또는 REST API로 데이터 백업
+
+## 🚨 주의사항
+
+- **아키텍처**: 반드시 ARM64 (`linux_arm64`) 바이너리 사용
+- **Docker**: 컨테이너 재시작 시 `/tmp` 파일 삭제됨 (재설치 필요)
+- **네트워크**: Docker 환경에서 직접 DB 연결 제한적 (REST API 권장)
+- **권한**: 서비스 역할 키 노출 주의 (개발 환경에서만 사용)

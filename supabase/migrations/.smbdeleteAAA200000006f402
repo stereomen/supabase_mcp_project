@@ -1,0 +1,15 @@
+CREATE TABLE tide_abs_region (
+    "Code" TEXT PRIMARY KEY,
+    "Name" TEXT,
+    "Latitude" FLOAT8,
+    "Longitude" FLOAT8,
+    "a_지역명(한글)" TEXT,
+    "a_STN ID" TEXT,
+    "a_위도(LAT)" FLOAT8,
+    "a_경도(LON)" FLOAT8,
+    "a_제공 정보" TEXT,
+    "b_STN ID" TEXT,
+    "b_위도(LAT)" FLOAT8,
+    "b_경도(LON)" FLOAT8,
+    "b_제공 정보" TEXT
+);

@@ -1,0 +1,24 @@
+HTTP/2 200 
+date: Sun, 07 Sep 2025 12:00:35 GMT
+content-type: text/plain
+cf-ray: 97b60bdb9e73ea9f-ICN
+cf-cache-status: DYNAMIC
+access-control-allow-origin: *
+cache-control: no-cache, no-store, must-revalidate
+expires: 0
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+vary: Accept-Encoding
+pragma: no-cache
+access-control-allow-headers: Content-Type, Authorization
+access-control-allow-methods: GET, POST, OPTIONS
+content-security-policy: default-src 'none'; sandbox
+sb-project-ref: iwpgvdtfpwazzfeniusk
+sb-request-id: 0199240c-a549-763d-a7ce-2ce39aaf7a6b
+x-content-type-options: nosniff
+x-deno-execution-id: 24e7b7b0-5abf-4cd8-ae62-bc51e6e35de2
+x-sb-edge-region: ap-northeast-2
+x-served-by: supabase-edge-runtime
+set-cookie: __cf_bm=Bn9zwdv7hRkernYJEiG20SK7TlzUoUZ8dnSJDQ96iZs-1757246435-1.0.1.1-uengEL7nOD9D0tB4ttmo4k3RD933cMqHs4lWK0BnTTdhfU8necm_dnjUb16tT1aAlBNSLsYUM5qCf6Y93LDvUR2B1ZYsjZ474_NBxKw6JRo; path=/; expires=Sun, 07-Sep-25 12:30:35 GMT; domain=.supabase.co; HttpOnly; Secure; SameSite=None
+server: cloudflare
+alt-svc: h3=":443"; ma=86400
+

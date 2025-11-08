@@ -1,0 +1,76 @@
+-- supabase/migrations/20250716120000_modify_rpc_to_handle_time.sql
+
+-- 1. Drop the existing function to ensure a clean update
+DROP FUNCTION IF EXISTS public.get_marine_observations_by_station_id(integer, text, text);
+DROP FUNCTION IF EXISTS public.get_marine_observations_by_station_id(integer, text);
+
+
+-- 2. Recreate the function with the "previous time" logic
+CREATE OR REPLACE FUNCTION get_marine_observations_by_station_id(
+    p_station_id INT,
+    p_date TEXT,
+    p_time TEXT DEFAULT NULL -- Optional time parameter (HHMM format)
+)
+RETURNS TABLE (
+    observation_time_kst VARCHAR(14),
+    significant_wave_height REAL,
+    wind_direction REAL,
+    wind_speed REAL,
+    gust_wind_speed REAL,
+    water_temperature REAL,
+    air_temperature REAL,
+    pressure REAL,
+    humidity REAL
+) AS $$
+DECLARE
+    target_timestamp TIMESTAMPTZ;
+BEGIN
+    -- If p_time is not provided, return all observations for the day
+    IF p_time IS NULL THEN
+        RETURN QUERY
+        SELECT
+            mo.observation_time_kst,
+            mo.significant_wave_height,
+            mo.wind_direction,
+            mo.wind_speed,
+            mo.gust_wind_speed,
+            mo.water_temperature,
+            mo.air_temperature,
+            mo.pressure,
+            mo.humidity
+        FROM
+            public.marine_observations mo
+        WHERE
+            mo.station_id = p_station_id
+            AND TO_CHAR(mo.observation_time_utc, 'YYYY-MM-DD') = p_date
+        ORDER BY
+            mo.observation_time_utc;
+    -- If p_time is provided, find the single closest "previous" observation
+    ELSE
+        -- Construct a full timestamp from the date and time parts
+        target_timestamp := (p_date || ' ' || LEFT(p_time, 2) || ':' || RIGHT(p_time, 2) || ':00')::TIMESTAMPTZ;
+
+        RETURN QUERY
+        SELECT
+            mo.observation_time_kst,
+            mo.significant_wave_height,
+            mo.wind_direction,
+            mo.wind_speed,
+            mo.gust_wind_speed,
+            mo.water_temperature,
+            mo.air_temperature,
+            mo.pressure,
+            mo.humidity
+        FROM
+            public.marine_observations mo
+        WHERE
+            mo.station_id = p_station_id
+            -- Observation time must be less than or equal to the target time
+            AND mo.observation_time_utc <= target_timestamp
+        ORDER BY
+            -- Order by observation time descending to get the latest one first
+            mo.observation_time_utc DESC
+        LIMIT 1; -- Return only the top one, which is the closest previous time
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
