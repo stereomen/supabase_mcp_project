@@ -11,263 +11,305 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
             min-height: 100vh;
             padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
         .header {
             background: white;
-            padding: 30px;
-            border-radius: 20px 20px 0 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
         }
         .header h1 {
-            font-size: 2em;
-            color: #333;
-            margin-bottom: 10px;
+            font-size: 2.2em;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            font-weight: 700;
         }
         .header p {
-            color: #666;
-            font-size: 0.95em;
+            color: #6b7280;
+            font-size: 1em;
         }
-        .filter-tabs {
-            background: white;
-            padding: 15px 30px;
+        .stats {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            border-bottom: 2px solid #f0f0f0;
+            gap: 16px;
+            margin-top: 20px;
         }
-        .filter-tab {
-            padding: 8px 20px;
-            border-radius: 20px;
-            border: 2px solid #e0e0e0;
-            background: white;
-            cursor: pointer;
+        .stat-item {
+            background: #f9fafb;
+            padding: 12px 20px;
+            border-radius: 8px;
             font-size: 0.9em;
-            transition: all 0.3s ease;
-            color: #666;
         }
-        .filter-tab:hover {
-            border-color: #667eea;
+        .stat-number {
+            font-weight: 700;
             color: #667eea;
+            font-size: 1.2em;
         }
-        .filter-tab.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
+        .stat-label {
+            color: #6b7280;
+            margin-left: 4px;
         }
         .notifications-list {
             background: white;
-            padding: 0;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-height: 400px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 24px;
         }
         .notification-card {
-            padding: 25px 30px;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            padding: 28px 32px;
+            border-bottom: 1px solid #f3f4f6;
+            transition: all 0.2s ease;
+            position: relative;
         }
         .notification-card:last-child {
             border-bottom: none;
         }
         .notification-card:hover {
-            background: #f8f9ff;
-            transform: translateX(5px);
+            background: #fafbfc;
+        }
+        .notification-card.clickable {
+            cursor: pointer;
+        }
+        .notification-card.clickable:hover {
+            background: #f9fafb;
         }
         .notification-header {
             display: flex;
-            align-items: center;
-            margin-bottom: 10px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 12px;
         }
         .notification-icon {
-            font-size: 2em;
-            margin-right: 15px;
+            font-size: 2.4em;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .notification-content {
+            flex: 1;
+            min-width: 0;
         }
         .notification-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-            flex: 1;
-        }
-        .notification-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            font-weight: bold;
-        }
-        .badge-promotion {
-            background: #ffe0e0;
-            color: #d32f2f;
-        }
-        .badge-notice {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        .badge-message {
-            background: #e8f5e9;
-            color: #388e3c;
-        }
-        .badge-news {
-            background: #fff3e0;
-            color: #f57c00;
+            font-size: 1.15em;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            line-height: 1.4;
         }
         .notification-body {
-            color: #666;
-            margin-bottom: 10px;
+            color: #4b5563;
             line-height: 1.6;
-            padding-left: 60px;
+            font-size: 0.95em;
+            margin-bottom: 12px;
         }
-        .notification-footer {
+        .notification-meta {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding-left: 60px;
+            gap: 16px;
             font-size: 0.85em;
-            color: #999;
+            color: #9ca3af;
+        }
+        .notification-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .badge-promotion {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .badge-notice {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        .badge-message {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        .badge-news {
+            background: #fff7ed;
+            color: #ea580c;
         }
         .notification-time {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
         .notification-link {
             color: #667eea;
             text-decoration: none;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
+            font-weight: 500;
+            transition: color 0.2s;
         }
         .notification-link:hover {
-            text-decoration: underline;
+            color: #5568d3;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding: 20px;
+        }
+        .pagination-button {
+            padding: 10px 18px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #374151;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .pagination-button:hover:not(:disabled) {
+            background: #f9fafb;
+            border-color: #667eea;
+            color: #667eea;
+        }
+        .pagination-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .pagination-button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .pagination-info {
+            margin: 0 12px;
+            color: #6b7280;
+            font-size: 0.9em;
         }
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            color: #999;
+            padding: 80px 20px;
+            color: #9ca3af;
         }
         .empty-state-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            opacity: 0.5;
+            font-size: 5em;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+        .empty-state-text {
+            font-size: 1.1em;
+            color: #6b7280;
         }
         .loading {
             text-align: center;
-            padding: 40px;
-            color: #666;
+            padding: 60px 20px;
+            color: #6b7280;
         }
         .loading-spinner {
             display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
+            width: 48px;
+            height: 48px;
+            border: 4px solid #f3f4f6;
             border-top: 4px solid #667eea;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-bottom: 16px;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: gap 0.2s;
+        }
+        .back-button:hover {
+            gap: 12px;
+        }
         @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+            .header {
+                padding: 24px;
+            }
             .header h1 {
-                font-size: 1.5em;
+                font-size: 1.6em;
             }
-            .notification-body {
-                padding-left: 0;
+            .notification-card {
+                padding: 20px;
             }
-            .notification-footer {
-                padding-left: 0;
+            .notification-header {
+                flex-direction: column;
+            }
+            .notification-meta {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 10px;
+                gap: 8px;
+            }
+            .stats {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .pagination {
+                flex-wrap: wrap;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <a href="/" class="back-button">← 대시보드로 돌아가기</a>
+
         <div class="header">
             <h1>🔔 알림 센터</h1>
             <p>푸시 알림 내역을 확인하세요</p>
-        </div>
-
-        <div class="filter-tabs">
-            <button class="filter-tab active" data-type="all">전체</button>
-            <button class="filter-tab" data-type="promotion">🎉 프로모션</button>
-            <button class="filter-tab" data-type="notice">📢 공지사항</button>
-            <button class="filter-tab" data-type="message">💬 메시지</button>
-            <button class="filter-tab" data-type="news">📰 뉴스</button>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalCount">0</span>
+                    <span class="stat-label">개의 알림</span>
+                </div>
+            </div>
         </div>
 
         <div class="notifications-list" id="notificationsList">
-            <!-- 로딩 상태 -->
-            <div class="loading" id="loadingState">
+            <div class="loading">
                 <div class="loading-spinner"></div>
                 <p>알림을 불러오는 중...</p>
             </div>
         </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button class="pagination-button" id="prevButton" onclick="changePage(-1)">← 이전</button>
+            <span class="pagination-info" id="pageInfo">1 / 1</span>
+            <button class="pagination-button" id="nextButton" onclick="changePage(1)">다음 →</button>
+        </div>
     </div>
 
     <script>
-        // Supabase 설정
         const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
         const FUNCTION_URL = SUPABASE_URL + '/functions/v1/send-firebase-notification';
+        const ITEMS_PER_PAGE = 10;
 
-        // 샘플 데이터 (API 실패 시 사용)
-        const sampleNotifications = [
-            {
-                id: '1',
-                title: '🎉 특별 할인 이벤트',
-                body: '50% 할인 이벤트가 진행중입니다! 지금 바로 확인하세요.',
-                type: 'promotion',
-                promotion_url: 'https://sale.company.com',
-                sent_at: '2024-11-08T12:30:00Z'
-            },
-            {
-                id: '2',
-                title: '📢 앱 업데이트 안내',
-                body: '새로운 기능이 추가된 버전 2.0이 출시되었습니다.',
-                type: 'notice',
-                promotion_url: null,
-                sent_at: '2024-11-07T10:00:00Z'
-            },
-            {
-                id: '3',
-                title: '💬 새로운 메시지',
-                body: '고객님께 새로운 메시지가 도착했습니다.',
-                type: 'message',
-                promotion_url: null,
-                sent_at: '2024-11-06T15:45:00Z'
-            },
-            {
-                id: '4',
-                title: '📰 주간 뉴스레터',
-                body: '이번 주의 인기 상품과 트렌드를 확인하세요.',
-                type: 'news',
-                promotion_url: 'https://newsletter.company.com',
-                sent_at: '2024-11-05T09:00:00Z'
-            },
-            {
-                id: '5',
-                title: '🎁 신규 회원 혜택',
-                body: '가입 축하 쿠폰을 받아가세요!',
-                type: 'promotion',
-                promotion_url: 'https://welcome.company.com',
-                sent_at: '2024-11-04T14:20:00Z'
-            }
-        ];
+        let allNotifications = [];
+        let currentPage = 1;
+        let totalPages = 1;
 
-        let currentFilter = 'all';
-
-        // 아이콘 매핑
         const typeIcons = {
             promotion: '🎉',
             notice: '📢',
@@ -275,7 +317,6 @@
             news: '📰'
         };
 
-        // 배지 클래스 매핑
         const badgeClasses = {
             promotion: 'badge-promotion',
             notice: 'badge-notice',
@@ -283,7 +324,6 @@
             news: 'badge-news'
         };
 
-        // 타입 한글명
         const typeNames = {
             promotion: '프로모션',
             notice: '공지사항',
@@ -291,7 +331,6 @@
             news: '뉴스'
         };
 
-        // 시간 포맷팅
         function formatTime(dateString) {
             const date = new Date(dateString);
             const now = new Date();
@@ -300,7 +339,13 @@
             const hours = Math.floor(minutes / 60);
             const days = Math.floor(hours / 24);
 
-            if (days > 0) {
+            if (days > 7) {
+                return date.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } else if (days > 0) {
                 return `${days}일 전`;
             } else if (hours > 0) {
                 return `${hours}시간 전`;
@@ -311,97 +356,89 @@
             }
         }
 
-        // 알림 카드 렌더링
         function renderNotificationCard(notification) {
             const icon = typeIcons[notification.type] || '📬';
             const badgeClass = badgeClasses[notification.type] || 'badge-message';
             const typeName = typeNames[notification.type] || '알림';
+            const hasLink = notification.promotion_url && notification.promotion_url !== 'null';
+            const clickableClass = hasLink ? 'clickable' : '';
 
             return `
-                <div class="notification-card" onclick="handleNotificationClick('${notification.id}', '${notification.promotion_url || ''}')">
+                <div class="notification-card ${clickableClass}" ${hasLink ? `onclick="handleNotificationClick('${notification.id}', '${notification.promotion_url}')"` : ''}>
                     <div class="notification-header">
                         <span class="notification-icon">${icon}</span>
-                        <span class="notification-title">${notification.title}</span>
-                        <span class="notification-badge ${badgeClass}">${typeName}</span>
-                    </div>
-                    <div class="notification-body">
-                        ${notification.body}
-                    </div>
-                    <div class="notification-footer">
-                        <span class="notification-time">
-                            🕐 ${formatTime(notification.sent_at)}
-                        </span>
-                        ${notification.promotion_url ? `
-                            <a href="${notification.promotion_url}" class="notification-link" onclick="event.stopPropagation()">
-                                자세히 보기 →
-                            </a>
-                        ` : ''}
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-body">${notification.body}</div>
+                            <div class="notification-meta">
+                                <span class="notification-badge ${badgeClass}">${typeName}</span>
+                                <span class="notification-time">🕐 ${formatTime(notification.sent_at)}</span>
+                                ${hasLink ? `
+                                    <a href="${notification.promotion_url}" class="notification-link" onclick="event.stopPropagation()">
+                                        자세히 보기 →
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        // 알림 목록 렌더링
-        function renderNotifications() {
+        function renderPage() {
             const listContainer = document.getElementById('notificationsList');
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const pageNotifications = allNotifications.slice(startIndex, endIndex);
 
-            // 필터링
-            let filteredNotifications = sampleNotifications;
-            if (currentFilter !== 'all') {
-                filteredNotifications = sampleNotifications.filter(n => n.type === currentFilter);
-            }
-
-            if (filteredNotifications.length === 0) {
+            if (pageNotifications.length === 0) {
                 listContainer.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">📭</div>
-                        <p>알림이 없습니다</p>
+                        <p class="empty-state-text">알림이 없습니다</p>
                     </div>
                 `;
+                document.getElementById('pagination').style.display = 'none';
                 return;
             }
 
-            listContainer.innerHTML = filteredNotifications.map(renderNotificationCard).join('');
+            listContainer.innerHTML = pageNotifications.map(renderNotificationCard).join('');
+
+            // 페이지네이션 업데이트
+            updatePagination();
         }
 
-        // 알림 클릭 핸들러
+        function updatePagination() {
+            const paginationDiv = document.getElementById('pagination');
+            const prevButton = document.getElementById('prevButton');
+            const nextButton = document.getElementById('nextButton');
+            const pageInfo = document.getElementById('pageInfo');
+
+            if (totalPages <= 1) {
+                paginationDiv.style.display = 'none';
+                return;
+            }
+
+            paginationDiv.style.display = 'flex';
+            pageInfo.textContent = `${currentPage} / ${totalPages}`;
+            prevButton.disabled = currentPage === 1;
+            nextButton.disabled = currentPage === totalPages;
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderPage();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
         function handleNotificationClick(id, url) {
-            console.log('Notification clicked:', id);
             if (url && url !== 'null' && url !== '') {
                 window.location.href = url;
             }
         }
-
-        // 필터 탭 클릭 핸들러
-        function setupFilterTabs() {
-            const tabs = document.querySelectorAll('.filter-tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', async function() {
-                    // 모든 탭 비활성화
-                    tabs.forEach(t => t.classList.remove('active'));
-                    // 선택된 탭 활성화
-                    this.classList.add('active');
-                    // 필터 적용
-                    currentFilter = this.dataset.type;
-
-                    // 로딩 표시
-                    const listContainer = document.getElementById('notificationsList');
-                    listContainer.innerHTML = `
-                        <div class="loading">
-                            <div class="loading-spinner"></div>
-                            <p>알림을 불러오는 중...</p>
-                        </div>
-                    `;
-
-                    // API에서 필터링된 데이터 가져오기
-                    await fetchNotifications();
-                    renderNotifications();
-                });
-            });
-        }
-
-        // 실제 API에서 알림 데이터 가져오기
-        let notifications = [];
 
         async function fetchNotifications() {
             try {
@@ -412,8 +449,8 @@
                     },
                     body: JSON.stringify({
                         action: 'getNotifications',
-                        type: currentFilter === 'all' ? null : currentFilter,
-                        limit: 50,
+                        type: null,
+                        limit: 1000,
                         offset: 0
                     })
                 });
@@ -421,52 +458,28 @@
                 const result = await response.json();
 
                 if (result.success && result.notifications) {
-                    notifications = result.notifications;
-                    console.log('API에서 알림 데이터 로드 성공:', result.notifications.length, '개');
+                    allNotifications = result.notifications;
+                    totalPages = Math.ceil(allNotifications.length / ITEMS_PER_PAGE);
+
+                    // 통계 업데이트
+                    document.getElementById('totalCount').textContent = allNotifications.length;
+
+                    console.log('알림 데이터 로드 성공:', allNotifications.length, '개');
                 } else {
-                    console.warn('API 응답 실패, 샘플 데이터 사용');
-                    notifications = sampleNotifications;
+                    throw new Error('API 응답 실패');
                 }
             } catch (error) {
-                console.error('API 호출 실패, 샘플 데이터 사용:', error);
-                notifications = sampleNotifications;
+                console.error('API 호출 실패:', error);
+                allNotifications = [];
+                totalPages = 1;
             }
         }
 
-        // 알림 목록 렌더링 (수정)
-        function renderNotifications() {
-            const listContainer = document.getElementById('notificationsList');
-
-            // 필터링
-            let filteredNotifications = notifications;
-            if (currentFilter !== 'all') {
-                filteredNotifications = notifications.filter(n => n.type === currentFilter);
-            }
-
-            if (filteredNotifications.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <p>알림이 없습니다</p>
-                    </div>
-                `;
-                return;
-            }
-
-            listContainer.innerHTML = filteredNotifications.map(renderNotificationCard).join('');
-        }
-
-        // 초기화
         async function init() {
-            // API에서 데이터 가져오기
             await fetchNotifications();
-
-            // 알림 표시
-            renderNotifications();
-            setupFilterTabs();
+            renderPage();
         }
 
-        // 페이지 로드 시 초기화
         window.addEventListener('load', init);
     </script>
 </body>
