@@ -1,0 +1,22 @@
+# Netlify
+.netlify/
+dist/
+
+# OS 파일
+.DS_Store
+Thumbs.db
+
+# 에디터 설정
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 로그 파일
+*.log
+npm-debug.log*
+
+# 환경 변수 (민감 정보 포함 가능)
+.env
+.env.local
+.env.production
