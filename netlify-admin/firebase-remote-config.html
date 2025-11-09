@@ -141,9 +141,24 @@
         .tab-content.active {
             display: block;
         }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: gap 0.2s;
+            font-size: 14px;
+        }
+        .back-button:hover {
+            gap: 12px;
+        }
     </style>
 </head>
 <body>
+    <a href="/" class="back-button">← 대시보드로 돌아가기</a>
     <div class="container">
         <h1>🔧 Firebase Remote Config 관리</h1>
 
