@@ -43,17 +43,21 @@ const KMA_AUTH_KEY = Deno.env.get('KMA_API_KEY') || 'xNM8m0T_SZyTPJtE__mcsQ';
 }
 /**
  * KST 시간 문자열을 UTC Date 객체로 변환합니다.
+ * @param {string} kstTime - KST 시간 문자열 (YYYYMMDDHHMI 형식, 예: "202512040600")
+ * @returns {Date|null} UTC Date 객체 (KST - 9시간)
  */ function convertKstToUtc(kstTime) {
   if (!kstTime || kstTime.length !== 12) return null;
   try {
     const year = parseInt(kstTime.substring(0, 4), 10);
-    const month = parseInt(kstTime.substring(4, 6), 10) - 1;
+    const month = parseInt(kstTime.substring(4, 6), 10) - 1;  // 0-based month
     const day = parseInt(kstTime.substring(6, 8), 10);
     const hour = parseInt(kstTime.substring(8, 10), 10);
     const minute = parseInt(kstTime.substring(10, 12), 10);
-    const kstDate = new Date(Date.UTC(year, month, day, hour, minute));
-    kstDate.setUTCHours(kstDate.getUTCHours() - 9);
-    return kstDate;
+
+    // KST 시간 값을 UTC timestamp로 생성 후 9시간(KST offset)을 빼서 실제 UTC로 변환
+    const kstTimestamp = Date.UTC(year, month, day, hour, minute);
+    const utcTimestamp = kstTimestamp - 9 * 60 * 60 * 1000;
+    return new Date(utcTimestamp);
   } catch (e) {
     console.error(`Failed to parse KST time: ${kstTime}`, e);
     return null;

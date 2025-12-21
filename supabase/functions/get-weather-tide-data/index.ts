@@ -1,7 +1,50 @@
 // supabase/functions/get-weather-tide-data/index.ts
-// *** v13: a, b 데이터에 station_id 추가 ***
+// *** v15: weatherapi 데이터 플래그로 제어 (기본값: false) ***
+// v14: OpenWeatherMap 데이터 추가
+// v13: a, b 데이터에 station_id 추가
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+
+// 기능 플래그
+const INCLUDE_WEATHERAPI = false; // weatherapi 데이터 포함 여부 (나중에 사용 가능)
+
+// UTC timestamptz를 KST ISO 문자열로 변환하는 함수
+function convertUtcToKst(utcString: string): string {
+  if (!utcString) return utcString;
+  const date = new Date(utcString);
+  // KST는 UTC+9
+  const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+  const year = kstDate.getUTCFullYear();
+  const month = String(kstDate.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(kstDate.getUTCDate()).padStart(2, '0');
+  const hour = String(kstDate.getUTCHours()).padStart(2, '0');
+  const minute = String(kstDate.getUTCMinutes()).padStart(2, '0');
+  const second = String(kstDate.getUTCSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hour}:${minute}:${second}+09:00`;
+}
+
+// UTC ISO 문자열을 타임존 오프셋을 적용한 로컬 시간 ISO 문자열로 변환
+function convertUtcToLocalWithOffset(utcString: string, timezoneOffset: number): string {
+  if (!utcString) return utcString;
+  const utcDate = new Date(utcString);
+  const localDate = new Date(utcDate.getTime() + timezoneOffset * 1000);
+
+  // 타임존 오프셋을 ±HH:MM 형식으로 변환
+  const offsetHours = Math.floor(Math.abs(timezoneOffset) / 3600);
+  const offsetMinutes = Math.floor((Math.abs(timezoneOffset) % 3600) / 60);
+  const offsetSign = timezoneOffset >= 0 ? '+' : '-';
+  const offsetString = `${offsetSign}${String(offsetHours).padStart(2, '0')}:${String(offsetMinutes).padStart(2, '0')}`;
+
+  const year = localDate.getUTCFullYear();
+  const month = String(localDate.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(localDate.getUTCDate()).padStart(2, '0');
+  const hour = String(localDate.getUTCHours()).padStart(2, '0');
+  const minute = String(localDate.getUTCMinutes()).padStart(2, '0');
+  const second = String(localDate.getUTCSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hour}:${minute}:${second}${offsetString}`;
+}
+
 // RPC 함수를 직접 쿼리로 대체하여 성능 향상
 Deno.serve(async (req)=>{
   if (req.method === 'OPTIONS') {
@@ -35,7 +78,7 @@ Deno.serve(async (req)=>{
     const supabaseClient = createClient(Deno.env.get('SUPABASE_URL'), Deno.env.get('SUPABASE_ANON_KEY'), {
       global: {
         headers: {
-          Authorization: `Bearer ${Deno.env.get('SERVICE_ROLE_KEY')}`
+          Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
         }
       }
     });
@@ -57,11 +100,11 @@ Deno.serve(async (req)=>{
       stationIdB = absRegionResult.data['b_STN ID'];
     }
     // 4. KST 기준 날짜 범위 계산
-    const startDateKST = date; // "YYYY-MM-DD"
+    const startDateKST = date + 'T00:00:00+09:00'; // KST 00시
     // weather_forecasts: 3일치 데이터 계산
     const weatherEndDateObj = new Date(date);
     weatherEndDateObj.setDate(weatherEndDateObj.getDate() + 3); // 3일 후 (exclusive)
-    const weatherExclusiveEndDateKST = `${weatherEndDateObj.getFullYear()}-${String(weatherEndDateObj.getMonth() + 1).padStart(2, '0')}-${String(weatherEndDateObj.getDate()).padStart(2, '0')}`;
+    const weatherExclusiveEndDateKST = `${weatherEndDateObj.getFullYear()}-${String(weatherEndDateObj.getMonth() + 1).padStart(2, '0')}-${String(weatherEndDateObj.getDate()).padStart(2, '0')}T00:00:00+09:00`;
     // tide_data: 14일치 데이터 계산
     const tideStartDate = new Date(date);
     const tideEndDate = new Date(tideStartDate);
@@ -69,11 +112,11 @@ Deno.serve(async (req)=>{
     const tideStartDateOnly = tideStartDate.toISOString().split('T')[0];
     const tideEndDateOnly = tideEndDate.toISOString().split('T')[0];
 
-    // medium-term forecasts: 4일째부터 11일째까지 (D+3 ~ D+10, 총 8일)
+    // medium-term forecasts: 요청일부터 11일째까지 (D+0 ~ D+10, 총 11일)
     const mediumStartDateObj = new Date(date);
-    mediumStartDateObj.setDate(mediumStartDateObj.getDate() + 3); // 4일째부터
+    // 요청일부터 시작
     const mediumStartDateStr = mediumStartDateObj.toISOString().split('T')[0];
-    
+
     const mediumEndDateObj = new Date(date);
     mediumEndDateObj.setDate(mediumEndDateObj.getDate() + 10); // 11일째까지
     const mediumEndDateStr = mediumEndDateObj.toISOString().split('T')[0];
@@ -100,8 +143,8 @@ Deno.serve(async (req)=>{
       })
     ]);
 
-    console.log('Group 2: Fetching marine observations, medium-term forecasts, and WeatherAPI data in parallel...');
-    const [marineObsResultA, marineObsResultB, marineResult, temperResult, weatherApiResult] = await Promise.all([
+    console.log('Group 2: Fetching marine observations, medium-term forecasts' + (INCLUDE_WEATHERAPI ? ', WeatherAPI' : '') + ' and OpenWeatherMap data in parallel...');
+    const [marineObsResultA, marineObsResultB, marineResult, temperResult, weatherApiResult, openWeatherResult] = await Promise.all([
       // Marine observations A
       stationIdA ? (
         time ? 
@@ -158,7 +201,7 @@ Deno.serve(async (req)=>{
         .gte('tm_ef_kr', mediumStartKST)
         .lte('tm_ef_kr', mediumEndKST)
         .order('tm_ef', { ascending: true }),
-        
+
       // Temperature forecasts (location_code로 직접 조회)
       supabaseClient
         .from('medium_term_forecasts')
@@ -174,15 +217,37 @@ Deno.serve(async (req)=>{
         .order('tm_ef', { ascending: true }),
 
       // WeatherAPI data - 필수 필드만 선택 (14일치: 요청 날짜부터 +13일)
+      INCLUDE_WEATHERAPI ?
+        supabaseClient
+          .from('weatherapi_data')
+          .select(`
+            observation_time_local,
+            forecast_date, forecast_time, condition_text, condition_code,
+            temp_c, wind_mph, wind_kph, wind_degree, wind_direction, gust_mph, gust_kph,
+            data_type
+          `)
+          .eq('code', locationCode)
+          .gte('forecast_date', date)
+          .lte('forecast_date', tideEndDateOnly)
+          .order('forecast_date', { ascending: true })
+          .order('forecast_time', { ascending: true })
+        : Promise.resolve({ data: [], error: null }),
+
+      // OpenWeatherMap data - 14일치 예보 데이터 (요청 날짜부터 +13일)
       supabaseClient
-        .from('weatherapi_data')
+        .from('openweathermap_data')
         .select(`
-          observation_time_local,
-          forecast_date, forecast_time, condition_text, condition_code,
-          temp_c, wind_mph, wind_kph, wind_degree, wind_direction, gust_mph, gust_kph,
+          observation_time_utc, observation_time_local, timezone_offset,
+          forecast_date, forecast_time,
+          weather_id, weather_main, weather_description, weather_icon,
+          temp, feels_like, temp_min, temp_max,
+          pressure, humidity, sea_level, ground_level,
+          wind_speed, wind_deg, wind_gust,
+          clouds, visibility,
+          rain_1h, rain_3h, snow_1h, snow_3h, pop,
           data_type
         `)
-        .eq('code', locationCode)
+        .eq('location_code', locationCode)
         .gte('forecast_date', date)
         .lte('forecast_date', tideEndDateOnly)
         .order('forecast_date', { ascending: true })
@@ -214,19 +279,69 @@ Deno.serve(async (req)=>{
         return (a.forecast_time || '').localeCompare(b.forecast_time || '');
       });
 
-    // 8. 최종 결과 반환
+    // 8. OpenWeatherMap 데이터 가공
+    const openWeatherData = openWeatherResult?.data || [];
+
+    // 현재 날씨와 예보 데이터 분리 및 타임스탬프 변환
+    const openWeatherCurrent = openWeatherData
+      .filter(item => item.data_type === 'current')
+      .map(item => ({
+        ...item,
+        observation_time_local: convertUtcToLocalWithOffset(item.observation_time_utc, item.timezone_offset)
+      }));
+
+    const openWeatherForecast = openWeatherData
+      .filter(item => item.data_type === 'forecast' && item.forecast_time !== null)
+      .map(item => ({
+        ...item,
+        observation_time_local: convertUtcToLocalWithOffset(item.observation_time_utc, item.timezone_offset)
+      }))
+      .sort((a, b) => {
+        const dateCompare = (a.forecast_date || '').localeCompare(b.forecast_date || '');
+        if (dateCompare !== 0) return dateCompare;
+        return (a.forecast_time || '').localeCompare(b.forecast_time || '');
+      });
+
+    // 9. KST 타임스탬프 변환
+    // 단기예보 데이터 변환
+    const weatherForecastData = (weatherResult?.data || []).map(item => ({
+      ...item,
+      fcst_datetime_kr: convertUtcToKst(item.fcst_datetime_kr)
+    }));
+
+    // 중기예보 데이터 변환
+    const marineData = (marineResult?.data || []).map(item => ({
+      ...item,
+      tm_fc_kr: convertUtcToKst(item.tm_fc_kr),
+      tm_ef_kr: convertUtcToKst(item.tm_ef_kr)
+    }));
+
+    const temperData = (temperResult?.data || []).map(item => ({
+      ...item,
+      tm_fc_kr: convertUtcToKst(item.tm_fc_kr),
+      tm_ef_kr: convertUtcToKst(item.tm_ef_kr)
+    }));
+
+    // 10. 최종 결과 반환
     const responseData = {
-      weather_forecasts: weatherResult?.data || [],
+      weather_forecasts: weatherForecastData,
       tide_data: tideResult?.data || [],
       marine_observations: {
         a: marineObsA,
         b: marineObsB
       },
-      marine: marineResult?.data || [],
-      temper: temperResult?.data || [],
-      // WeatherAPI 데이터 추가 (시간별 예보만)
-      weatherapi: {
-        hourly: hourlyForecast
+      marine: marineData,
+      temper: temperData,
+      // WeatherAPI 데이터 추가 (플래그로 제어)
+      ...(INCLUDE_WEATHERAPI && {
+        weatherapi: {
+          hourly: hourlyForecast
+        }
+      }),
+      // OpenWeatherMap 데이터 추가
+      openweathermap: {
+        current: openWeatherCurrent,
+        forecast: openWeatherForecast
       }
     };
     return new Response(JSON.stringify(responseData), {

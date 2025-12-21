@@ -395,7 +395,7 @@ function getHTML(anonKey: string): string {
                     <label for="updateProjectId">Firebase 프로젝트 ID:</label>
                     <input type="text" id="updateProjectId" placeholder="mancooltime-83e29" value="mancooltime-83e29">
                 </div>
-                
+
                 <h3>매개변수 추가/수정</h3>
                 <div class="form-group">
                     <label for="paramKey">매개변수 키:</label>
@@ -418,7 +418,7 @@ function getHTML(anonKey: string): string {
                     <label for="paramDescription">설명:</label>
                     <textarea id="paramDescription" placeholder="매개변수 설명을 입력하세요"></textarea>
                 </div>
-                
+
                 <button onclick="updateRemoteConfig()">업데이트</button>
             </div>
         </div>
@@ -536,19 +536,19 @@ function getHTML(anonKey: string): string {
                 alert('먼저 관리자 인증을 받아주세요.');
                 return;
             }
-            
+
             const projectId = document.getElementById('updateProjectId').value;
             const adminPassword = document.getElementById('adminPassword').value;
             const paramKey = document.getElementById('paramKey').value;
             const paramValue = document.getElementById('paramValue').value;
             const paramType = document.getElementById('paramType').value;
             const paramDescription = document.getElementById('paramDescription').value;
-            
+
             if (!projectId || !paramKey || !paramValue) {
                 alert('프로젝트 ID, 매개변수 키, 기본값은 필수입니다.');
                 return;
             }
-            
+
             const updateData = {
                 adminPassword: adminPassword,
                 authenticated: true,
@@ -559,23 +559,23 @@ function getHTML(anonKey: string): string {
                 paramType: paramType,
                 paramDescription: paramDescription
             };
-            
+
             try {
                 const response = await fetch(FUNCTION_URL, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ${anonKey}'
                     },
                     body: JSON.stringify(updateData)
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (response.ok && result.success) {
                     addLog('✅ Remote Config 업데이트 성공: ' + paramKey + ' = ' + paramValue);
                     alert('Remote Config가 성공적으로 업데이트되었습니다.');
-                    
+
                     // 폼 초기화
                     document.getElementById('paramKey').value = '';
                     document.getElementById('paramValue').value = '';

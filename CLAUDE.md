@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+When creating a Python function, write a brief summary of its functionality at the very top. If there are input and output files, include them as well.
+
 ## Development Commands
 
 ### Supabase Local Development
@@ -71,10 +73,10 @@ This is a **Marine Weather Observation Platform** (MCP) that collects and serves
 - API specifications in `API_SPECIFICATION.md`
 
 ### Netlify Admin UI
-- Web-based management interface in `netlify-admin/` directory
+- Web-based management interface in `netlify/` directory
 - Static HTML pages for Firebase Remote Config management and push notification sending
 - Deployed separately via Netlify for easy access without Edge Function GET endpoints
-- See `netlify-admin/README.md` for deployment instructions
+- See `netlify/README.md` for deployment instructions
 
 ## Environment Variables Required
 

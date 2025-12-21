@@ -28,21 +28,28 @@ def upload_csv_to_supabase():
 
     # CSV 파일 읽기 및 데이터 업��드
     try:
-        with open(csv_file_path, mode='r', encoding='utf-8') as f:
-            # 파일 시작 부분의 BOM을 건너뛰기 위해 'utf-8-sig' 대신 'utf-8'을 사용하고 수동 처리
-            content = f.read()
-            if content.startswith('\ufeff'):
-                content = content[1:]
-            
-            reader = csv.DictReader(content.splitlines())
+        with open(csv_file_path, mode='r', encoding='utf-8-sig') as f:
+            reader = csv.DictReader(f)
             data_to_upload = []
             
             for row in reader:
+                # BOM이 있는 경우 컬럼명에서 제거
+                cleaned_row = {}
+                for key, value in row.items():
+                    clean_key = key.lstrip('\ufeff')
+                    cleaned_row[clean_key] = value
+                row = cleaned_row
+
+                # 테이블에 없는 컬럼 제거
+                columns_to_remove = ['AddressA', 'AddressB', 'AddressC', 'marine_reg_name']
+                for col in columns_to_remove:
+                    row.pop(col, None)
+
                 # 숫자 필드에 대해 빈 문자열을 None으로 변환
                 for field in ["Latitude", "Longitude", "a_위도(LAT)", "a_경도(LON)", "b_위도(LAT)", "b_경도(LON)"]:
                     if row.get(field) == '':
                         row[field] = None
-                
+
                 data_to_upload.append(row)
 
             # Supabase에 데이터 upsert (일괄 처리)

@@ -7,6 +7,9 @@
 //예측 날짜 범위:
 //- 기준 시간부터 3일 후까지 예보 데이터 수집
 //- 기상청 API에서 최대 1000개 레코드 요청 (numOfRows: '1000')
+//수집 관측소:
+//- tide_weather_region 테이블의 모든 관측소 (178개)
+//- 고유한 격자 좌표(nx, ny)별로 API 호출하여 중복 요청 최소화
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
@@ -47,7 +50,8 @@ function getLatestBaseDateTime() {
   };
 }
 // --- 핵심 작업 함수 ---
-async function doWeatherFetch(startIndex = 0, batchSize = 50, totalRecordsUpsertedSoFar = 0) {
+// 178개 관측소의 고유 격자 좌표를 배치 단위로 처리
+async function doWeatherFetch(startIndex = 0, batchSize = 20, totalRecordsUpsertedSoFar = 0) {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!supabaseUrl || !serviceRoleKey) {
@@ -64,13 +68,14 @@ async function doWeatherFetch(startIndex = 0, batchSize = 50, totalRecordsUpsert
     error_message: null
   };
   try {
-    // 1. DB에서 모든 위치 정보를 가져옴
+    // 1. DB에서 모든 위치 정보를 가져옴 (178개 관측소)
     const { data: allLocations, error: locationError } = await supabaseClient.from('tide_weather_region').select('code, name, nx, ny');
     if (locationError) throw new Error(`Failed to fetch locations: ${locationError.message}`);
     if (!allLocations || allLocations.length === 0) {
-      console.log("No locations found. Exiting.");
+      console.log("No locations found in tide_weather_region table. Exiting.");
       return;
     }
+    console.log(`✅ Loaded ${allLocations.length} locations from tide_weather_region table`);
     // 2. 고유 격자 좌표(nx, ny)만 추출
     const uniqueGridLocations = new Map();
     for (const loc of allLocations){
@@ -91,7 +96,7 @@ async function doWeatherFetch(startIndex = 0, batchSize = 50, totalRecordsUpsert
     }
     const locationsToFetch = Array.from(uniqueGridLocations.values());
     const totalUniqueLocations = locationsToFetch.length;
-    console.log(`Total unique grid locations: ${totalUniqueLocations}`);
+    console.log(`✅ Found ${totalUniqueLocations} unique grid coordinates (nx,ny) from ${allLocations.length} locations`);
     // 3. 현재 배치를 처리
     const batchLocations = locationsToFetch.slice(startIndex, startIndex + batchSize);
     if (batchLocations.length === 0) {
@@ -102,9 +107,9 @@ async function doWeatherFetch(startIndex = 0, batchSize = 50, totalRecordsUpsert
     const { baseDate, baseTime } = getLatestBaseDateTime();
     const forecasts = {};
     const fetchPromises = batchLocations.map(async (location, index)=>{
-      // API 요청 간격을 두어 CPU 부하 감소
+      // API 요청 간격을 두어 CPU 부하 감소 및 Rate Limit 방지
       if (index > 0) {
-        await delay(200 * index);
+        await delay(150 * index); // 200ms → 150ms로 단축하여 처리 속도 향상
       }
       const { nx, ny } = location;
       const params = new URLSearchParams({
@@ -143,7 +148,10 @@ async function doWeatherFetch(startIndex = 0, batchSize = 50, totalRecordsUpsert
     const results = await Promise.allSettled(fetchPromises);
     const now = new Date();
     const updatedAt = now.toISOString();
-    const updatedAtKr = new Date(now.getTime() + 9 * 60 * 60 * 1000).toISOString();
+    // KST 시간을 올바른 타임존 표기로 생성 (+09:00)
+    const updatedAtKr = now.toLocaleString('sv-SE', {
+      timeZone: 'Asia/Seoul'
+    }).replace(' ', 'T') + '+09:00';
     results.forEach((result)=>{
       if (result.status === 'fulfilled' && result.value) {
         const { data, location } = result.value;
@@ -174,8 +182,10 @@ async function doWeatherFetch(startIndex = 0, batchSize = 50, totalRecordsUpsert
             const key = `${item.fcstDate}${item.fcstTime}${locInfo.code}`;
             if (!forecasts[key]) {
               const year = parseInt(item.fcstDate.substring(0, 4)), month = parseInt(item.fcstDate.substring(4, 6)) - 1, day = parseInt(item.fcstDate.substring(6, 8)), hour = parseInt(item.fcstTime.substring(0, 2));
-              const fcstTimestamp = new Date(Date.UTC(year, month, day, hour));
-              const fcstDatetimeKr = new Date(fcstTimestamp.getTime() + 9 * 60 * 60 * 1000).toISOString();
+              // 기상청 데이터는 KST 시간이므로 UTC로 변환 (KST - 9시간)
+              const fcstTimestamp = new Date(Date.UTC(year, month, day, hour) - 9 * 60 * 60 * 1000);
+              // KST 표기는 원본 시간 그대로 (형식만 변환)
+              const fcstDatetimeKr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:00:00+09:00`;
               forecasts[key] = {
                 nx: item.nx,
                 ny: item.ny,
@@ -216,7 +226,8 @@ async function doWeatherFetch(startIndex = 0, batchSize = 50, totalRecordsUpsert
     const nextStartIndex = startIndex + batchSize;
     if (nextStartIndex < totalUniqueLocations) {
       const newTotalUpserted = totalRecordsUpsertedSoFar + dataToUpsert.length;
-      console.log(`Invoking next batch at startIndex: ${nextStartIndex}`);
+      const remainingLocations = totalUniqueLocations - nextStartIndex;
+      console.log(`📡 Invoking next batch at startIndex: ${nextStartIndex} (${remainingLocations} grid locations remaining)`);
       fetch(functionUrl, {
         method: 'POST',
         headers: {
@@ -234,9 +245,10 @@ async function doWeatherFetch(startIndex = 0, batchSize = 50, totalRecordsUpsert
       });
     } else {
       const finalTotalUpserted = totalRecordsUpsertedSoFar + dataToUpsert.length;
-      console.log(`Final batch summary: Processed ${batchLocations.length} locations, Upserted ${dataToUpsert.length} records.`);
-      console.log(`Grand total: Processed ${totalUniqueLocations} unique locations across all batches, Upserted ${finalTotalUpserted} records in total.`);
-      console.log("All batches processed. Chain complete.");
+      console.log(`✅ Final batch summary: Processed ${batchLocations.length} grid locations, Upserted ${dataToUpsert.length} records.`);
+      console.log(`✅ Grand total: Processed ${totalUniqueLocations} unique grid coordinates for ${allLocations.length} observation stations`);
+      console.log(`✅ Total ${finalTotalUpserted} forecast records upserted across all batches.`);
+      console.log("🎉 All batches processed. Weather data collection complete for all 178 stations!");
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
@@ -274,13 +286,13 @@ serve(async (req)=>{
   try {
     let { startIndex, batchSize, totalRecordsUpserted } = {
       startIndex: 0,
-      batchSize: 10,
+      batchSize: 20, // 178개 관측소 처리를 위해 배치 크기 증가 (10 → 20)
       totalRecordsUpserted: 0
     };
     try {
       const body = await req.json();
       startIndex = body.startIndex || 0;
-      batchSize = body.batchSize || 10;
+      batchSize = body.batchSize || 20;
       totalRecordsUpserted = body.totalRecordsUpserted || 0;
     } catch  {
     // Ignore error if body is empty (initial cron trigger)

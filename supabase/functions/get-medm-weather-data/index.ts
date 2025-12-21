@@ -1,6 +1,21 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 
+// UTC timestamptz를 KST ISO 문자열로 변환하는 함수
+function convertUtcToKst(utcString: string): string {
+  if (!utcString) return utcString;
+  const date = new Date(utcString);
+  // KST는 UTC+9
+  const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+  const year = kstDate.getUTCFullYear();
+  const month = String(kstDate.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(kstDate.getUTCDate()).padStart(2, '0');
+  const hour = String(kstDate.getUTCHours()).padStart(2, '0');
+  const minute = String(kstDate.getUTCMinutes()).padStart(2, '0');
+  const second = String(kstDate.getUTCSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hour}:${minute}:${second}+09:00`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -86,16 +101,20 @@ Deno.serve(async (req) => {
     shortEndDateObj.setDate(shortEndDateObj.getDate() + 3) // 3일 후 (exclusive)
     const shortEndDateStr = `${shortEndDateObj.getFullYear()}-${String(shortEndDateObj.getMonth() + 1).padStart(2, '0')}-${String(shortEndDateObj.getDate()).padStart(2, '0')}`
 
-    // Medium forecasts: 4일째부터 10일째까지 (D+3 ~ D+9, 총 7일)
+    // KST 기준으로 날짜 범위 설정 (단기예보)
+    const shortStartKST = shortStartDate + 'T00:00:00+09:00'
+    const shortEndKST = shortEndDateStr + 'T00:00:00+09:00'
+
+    // Medium forecasts: 요청일부터 10일째까지 (D+0 ~ D+9, 총 10일)
     const mediumStartDateObj = new Date(date)
-    mediumStartDateObj.setDate(mediumStartDateObj.getDate() + 3) // 4일째부터
+    // 요청일부터 시작
     const mediumStartDateStr = mediumStartDateObj.toISOString().split('T')[0]
-    
+
     const mediumEndDateObj = new Date(date)
     mediumEndDateObj.setDate(mediumEndDateObj.getDate() + 9) // 10일째까지
     const mediumEndDateStr = mediumEndDateObj.toISOString().split('T')[0]
-    
-    // KST 기준으로 날짜 범위 설정 (시간대 문제 해결)
+
+    // KST 기준으로 날짜 범위 설정 (중기예보)
     const mediumStartKST = mediumStartDateStr + 'T00:00:00+09:00'
     const mediumEndKST = mediumEndDateStr + 'T23:59:59+09:00'
 
@@ -103,12 +122,12 @@ Deno.serve(async (req) => {
     const shortForecastsPromise = supabase
       .from('weather_forecasts')
       .select(`
-        fcst_datetime_kr, 
+        fcst_datetime_kr,
         tmp, tmn, tmx, uuu, vvv, vec, wsd, sky, pty, pop, wav, pcp, reh, sno
       `)
       .eq('location_code', code)
-      .gte('fcst_datetime_kr', shortStartDate)
-      .lt('fcst_datetime_kr', shortEndDateStr)
+      .gte('fcst_datetime_kr', shortStartKST)
+      .lt('fcst_datetime_kr', shortEndKST)
       .order('fcst_datetime_kr', { ascending: true })
 
     // 2. Marine 데이터 조회 (중기 해상정보 7일)
@@ -182,10 +201,28 @@ Deno.serve(async (req) => {
       )
     }
 
+    // KST 타임스탬프 변환
+    const shortForecastsData = (shortForecastsResult.data || []).map(item => ({
+      ...item,
+      fcst_datetime_kr: convertUtcToKst(item.fcst_datetime_kr)
+    }));
+
+    const marineData = (marineResult.data || []).map(item => ({
+      ...item,
+      tm_fc_kr: convertUtcToKst(item.tm_fc_kr),
+      tm_ef_kr: convertUtcToKst(item.tm_ef_kr)
+    }));
+
+    const temperData = (temperResult.data || []).map(item => ({
+      ...item,
+      tm_fc_kr: convertUtcToKst(item.tm_fc_kr),
+      tm_ef_kr: convertUtcToKst(item.tm_ef_kr)
+    }));
+
     const response = {
-      short_forecasts: shortForecastsResult.data || [],
-      marine: marineResult.data || [],
-      temper: temperResult.data || []
+      short_forecasts: shortForecastsData,
+      marine: marineData,
+      temper: temperData
     }
 
     console.log(`통합 예보 데이터 조회 완료 - Code: ${code}, Date: ${date}, Short: ${response.short_forecasts.length}건, Marine: ${response.marine.length}건, Temperature: ${response.temper.length}건`)
