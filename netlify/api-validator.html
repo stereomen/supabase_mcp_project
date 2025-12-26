@@ -1030,7 +1030,7 @@
                                 <tr><td>campaign_name</td><td>캠페인명</td><td>${ad.campaign_name || '-'}</td></tr>
                                 <tr><td>partner_id</td><td>제휴사 ID</td><td>${ad.partner_id || '-'}</td></tr>
                                 <tr><td>partner_name</td><td>제휴사명</td><td>${ad.partner_name || '-'}</td></tr>
-                                <tr><td>matched_station_id</td><td>매칭 관측소</td><td>${ad.matched_station_id || '전체'}</td></tr>
+                                <tr><td>matched_station_id</td><td>매칭 관측소</td><td>${ad.matched_station_id && Array.isArray(ad.matched_station_id) && ad.matched_station_id.length > 0 ? ad.matched_station_id.join(', ') : '전체'}</td></tr>
                                 <tr><td>matched_area</td><td>매칭 해역</td><td>${ad.matched_area || '전체'}</td></tr>
                                 <tr><td>ad_type_a</td><td>광고 타입 A</td><td>${ad.ad_type_a || '-'}</td></tr>
                                 <tr><td>ad_type_b</td><td>광고 타입 B</td><td>${ad.ad_type_b || '-'}</td></tr>
@@ -1499,7 +1499,7 @@
                     text += `partner_id(제휴사ID): ${ad.partner_id || 'N/A'}\n`;
                     text += `partner_name(제휴사명): ${ad.partner_name || 'N/A'}\n`;
                     text += `\n매칭 정보\n`;
-                    text += `matched_station_id(관측소): ${ad.matched_station_id || '전체'}\n`;
+                    text += `matched_station_id(관측소): ${ad.matched_station_id && Array.isArray(ad.matched_station_id) && ad.matched_station_id.length > 0 ? ad.matched_station_id.join(', ') : '전체'}\n`;
                     text += `matched_area(해역): ${ad.matched_area || '전체'}\n`;
                     text += `\n광고 소재\n`;
                     text += `ad_type_a: ${ad.ad_type_a || 'N/A'}\n`;

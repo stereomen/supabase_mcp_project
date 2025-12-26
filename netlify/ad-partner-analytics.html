@@ -554,7 +554,13 @@
                 }
 
                 const ctr = campaign.overall_ctr_percentage || 0;
-                const target = `${campaign.matched_station_id || '전체'} / ${campaign.matched_area || '전체'}`;
+
+                // 관측소 표시 로직 (배열 지원)
+                let stationDisplay = '전체';
+                if (campaign.matched_station_id && Array.isArray(campaign.matched_station_id) && campaign.matched_station_id.length > 0) {
+                    stationDisplay = campaign.matched_station_id.join(', ');
+                }
+                const target = `${stationDisplay} / ${campaign.matched_area || '전체'}`;
 
                 html += '<tr>';
                 html += `<td><strong>${campaign.campaign_name}</strong></td>`;
