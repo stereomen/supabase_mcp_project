@@ -2,6 +2,10 @@
 -- 생성일: 2025-12-26
 -- 목적: matched_station_id가 TEXT[]로 변경됨에 따라 RPC 함수 로직 업데이트
 
+-- 기존 함수 삭제 (반환 타입 변경을 위해 필요)
+DROP FUNCTION IF EXISTS get_active_ads_for_station(TEXT, DATE);
+DROP FUNCTION IF EXISTS get_active_ads_for_area(TEXT, DATE);
+
 -- 관측소별 활성 광고 조회 함수 (배열 포함 검사 지원)
 CREATE OR REPLACE FUNCTION get_active_ads_for_station(
     p_station_id TEXT,
