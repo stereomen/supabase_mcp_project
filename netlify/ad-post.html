@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>광고 캠페인 관리</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab:hover {
+            background: #f5f5f5;
+        }
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #667eea;
+            color: white;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .badge.active {
+            background: #28a745;
+            color: white;
+        }
+        .badge.inactive {
+            background: #dc3545;
+            color: white;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+        }
+        .image-preview {
+            margin-top: 10px;
+            position: relative;
+        }
+        .image-preview img {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        .image-preview .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            padding: 0;
+        }
+        .upload-progress {
+            margin-top: 5px;
+            color: #667eea;
+            font-size: 14px;
+        }
+        /* 다중 선택 dropdown 스타일 */
+        select[multiple] {
+            min-height: 200px;
+            padding: 8px;
+        }
+        select[multiple] option {
+            padding: 6px;
+            margin: 2px 0;
+            border-radius: 3px;
+        }
+        select[multiple] option:checked {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-button">← 뒤로</a>
+            <h1>📢 광고 캠페인 관리</h1>
+            <p>제휴사 광고 캠페인 등록 및 관리</p>
+        </div>
+
+        <div class="content">
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('list')">캠페인 목록</div>
+                <div class="tab" onclick="showTab('create')">새 캠페인 등록</div>
+            </div>
+
+            <!-- 캠페인 목록 탭 -->
+            <div id="listTab" class="tab-content active">
+                <div class="section">
+                    <h2>📋 광고 캠페인 목록</h2>
+
+                    <!-- 필터 섹션 -->
+                    <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 10px; align-items: end;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="filter_status" style="font-size: 13px;">노출 여부</label>
+                                <select id="filter_status" onchange="applyFilters()">
+                                    <option value="">전체</option>
+                                    <option value="active">노출중</option>
+                                    <option value="waiting">대기중</option>
+                                    <option value="inactive">비활성</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="filter_station" style="font-size: 13px;">관측소</label>
+                                <select id="filter_station" onchange="applyFilters()">
+                                    <option value="">전체</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="filter_area" style="font-size: 13px;">해역</label>
+                                <input type="text" id="filter_area" placeholder="해역 입력" oninput="applyFilters()">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="filter_partner" style="font-size: 13px;">제휴사</label>
+                                <select id="filter_partner" onchange="applyFilters()">
+                                    <option value="">전체</option>
+                                </select>
+                            </div>
+                            <button onclick="resetFilters()" style="background: #6c757d; padding: 10px 15px; height: 40px;">초기화</button>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 14px;">
+                                <input type="checkbox" id="filter_include_all" onchange="applyFilters()" style="margin-right: 5px; width: auto; cursor: pointer;">
+                                <span>전체 노출 포함 (관측소 미지정 캠페인 포함)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button onclick="loadCampaigns()">목록 새로고침</button>
+                    <div id="campaignsList"></div>
+                </div>
+            </div>
+
+            <!-- 새 캠페인 등록 탭 -->
+            <div id="createTab" class="tab-content">
+                <div class="section">
+                    <h2 id="formTitle">➕ 새 캠페인 등록</h2>
+                    <form id="createForm" onsubmit="saveCampaign(event)">
+                        <input type="hidden" id="edit_campaign_id" value="">
+                        <div class="form-group">
+                            <label for="partner_select">제휴사 선택 *</label>
+                            <select id="partner_select" required onchange="fillPartnerInfo()">
+                                <option value="">제휴사를 선택하세요</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="partner_id">업체 ID</label>
+                                <input type="text" id="partner_id" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="partner_name">업체명</label>
+                                <input type="text" id="partner_name" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="campaign_name">캠페인명 *</label>
+                            <input type="text" id="campaign_name" required placeholder="예: 여름 시즌 특가 프로모션">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="matched_station_id">
+                                    매핑 관측소
+                                    <span id="station_count" style="color: #667eea; font-size: 12px; font-weight: normal;"></span>
+                                </label>
+                                <select id="matched_station_id" multiple size="8">
+                                    <!-- 옵션은 JavaScript로 동적 생성 -->
+                                </select>
+                                <small style="color: #666; display: block; margin-top: 5px;">
+                                    Ctrl/Cmd + 클릭으로 여러 관측소 선택. 미선택 시 전체 관측소 대상.
+                                </small>
+                                <button type="button" onclick="clearStationSelection()"
+                                        style="margin-top: 5px; padding: 5px 10px; font-size: 12px; background: #ccc; border: none; border-radius: 4px; cursor: pointer;">
+                                    선택 해제
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label for="matched_area">매핑 해역</label>
+                                <input type="text" id="matched_area" placeholder="예: 서해중부 (비워두면 전체)">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ad_type_a">광고 타입 A</label>
+                                <select id="ad_type_a">
+                                    <option value="">선택</option>
+                                    <option value="banner">배너</option>
+                                    <option value="popup">팝업</option>
+                                    <option value="inline">인라인</option>
+                                    <option value="native">네이티브</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="ad_type_b">광고 타입 B</label>
+                                <select id="ad_type_b">
+                                    <option value="">선택</option>
+                                    <option value="text">텍스트</option>
+                                    <option value="image">이미지</option>
+                                    <option value="video">비디오</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="image_a_url">이미지 A</label>
+                                <input type="file" id="image_a_file" accept="image/*" onchange="handleImageUpload('a')" style="margin-bottom: 10px;">
+                                <input type="text" id="image_a_url" placeholder="이미지 URL 입력 (http:// 생략 가능)">
+                                <div id="preview_a" class="image-preview"></div>
+                                <small style="color: #666;">파일 업로드 또는 URL 직접 입력 (최대 5MB, JPG/PNG/GIF/WEBP)</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="image_b_url">이미지 B</label>
+                                <input type="file" id="image_b_file" accept="image/*" onchange="handleImageUpload('b')" style="margin-bottom: 10px;">
+                                <input type="text" id="image_b_url" placeholder="이미지 URL 입력 (http:// 생략 가능)">
+                                <div id="preview_b" class="image-preview"></div>
+                                <small style="color: #666;">파일 업로드 또는 URL 직접 입력 (최대 5MB, JPG/PNG/GIF/WEBP)</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="landing_url">랜딩 페이지 URL</label>
+                            <input type="text" id="landing_url" placeholder="랜딩 URL 입력 (http:// 생략 가능)">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="display_start_date">노출 시작일 *</label>
+                                <input type="date" id="display_start_date" required onchange="updateEndDate()">
+                            </div>
+                            <div class="form-group">
+                                <label for="display_end_date">노출 종료일 *</label>
+                                <input type="date" id="display_end_date" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="priority">우선순위 (0-100, 높을수록 우선)</label>
+                                <input type="number" id="priority" min="0" max="100" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="is_active">활성 상태</label>
+                                <select id="is_active">
+                                    <option value="true">활성</option>
+                                    <option value="false">비활성</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">설명</label>
+                            <textarea id="description" placeholder="캠페인 설명을 입력하세요"></textarea>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit" id="submitBtn">캠페인 등록</button>
+                            <button type="button" id="cancelBtn" onclick="cancelEdit()" style="display: none; background: #6c757d;">취소</button>
+                        </div>
+                    </form>
+                    <div id="createMessage"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+        const FUNCTION_URL = SUPABASE_URL + '/functions/v1/manage-ad-repo';
+
+        // Supabase 클라이언트 초기화
+        let supabaseClient;
+        try {
+            if (window.supabase && window.supabase.createClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, ANON_KEY);
+            } else {
+                console.error('Supabase library not loaded');
+            }
+        } catch (error) {
+            console.error('Failed to initialize Supabase client:', error);
+        }
+
+        let campaignsData = [];
+        let partnersData = [];
+        let uploadedImages = { a: null, b: null }; // 업로드된 이미지 URL 저장
+
+        // 날짜를 YYYY-MM-DD 형식으로 반환
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // 2주 후 날짜 계산
+        function getTwoWeeksLater(dateString) {
+            const date = new Date(dateString);
+            date.setDate(date.getDate() + 14);
+            return formatDate(date);
+        }
+
+        // 시작일 변경 시 종료일 자동 설정
+        function updateEndDate() {
+            const startDate = document.getElementById('display_start_date').value;
+            if (startDate) {
+                document.getElementById('display_end_date').value = getTwoWeeksLater(startDate);
+            }
+        }
+
+        // 관측소 목록 (api-validator.html과 동일)
+        const locations = [
+            {code: "SO_0326", name: "미조항"},
+            {code: "SO_0536", name: "덕적도"},
+            {code: "SO_0537", name: "벽파진(벽파항)"},
+            {code: "SO_0538", name: "안마도"},
+            {code: "SO_0539", name: "강화외포"},
+            {code: "SO_0540", name: "호산항"},
+            {code: "SO_0543", name: "서거차도"},
+            {code: "SO_0547", name: "말도"},
+            {code: "SO_0548", name: "우이도(신안)"},
+            {code: "SO_0550", name: "나로도"},
+            {code: "SO_0551", name: "여서도"},
+            {code: "SO_0552", name: "고현항"},
+            {code: "SO_0553", name: "해운대"},
+            {code: "SO_0554", name: "영종왕산"},
+            {code: "SO_0555", name: "서망항"},
+            {code: "SO_0562", name: "승봉도"},
+            {code: "SO_0563", name: "울도"},
+            {code: "SO_0564", name: "국화도"},
+            {code: "SO_0565", name: "향화도항"},
+            {code: "SO_0566", name: "송공항"},
+            {code: "SO_0567", name: "쉬미항"},
+            {code: "SO_0568", name: "백야도"},
+            {code: "SO_0569", name: "남포항"},
+            {code: "SO_0570", name: "광암항"},
+            {code: "SO_0571", name: "거제외포"},
+            {code: "SO_0572", name: "읍천항"},
+            {code: "SO_0573", name: "양포항"},
+            {code: "SO_0574", name: "백사장항"},
+            {code: "SO_0576", name: "화봉리"},
+            {code: "SO_0577", name: "가거도"},
+            {code: "SO_0578", name: "소매물도"},
+            {code: "SO_0581", name: "강양항"},
+            {code: "SO_0631", name: "암태도"},
+            {code: "SO_0699", name: "천리포항"},
+            {code: "SO_0701", name: "홍도항"},
+            {code: "SO_0702", name: "진도옥도"},
+            {code: "SO_0703", name: "땅끝항"},
+            {code: "SO_0704", name: "소안항(완도)"},
+            {code: "SO_0705", name: "마량항"},
+            {code: "SO_0706", name: "청산도"},
+            {code: "SO_0707", name: "시산항"},
+            {code: "SO_0708", name: "안도항"},
+            {code: "SO_0709", name: "두문포"},
+            {code: "SO_0710", name: "봉우항"},
+            {code: "SO_0711", name: "창선도"},
+            {code: "SO_0712", name: "능양항"},
+            {code: "SO_0731", name: "대진항"},
+            {code: "SO_0732", name: "남애항"},
+            {code: "SO_0733", name: "강릉항"},
+            {code: "SO_0734", name: "궁촌항"},
+            {code: "SO_0735", name: "죽변항"},
+            {code: "SO_0736", name: "축산항"},
+            {code: "SO_0737", name: "강구항"},
+            {code: "SO_0738", name: "여호항"},
+            {code: "SO_0739", name: "도장항"},
+            {code: "SO_0740", name: "보옥항"},
+            {code: "SO_0752", name: "검산항"},
+            {code: "SO_0753", name: "하의도웅곡"},
+            {code: "SO_0754", name: "평호리"},
+            {code: "SO_0755", name: "원동항"},
+            {code: "SO_0756", name: "사초항"},
+            {code: "SO_0757", name: "안남리"},
+            {code: "SO_0758", name: "달천도"},
+            {code: "SO_0759", name: "장문리"},
+            {code: "SO_0760", name: "오산항"},
+            {code: "SO_0761", name: "녹동항"},
+            {code: "DT_0001", name: "인천"},
+            {code: "DT_0002", name: "평택"},
+            {code: "DT_0003", name: "영광"},
+            {code: "DT_0004", name: "제주"},
+            {code: "DT_0005", name: "부산"},
+            {code: "DT_0006", name: "묵호"},
+            {code: "DT_0007", name: "목포"},
+            {code: "DT_0008", name: "안산"},
+            {code: "DT_0009", name: "포항"},
+            {code: "DT_0010", name: "서귀포"},
+            {code: "DT_0011", name: "후포"},
+            {code: "DT_0012", name: "속초"},
+            {code: "DT_0013", name: "울릉도"},
+            {code: "DT_0014", name: "통영"},
+            {code: "DT_0015", name: "마산"},
+            {code: "DT_0016", name: "여수"},
+            {code: "DT_0017", name: "대산"},
+            {code: "DT_0018", name: "군산"},
+            {code: "DT_0019", name: "가덕도"},
+            {code: "DT_0020", name: "울산"},
+            {code: "DT_0021", name: "추자도"},
+            {code: "DT_0022", name: "성산포"},
+            {code: "DT_0023", name: "모슬포"},
+            {code: "DT_0024", name: "장항"},
+            {code: "DT_0025", name: "보령"},
+            {code: "DT_0026", name: "고흥발포"},
+            {code: "DT_0027", name: "완도"},
+            {code: "DT_0028", name: "진도"},
+            {code: "DT_0029", name: "거제도"},
+            {code: "DT_0030", name: "위도"},
+            {code: "DT_0031", name: "거문도"},
+            {code: "DT_0032", name: "강화대교"},
+            {code: "DT_0034", name: "안흥"},
+            {code: "DT_0035", name: "흑산도"},
+            {code: "DT_0036", name: "대청도"},
+            {code: "DT_0037", name: "어청도"},
+            {code: "DT_0038", name: "굴업도"},
+            {code: "DT_0039", name: "왕돌초"},
+            {code: "DT_0040", name: "독도"},
+            {code: "DT_0041", name: "복사초"},
+            {code: "DT_0042", name: "교본초"},
+            {code: "DT_0043", name: "영흥도"},
+            {code: "DT_0044", name: "영종대교"},
+            {code: "DT_0045", name: "격렬비열도"},
+            {code: "DT_0046", name: "쌍정초"},
+            {code: "DT_0047", name: "도농탄"},
+            {code: "DT_0048", name: "속초등표"},
+            {code: "DT_0049", name: "광양"},
+            {code: "DT_0050", name: "태안"},
+            {code: "DT_0051", name: "서천마량"},
+            {code: "DT_0052", name: "인천송도"},
+            {code: "DT_0054", name: "진해"},
+            {code: "DT_0056", name: "부산항신항"},
+            {code: "DT_0057", name: "동해항"},
+            {code: "DT_0058", name: "경인항"},
+            {code: "DT_0059", name: "백령도"},
+            {code: "DT_0060", name: "연평도"},
+            {code: "DT_0061", name: "삼천포"},
+            {code: "DT_0062", name: "마산"},
+            {code: "DT_0063", name: "가덕도"},
+            {code: "DT_0064", name: "교동대교"},
+            {code: "DT_0065", name: "덕적도"},
+            {code: "DT_0067", name: "안흥"},
+            {code: "DT_0068", name: "위도"},
+            {code: "DT_0091", name: "포항"},
+            {code: "DT_0092", name: "여호항"},
+            {code: "DT_0093", name: "소무의도"},
+            {code: "DT_0094", name: "서거차도"},
+            {code: "IE_0060", name: "이어도"},
+            {code: "IE_0061", name: "신안가거초"},
+            {code: "IE_0062", name: "옹진소청초"}
+        ];
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // 클릭된 탭 활성화
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                if (tab.textContent.includes('캠페인 목록') && tabName === 'list') {
+                    tab.classList.add('active');
+                } else if (tab.textContent.includes('새 캠페인 등록') && tabName === 'create') {
+                    tab.classList.add('active');
+                }
+            });
+
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            if (tabName === 'create') {
+                if (partnersData.length === 0) {
+                    loadPartners();
+                }
+                loadLocations();
+            }
+        }
+
+        async function loadPartners() {
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify({ action: 'list_partners' })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    partnersData = result.data;
+                    const select = document.getElementById('partner_select');
+                    select.innerHTML = '<option value="">제휴사를 선택하세요</option>';
+
+                    partnersData.forEach(partner => {
+                        const option = document.createElement('option');
+                        option.value = partner.partner_id;
+                        option.textContent = `${partner.partner_name} (${partner.partner_id})`;
+                        option.dataset.partner = JSON.stringify(partner);
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('제휴사 목록 로드 실패:', error);
+            }
+        }
+
+        function loadLocations() {
+            const select = document.getElementById('matched_station_id');
+            select.innerHTML = '';  // "전체" 옵션 제거 (빈 선택 = 전체)
+
+            // 코드 순으로 정렬된 관측소 목록
+            const sortedLocations = [...locations].sort((a, b) => a.code.localeCompare(b.code));
+
+            sortedLocations.forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc.code;
+                option.textContent = `${loc.code} - ${loc.name}`;
+                select.appendChild(option);
+            });
+
+            // 변경 이벤트 리스너 추가
+            select.addEventListener('change', updateStationCount);
+
+            console.log(`관측소 목록 로드 완료: ${sortedLocations.length}개`);
+        }
+
+        // 선택된 관측소 개수 표시 업데이트
+        function updateStationCount() {
+            const select = document.getElementById('matched_station_id');
+            const count = Array.from(select.selectedOptions).length;
+            document.getElementById('station_count').textContent =
+                count === 0 ? '(전체)' : `(${count}개 선택됨)`;
+        }
+
+        // 관측소 선택 해제
+        function clearStationSelection() {
+            const select = document.getElementById('matched_station_id');
+            Array.from(select.options).forEach(opt => opt.selected = false);
+            updateStationCount();
+        }
+
+        function fillPartnerInfo() {
+            const select = document.getElementById('partner_select');
+            const selectedOption = select.options[select.selectedIndex];
+
+            if (selectedOption.dataset.partner) {
+                const partner = JSON.parse(selectedOption.dataset.partner);
+                document.getElementById('partner_id').value = partner.partner_id;
+                document.getElementById('partner_name').value = partner.partner_name;
+
+                // 관측소는 드롭박스에서 선택
+                const stationSelect = document.getElementById('matched_station_id');
+                if (partner.matched_station_id) {
+                    stationSelect.value = partner.matched_station_id;
+                } else {
+                    stationSelect.value = '';
+                }
+
+                document.getElementById('matched_area').value = partner.matched_area || '';
+            } else {
+                document.getElementById('partner_id').value = '';
+                document.getElementById('partner_name').value = '';
+                document.getElementById('matched_station_id').value = '';
+            }
+        }
+
+        // 이미지 업로드 처리
+        async function handleImageUpload(imageType) {
+            const fileInput = document.getElementById(`image_${imageType}_file`);
+            const urlInput = document.getElementById(`image_${imageType}_url`);
+            const previewDiv = document.getElementById(`preview_${imageType}`);
+            const file = fileInput.files[0];
+
+            if (!file) return;
+
+            // 파일 크기 체크 (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('파일 크기는 5MB를 초과할 수 없습니다.');
+                fileInput.value = '';
+                return;
+            }
+
+            // 파일 타입 체크
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('JPG, PNG, GIF, WEBP 파일만 업로드 가능합니다.');
+                fileInput.value = '';
+                return;
+            }
+
+            // 업로드 진행 표시
+            previewDiv.innerHTML = '<div class="upload-progress">⏳ 업로드 중...</div>';
+
+            try {
+                // 파일명 생성 (타임스탬프 + 랜덤 문자열)
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                const filePath = `${fileName}`;
+
+                // Supabase Storage에 업로드
+                const { data, error } = await supabaseClient.storage
+                    .from('ad-images')
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                // Public URL 가져오기
+                const { data: { publicUrl } } = supabaseClient.storage
+                    .from('ad-images')
+                    .getPublicUrl(filePath);
+
+                // URL input에 자동 입력
+                urlInput.value = publicUrl;
+                uploadedImages[imageType] = publicUrl;
+
+                // 미리보기 표시
+                showImagePreview(imageType, publicUrl, filePath);
+
+                console.log(`Image ${imageType} uploaded:`, publicUrl);
+            } catch (error) {
+                console.error('Upload error:', error);
+                previewDiv.innerHTML = `<div class="message error">❌ 업로드 실패: ${error.message}</div>`;
+                fileInput.value = '';
+            }
+        }
+
+        // 이미지 미리보기 표시
+        function showImagePreview(imageType, imageUrl, filePath) {
+            const previewDiv = document.getElementById(`preview_${imageType}`);
+            previewDiv.innerHTML = `
+                <img src="${imageUrl}" alt="Preview ${imageType}">
+                <button type="button" class="remove-btn" onclick="removeImage('${imageType}', '${filePath}')" title="삭제">×</button>
+            `;
+        }
+
+        // URL에서 파일 경로 추출 (Supabase Storage URL에서)
+        function extractFilePathFromUrl(imageUrl) {
+            if (!imageUrl) return '';
+
+            // Supabase Storage URL 형식: https://[project].supabase.co/storage/v1/object/public/ad-images/[filepath]
+            const match = imageUrl.match(/\/ad-images\/(.+)$/);
+            return match ? match[1] : '';
+        }
+
+        // 업로드된 이미지 삭제
+        async function removeImage(imageType, filePath) {
+            if (!confirm('업로드된 이미지를 삭제하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                // Storage에서 삭제
+                const { error } = await supabaseClient.storage
+                    .from('ad-images')
+                    .remove([filePath]);
+
+                if (error) {
+                    console.error('Delete error:', error);
+                    // 삭제 실패해도 UI는 초기화 (파일이 이미 없을 수도 있음)
+                }
+
+                // UI 초기화
+                document.getElementById(`image_${imageType}_file`).value = '';
+                document.getElementById(`image_${imageType}_url`).value = '';
+                document.getElementById(`preview_${imageType}`).innerHTML = '';
+                uploadedImages[imageType] = null;
+
+                console.log(`Image ${imageType} removed`);
+            } catch (error) {
+                console.error('Remove error:', error);
+                alert('이미지 삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+        async function loadCampaigns() {
+            const listDiv = document.getElementById('campaignsList');
+            listDiv.innerHTML = '<div class="loading">🔄 로딩 중...</div>';
+
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify({ action: 'list' })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    campaignsData = result.data;
+                    initializeFilterDropdowns();
+                    displayCampaigns();
+                } else {
+                    listDiv.innerHTML = `<div class="message error">❌ ${result.error}</div>`;
+                }
+            } catch (error) {
+                listDiv.innerHTML = `<div class="message error">❌ 네트워크 오류: ${error.message}</div>`;
+            }
+        }
+
+        // 필터 드롭박스 초기화
+        function initializeFilterDropdowns() {
+            // 관측소 목록 채우기
+            const stationSelect = document.getElementById('filter_station');
+            stationSelect.innerHTML = '<option value="">전체</option>';
+
+            const sortedLocations = [...locations].sort((a, b) => a.code.localeCompare(b.code));
+            sortedLocations.forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc.code;
+                option.textContent = `${loc.code} - ${loc.name}`;
+                stationSelect.appendChild(option);
+            });
+
+            // 제휴사 목록 채우기
+            if (partnersData.length === 0) {
+                loadPartners().then(() => {
+                    populatePartnerFilter();
+                });
+            } else {
+                populatePartnerFilter();
+            }
+        }
+
+        function populatePartnerFilter() {
+            const partnerSelect = document.getElementById('filter_partner');
+            partnerSelect.innerHTML = '<option value="">전체</option>';
+
+            partnersData.forEach(partner => {
+                const option = document.createElement('option');
+                option.value = partner.partner_id;
+                option.textContent = `${partner.partner_name} (${partner.partner_id})`;
+                partnerSelect.appendChild(option);
+            });
+        }
+
+        // 필터 적용
+        function applyFilters() {
+            displayCampaigns();
+        }
+
+        // 필터 초기화
+        function resetFilters() {
+            document.getElementById('filter_status').value = '';
+            document.getElementById('filter_station').value = '';
+            document.getElementById('filter_area').value = '';
+            document.getElementById('filter_partner').value = '';
+            document.getElementById('filter_include_all').checked = false;
+            displayCampaigns();
+        }
+
+        function displayCampaigns() {
+            const listDiv = document.getElementById('campaignsList');
+
+            if (campaignsData.length === 0) {
+                listDiv.innerHTML = '<p>등록된 캠페인이 없습니다.</p>';
+                return;
+            }
+
+            // 필터 값 가져오기
+            const filterStatus = document.getElementById('filter_status').value;
+            const filterStation = document.getElementById('filter_station').value;
+            const filterArea = document.getElementById('filter_area').value.trim().toLowerCase();
+            const filterPartner = document.getElementById('filter_partner').value;
+            const includeAll = document.getElementById('filter_include_all').checked;
+
+            // 필터링 적용
+            let filteredCampaigns = campaignsData.filter(campaign => {
+                // 노출 여부 필터
+                if (filterStatus) {
+                    if (filterStatus === 'active' && !campaign.is_currently_active) return false;
+                    if (filterStatus === 'waiting' && (!campaign.is_active || campaign.is_currently_active)) return false;
+                    if (filterStatus === 'inactive' && campaign.is_active) return false;
+                }
+
+                // 관측소 필터 (배열 지원)
+                if (filterStation) {
+                    const stationArray = campaign.matched_station_id;
+
+                    if (includeAll) {
+                        // "전체 노출 포함" 체크됨: 배열에 포함되거나 NULL
+                        if (stationArray && Array.isArray(stationArray) && stationArray.length > 0) {
+                            if (!stationArray.includes(filterStation)) return false;
+                        }
+                        // NULL 또는 빈 배열은 통과 (전체 관측소)
+                    } else {
+                        // "전체 노출 포함" 체크 안됨: 정확히 타겟팅된 것만
+                        if (!stationArray || !Array.isArray(stationArray) ||
+                            !stationArray.includes(filterStation)) {
+                            return false;
+                        }
+                    }
+                } else {
+                    // 관측소 선택 안됨 (전체)
+                    // 체크박스는 관측소가 선택된 경우에만 의미가 있음
+                }
+
+                // 해역 필터
+                if (filterArea) {
+                    const campaignArea = (campaign.matched_area || '').toLowerCase();
+                    if (!campaignArea.includes(filterArea)) return false;
+                }
+
+                // 제휴사 필터
+                if (filterPartner && campaign.partner_id !== filterPartner) return false;
+
+                return true;
+            });
+
+            if (filteredCampaigns.length === 0) {
+                listDiv.innerHTML = '<p>필터 조건에 맞는 캠페인이 없습니다.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr>';
+            html += '<th>캠페인명</th><th>제휴사</th><th>관측소/해역</th>';
+            html += '<th>노출기간</th><th>우선순위</th><th>상태</th><th>작업</th>';
+            html += '</tr></thead><tbody>';
+
+            filteredCampaigns.forEach(campaign => {
+                const status = campaign.is_currently_active ?
+                    '<span class="badge active">노출중</span>' :
+                    campaign.is_active ?
+                    '<span class="badge">대기중</span>' :
+                    '<span class="badge inactive">비활성</span>';
+
+                // 관측소 표시 로직 (배열 지원)
+                let stationDisplay = '전체';
+                if (campaign.matched_station_id && Array.isArray(campaign.matched_station_id) && campaign.matched_station_id.length > 0) {
+                    if (campaign.matched_station_id.length <= 3) {
+                        stationDisplay = campaign.matched_station_id.join(', ');
+                    } else {
+                        stationDisplay = campaign.matched_station_id.slice(0, 2).join(', ') +
+                            ` <span style="background: #667eea; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">+${campaign.matched_station_id.length - 2}개</span>`;
+                    }
+                }
+
+                html += '<tr>';
+                html += `<td><strong>${campaign.campaign_name}</strong></td>`;
+                html += `<td>${campaign.partner_name || campaign.partner_id}</td>`;
+                html += `<td>${stationDisplay} / ${campaign.matched_area || '전체'}</td>`;
+                html += `<td>${campaign.display_start_date} ~ ${campaign.display_end_date}</td>`;
+                html += `<td>${campaign.priority}</td>`;
+                html += `<td>${status}</td>`;
+                html += `<td class="actions">
+                    <button class="btn-small" onclick="editCampaign('${campaign.id}')" style="background: #28a745;">수정</button>
+                    <button class="btn-small" onclick="deleteCampaign('${campaign.id}')" style="background: #dc3545;">삭제</button>
+                </td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            html = `<p style="color: #666; margin-top: 10px;">총 ${filteredCampaigns.length}개의 캠페인 (전체 ${campaignsData.length}개 중)</p>` + html;
+            listDiv.innerHTML = html;
+        }
+
+        async function saveCampaign(event) {
+            event.preventDefault();
+
+            const messageDiv = document.getElementById('createMessage');
+            const editId = document.getElementById('edit_campaign_id').value;
+            const isEdit = editId !== '';
+
+            // 업로드된 이미지 URL 또는 직접 입력된 URL 사용
+            const imageAUrl = document.getElementById('image_a_url').value || null;
+            const imageBUrl = document.getElementById('image_b_url').value || null;
+
+            // 선택된 관측소들을 배열로 변환
+            const stationSelect = document.getElementById('matched_station_id');
+            const selectedStations = Array.from(stationSelect.selectedOptions)
+                .map(opt => opt.value);
+            console.log('선택된 관측소:', selectedStations);
+
+            const campaignData = {
+                partner_id: document.getElementById('partner_id').value,
+                campaign_name: document.getElementById('campaign_name').value,
+                matched_station_id: selectedStations.length > 0 ? selectedStations : null,
+                matched_area: document.getElementById('matched_area').value && document.getElementById('matched_area').value.trim() !== '' ? document.getElementById('matched_area').value : null,
+                ad_type_a: document.getElementById('ad_type_a').value || null,
+                ad_type_b: document.getElementById('ad_type_b').value || null,
+                image_a_url: imageAUrl,
+                image_b_url: imageBUrl,
+                landing_url: document.getElementById('landing_url').value && document.getElementById('landing_url').value.trim() !== '' ? document.getElementById('landing_url').value : null,
+                display_start_date: document.getElementById('display_start_date').value,
+                display_end_date: document.getElementById('display_end_date').value,
+                is_active: document.getElementById('is_active').value === 'true',
+                priority: parseInt(document.getElementById('priority').value) || 0,
+                description: document.getElementById('description').value && document.getElementById('description').value.trim() !== '' ? document.getElementById('description').value : null
+            };
+
+            console.log('전송할 캠페인 데이터:', campaignData);
+            messageDiv.innerHTML = `<div class="loading">⏳ ${isEdit ? '수정' : '등록'} 중...</div>`;
+
+            try {
+                const requestBody = isEdit
+                    ? { action: 'update', id: editId, data: campaignData }
+                    : { action: 'create', data: campaignData };
+
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const result = await response.json();
+
+                console.log('서버 응답:', result);
+                if (result.data) {
+                    console.log('반환된 캠페인 데이터:', result.data);
+                    console.log('matched_station_id 값:', result.data.matched_station_id);
+                }
+
+                if (result.success) {
+                    messageDiv.innerHTML = `<div class="message success">✅ 캠페인이 성공적으로 ${isEdit ? '수정' : '등록'}되었습니다.</div>`;
+
+                    // 폼 초기화
+                    resetForm();
+                    loadCampaigns();
+
+                    // 성공 메시지 3초 후 자동 제거
+                    setTimeout(() => {
+                        messageDiv.innerHTML = '';
+                    }, 3000);
+                } else {
+                    messageDiv.innerHTML = `<div class="message error">❌ ${result.error || (isEdit ? '수정' : '등록') + ' 실패'}</div>`;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = `<div class="message error">❌ 네트워크 오류: ${error.message}</div>`;
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('createForm').reset();
+            document.getElementById('edit_campaign_id').value = '';
+            document.getElementById('preview_a').innerHTML = '';
+            document.getElementById('preview_b').innerHTML = '';
+            uploadedImages = { a: null, b: null };
+
+            // UI 초기화
+            document.getElementById('formTitle').textContent = '➕ 새 캠페인 등록';
+            document.getElementById('submitBtn').textContent = '캠페인 등록';
+            document.getElementById('cancelBtn').style.display = 'none';
+
+            // 새 캠페인 등록 시 날짜 자동 설정 (오늘 + 2주 후)
+            const today = formatDate(new Date());
+            document.getElementById('display_start_date').value = today;
+            document.getElementById('display_end_date').value = getTwoWeeksLater(today);
+        }
+
+        async function editCampaign(id) {
+            // 캠페인 데이터 찾기
+            const campaign = campaignsData.find(c => c.id === id);
+            if (!campaign) {
+                alert('캠페인을 찾을 수 없습니다.');
+                return;
+            }
+
+            // create 탭으로 전환
+            showTab('create');
+
+            // 폼 채우기
+            document.getElementById('edit_campaign_id').value = campaign.id;
+            document.getElementById('partner_id').value = campaign.partner_id;
+            document.getElementById('partner_name').value = campaign.partner_name || campaign.partner_id;
+
+            // 제휴사 선택 (제휴사 목록이 로드되어 있어야 함)
+            const partnerSelect = document.getElementById('partner_select');
+            partnerSelect.value = campaign.partner_id;
+
+            document.getElementById('campaign_name').value = campaign.campaign_name;
+
+            // 다중 선택 복원
+            const stationSelect = document.getElementById('matched_station_id');
+            Array.from(stationSelect.options).forEach(opt => opt.selected = false);
+            if (campaign.matched_station_id && Array.isArray(campaign.matched_station_id)) {
+                campaign.matched_station_id.forEach(stationCode => {
+                    const option = Array.from(stationSelect.options)
+                        .find(opt => opt.value === stationCode);
+                    if (option) option.selected = true;
+                });
+            }
+            updateStationCount();
+
+            document.getElementById('matched_area').value = campaign.matched_area || '';
+            document.getElementById('ad_type_a').value = campaign.ad_type_a || '';
+            document.getElementById('ad_type_b').value = campaign.ad_type_b || '';
+            document.getElementById('image_a_url').value = campaign.image_a_url || '';
+            document.getElementById('image_b_url').value = campaign.image_b_url || '';
+            document.getElementById('landing_url').value = campaign.landing_url || '';
+            document.getElementById('display_start_date').value = campaign.display_start_date;
+            document.getElementById('display_end_date').value = campaign.display_end_date;
+            document.getElementById('priority').value = campaign.priority || 0;
+            document.getElementById('is_active').value = campaign.is_active ? 'true' : 'false';
+            document.getElementById('description').value = campaign.description || '';
+
+            // 이미지 미리보기 표시 (삭제 버튼 포함)
+            if (campaign.image_a_url) {
+                const filePathA = extractFilePathFromUrl(campaign.image_a_url);
+                showImagePreview('a', campaign.image_a_url, filePathA);
+            }
+            if (campaign.image_b_url) {
+                const filePathB = extractFilePathFromUrl(campaign.image_b_url);
+                showImagePreview('b', campaign.image_b_url, filePathB);
+            }
+
+            // UI 변경
+            document.getElementById('formTitle').textContent = '✏️ 캠페인 수정';
+            document.getElementById('submitBtn').textContent = '수정 완료';
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+
+            // 메시지 초기화
+            document.getElementById('createMessage').innerHTML = '';
+        }
+
+        function cancelEdit() {
+            resetForm();
+            document.getElementById('createMessage').innerHTML = '';
+            // 캠페인 목록 탭으로 이동
+            showTab('list');
+        }
+
+        async function deleteCampaign(id) {
+            if (!confirm('이 캠페인을 비활성화하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify({ action: 'delete', id: id, hardDelete: false })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('캠페인이 비활성화되었습니다.');
+                    loadCampaigns();
+                } else {
+                    alert('삭제 실패: ' + (result.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                alert('네트워크 오류: ' + error.message);
+            }
+        }
+
+        // 페이지 로드 시 캠페인 목록 로드 및 날짜 초기화
+        window.addEventListener('load', function() {
+            loadCampaigns();
+
+            // 새 캠페인 등록 폼 날짜 초기화
+            const today = formatDate(new Date());
+            document.getElementById('display_start_date').value = today;
+            document.getElementById('display_end_date').value = getTwoWeeksLater(today);
+        });
+
+        // 함수들을 전역 스코프에 명시적으로 노출
+        window.showTab = showTab;
+        window.loadCampaigns = loadCampaigns;
+        window.loadPartners = loadPartners;
+        window.loadLocations = loadLocations;
+        window.fillPartnerInfo = fillPartnerInfo;
+        window.handleImageUpload = handleImageUpload;
+        window.removeImage = removeImage;
+        window.extractFilePathFromUrl = extractFilePathFromUrl;
+        window.saveCampaign = saveCampaign;
+        window.editCampaign = editCampaign;
+        window.cancelEdit = cancelEdit;
+        window.deleteCampaign = deleteCampaign;
+        window.updateEndDate = updateEndDate;
+        window.applyFilters = applyFilters;
+        window.resetFilters = resetFilters;
+    </script>
+</body>
+</html>
