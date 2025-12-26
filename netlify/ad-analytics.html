@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>광고 성과 대시보드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-card .label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .ctr-bar {
+            background: #e0e0e0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .ctr-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .ctr-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        .filter-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-group label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .filter-group input,
+        .filter-group select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .filter-buttons button {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .btn-reset {
+            background: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-button">← 뒤로</a>
+            <h1>📊 광고 성과 대시보드</h1>
+            <p>캠페인별 조회수, 클릭수, CTR 분석</p>
+        </div>
+
+        <div class="content">
+            <!-- 검색 필터 -->
+            <div class="filter-section">
+                <h2>🔍 검색 필터</h2>
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label for="startDate">시작일</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="filter-group">
+                        <label for="endDate">종료일</label>
+                        <input type="date" id="endDate">
+                    </div>
+                    <div class="filter-group">
+                        <label for="partnerFilter">제휴사</label>
+                        <select id="partnerFilter">
+                            <option value="">전체</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button onclick="applyFilters()">🔍 필터 적용</button>
+                    <button onclick="resetFilters()" class="btn-reset">↺ 초기화</button>
+                </div>
+            </div>
+
+            <!-- 전체 통계 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>총 캠페인 수</h3>
+                    <div class="value" id="totalCampaigns">-</div>
+                    <div class="label">활성 캠페인</div>
+                </div>
+                <div class="stat-card">
+                    <h3>총 노출 수</h3>
+                    <div class="value" id="totalImpressions">-</div>
+                    <div class="label">전체 기간</div>
+                </div>
+                <div class="stat-card">
+                    <h3>총 클릭 수</h3>
+                    <div class="value" id="totalClicks">-</div>
+                    <div class="label">전체 기간</div>
+                </div>
+                <div class="stat-card">
+                    <h3>평균 CTR</h3>
+                    <div class="value" id="averageCTR">-</div>
+                    <div class="label">클릭률</div>
+                </div>
+            </div>
+
+            <!-- 캠페인별 성과 -->
+            <div class="section">
+                <h2>📈 캠페인별 성과</h2>
+                <div id="analyticsTable"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+
+        let allAnalyticsData = [];
+
+        async function loadPartners() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/ad_partners?select=partner_id,partner_name&order=partner_name`, {
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    const partners = await response.json();
+                    const select = document.getElementById('partnerFilter');
+
+                    partners.forEach(partner => {
+                        const option = document.createElement('option');
+                        option.value = partner.partner_id;
+                        option.textContent = `${partner.partner_name} (${partner.partner_id})`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load partners:', error);
+            }
+        }
+
+        async function loadAnalytics() {
+            const tableDiv = document.getElementById('analyticsTable');
+            tableDiv.innerHTML = '<div class="loading">🔄 데이터 로딩 중...</div>';
+
+            try {
+                // Supabase REST API로 직접 뷰 조회
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/ad_analytics_campaign_summary?select=*`, {
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                allAnalyticsData = data; // 전체 데이터 저장
+
+                if (data.length === 0) {
+                    tableDiv.innerHTML = '<div class="no-data">아직 광고 성과 데이터가 없습니다.</div>';
+                    updateStats(0, 0, 0, 0);
+                    return;
+                }
+
+                applyFilters(); // 필터 적용하여 표시
+
+            } catch (error) {
+                console.error('Analytics load error:', error);
+                tableDiv.innerHTML = `<div class="message error">❌ 데이터 로드 실패: ${error.message}</div>`;
+            }
+        }
+
+        function displayAnalytics(data) {
+            const tableDiv = document.getElementById('analyticsTable');
+
+            let html = '<table><thead><tr>';
+            html += '<th>캠페인명</th><th>제휴사</th><th>노출 수</th><th>클릭 수</th>';
+            html += '<th>CTR</th><th>기간</th>';
+            html += '</tr></thead><tbody>';
+
+            data.forEach(row => {
+                const ctr = row.overall_ctr_percentage || 0;
+                const firstEvent = row.first_event ? new Date(row.first_event).toLocaleDateString('ko-KR') : '-';
+                const lastEvent = row.last_event ? new Date(row.last_event).toLocaleDateString('ko-KR') : '-';
+
+                html += '<tr>';
+                html += `<td><strong>${row.campaign_name || '-'}</strong></td>`;
+                html += `<td>${row.partner_name || row.partner_id || '-'}</td>`;
+                html += `<td>${(row.total_impressions || 0).toLocaleString()}</td>`;
+                html += `<td>${(row.total_clicks || 0).toLocaleString()}</td>`;
+                html += `<td>
+                    <div class="ctr-bar">
+                        <div class="ctr-fill" style="width: ${Math.min(ctr, 100)}%"></div>
+                        <div class="ctr-text">${ctr}%</div>
+                    </div>
+                </td>`;
+                html += `<td>${firstEvent} ~ ${lastEvent}</td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            tableDiv.innerHTML = html;
+        }
+
+        function calculateOverallStats(data) {
+            const totalCampaigns = data.length;
+            const totalImpressions = data.reduce((sum, row) => sum + (row.total_impressions || 0), 0);
+            const totalClicks = data.reduce((sum, row) => sum + (row.total_clicks || 0), 0);
+            const averageCTR = totalImpressions > 0 ?
+                ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
+
+            updateStats(totalCampaigns, totalImpressions, totalClicks, averageCTR);
+        }
+
+        function updateStats(campaigns, impressions, clicks, ctr) {
+            document.getElementById('totalCampaigns').textContent = campaigns.toLocaleString();
+            document.getElementById('totalImpressions').textContent = impressions.toLocaleString();
+            document.getElementById('totalClicks').textContent = clicks.toLocaleString();
+            document.getElementById('averageCTR').textContent = ctr + '%';
+        }
+
+        function applyFilters() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const partnerId = document.getElementById('partnerFilter').value;
+
+            let filteredData = [...allAnalyticsData];
+
+            // 제휴사 필터
+            if (partnerId) {
+                filteredData = filteredData.filter(row => row.partner_id === partnerId);
+            }
+
+            // 날짜 필터 (이벤트 기간 기준)
+            if (startDate || endDate) {
+                filteredData = filteredData.filter(row => {
+                    if (!row.first_event && !row.last_event) return true;
+
+                    const firstEvent = row.first_event ? new Date(row.first_event) : null;
+                    const lastEvent = row.last_event ? new Date(row.last_event) : null;
+                    const start = startDate ? new Date(startDate) : null;
+                    const end = endDate ? new Date(endDate + 'T23:59:59') : null;
+
+                    // 이벤트 기간이 필터 기간과 겹치는지 확인
+                    if (start && lastEvent && lastEvent < start) return false;
+                    if (end && firstEvent && firstEvent > end) return false;
+                    return true;
+                });
+            }
+
+            if (filteredData.length === 0) {
+                document.getElementById('analyticsTable').innerHTML = '<div class="no-data">필터 조건에 맞는 데이터가 없습니다.</div>';
+                updateStats(0, 0, 0, 0);
+                return;
+            }
+
+            displayAnalytics(filteredData);
+            calculateOverallStats(filteredData);
+        }
+
+        function resetFilters() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('partnerFilter').value = '';
+            applyFilters();
+        }
+
+        // 페이지 로드 시 자동 로드
+        window.addEventListener('load', function() {
+            // 오늘 날짜 기준 30일 전부터 오늘까지 기본 설정
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+
+            document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+            loadPartners();
+            loadAnalytics();
+        });
+    </script>
+</body>
+</html>

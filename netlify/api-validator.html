@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>get-weather-tide-data API 검증</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 90%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: visible;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 20px;
+        }
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-group small {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.85em;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 12px 30px;
+            background: transparent;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #666;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .sub-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .sub-tab {
+            padding: 8px 20px;
+            background: transparent;
+            border: none;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #666;
+            border-bottom: 2px solid transparent;
+        }
+        .sub-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: bold;
+        }
+        .sub-tab-content {
+            display: none;
+        }
+        .sub-tab-content.active {
+            display: block;
+        }
+        .formatted-text {
+            background: #f8f9fa;
+            color: #000000;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        /* 플로팅 버튼 */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .scroll-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .scroll-to-top.show {
+            display: flex;
+        }
+        /* 스티키 네비게이션 */
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 2px solid #667eea;
+            padding: 10px 15px;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: -15px -15px 15px -15px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .sticky-nav::-webkit-scrollbar {
+            height: 4px;
+        }
+        .sticky-nav::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .sticky-nav::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 2px;
+        }
+        .nav-item {
+            display: inline-block;
+            padding: 8px 15px;
+            margin-right: 10px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+            color: #333;
+        }
+        .nav-item:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+        /* 섹션 구분 */
+        .data-section {
+            scroll-margin-top: 80px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 0;
+        }
+        .section-toggle {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+        }
+        .section-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+        .section-content {
+            display: block;
+        }
+        .section-content.collapsed {
+            display: none;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+        }
+        .json-viewer {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .json-viewer .string { color: #8bc34a; } /* Light green */
+        .json-viewer .number { color: #f9c74f; } /* Yellow */
+        .json-viewer .boolean { color: #6a05ad; } /* Purple */
+        .json-viewer .null { color: #d63384; } /* Pink */
+        .json-viewer .key { color: #5dade2; } /* Light blue */
+        .field-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .field-table th,
+        .field-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .field-table th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        .field-table tr:hover {
+            background: #f5f5f5;
+        }
+        .section-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .section-title:first-child {
+            margin-top: 0;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #c33;
+        }
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3c3;
+            margin-bottom: 20px;
+        }
+        .api-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #0066cc;
+        }
+        .back-button {
+            background: #6c757d;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                max-width: 100%;
+            }
+            .content {
+                padding: 10px;
+            }
+            .form-section {
+                padding: 15px;
+            }
+            .result-section {
+                padding: 10px;
+            }
+            .json-viewer, .formatted-text {
+                padding: 10px;
+                font-size: 0.85em;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .tab {
+                border-radius: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⛵ API 검증 도구</h1>
+            <p>다양한 API 엔드포인트를 테스트하고 응답 데이터를 확인할 수 있습니다</p>
+        </div>
+
+        <div class="content">
+            <button class="back-button" onclick="window.location.href='index.html'">← 대시보드로 돌아가기</button>
+
+            <div class="form-section">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="apiSelect">테스트할 API 선택 *</label>
+                    <select id="apiSelect" onchange="updateFormFields()" style="font-size: 1.1em; padding: 15px;">
+                        <option value="get-weather-tide-data">🌊 get-weather-tide-data (날씨+조석 통합 API)</option>
+                        <option value="get-ad-weather-data">🎯 get-ad-weather-data (광고 포함 날씨 API)</option>
+                        <option value="manage-ad-repo">📋 manage-ad-repo (광고 캠페인 관리)</option>
+                        <option value="partner-auth">🔐 partner-auth (제휴사 인증)</option>
+                        <option value="track-ad-event">📊 track-ad-event (광고 이벤트 추적)</option>
+                    </select>
+                </div>
+
+                <div class="api-info" id="apiInfo">
+                    <strong>API 엔드포인트:</strong> <span id="apiEndpoint">https://iwpgvdtfpwazzfeniusk.supabase.co/functions/v1/get-weather-tide-data</span>
+                </div>
+
+                <!-- Weather/Ad API Form -->
+                <div id="weatherForm" class="form-grid">
+                    <div class="form-group">
+                        <label for="locationCode">관측소 코드 *</label>
+                        <select id="locationCode" required>
+                            <option value="">선택하세요</option>
+                        </select>
+                        <small>데이터를 조회할 관측소를 선택하세요</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">날짜 *</label>
+                        <input type="date" id="date" required>
+                        <small>조회 시작 날짜 (YYYY-MM-DD)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="time">시간 (선택사항)</label>
+                        <input type="time" id="time" placeholder="HH:MM">
+                        <small>특정 시각 조회 시 입력 (해양 관측 데이터만 해당)</small>
+                    </div>
+                </div>
+
+                <!-- Ad Repo Management Form -->
+                <div id="adRepoForm" class="form-grid" style="display: none;">
+                    <div class="form-group">
+                        <label for="adAction">작업 선택 *</label>
+                        <select id="adAction" onchange="updateAdFormFields()">
+                            <option value="list">list (전체 캠페인 목록)</option>
+                            <option value="get">get (특정 캠페인 조회)</option>
+                            <option value="list_partners">list_partners (제휴사 목록)</option>
+                            <option value="get_active">get_active (활성 캠페인)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="adIdGroup" style="display: none;">
+                        <label for="adId">캠페인 UUID *</label>
+                        <input type="text" id="adId" placeholder="550e8400-e29b-41d4-a716-446655440000">
+                        <small>특정 캠페인 조회/수정/삭제 시 필요</small>
+                    </div>
+
+                    <div class="form-group" id="stationIdGroup" style="display: none;">
+                        <label for="adStationId">관측소 코드</label>
+                        <input type="text" id="adStationId" placeholder="DT_0001" value="DT_0001">
+                        <small>활성 캠페인 조회 시 사용 (선택사항)</small>
+                    </div>
+                </div>
+
+                <!-- Partner Auth Form -->
+                <div id="authForm" class="form-grid" style="display: none;">
+                    <div class="form-group">
+                        <label for="authAction">작업 선택 *</label>
+                        <select id="authAction">
+                            <option value="login">login (로그인)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="partnerId">업체 ID *</label>
+                        <input type="text" id="partnerId" placeholder="PARTNER_001">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">비밀번호 *</label>
+                        <input type="password" id="password">
+                    </div>
+                </div>
+
+                <!-- Track Event Form -->
+                <div id="trackForm" class="form-grid" style="display: none;">
+                    <div class="form-group">
+                        <label for="eventAdId">광고 캠페인 ID *</label>
+                        <input type="text" id="eventAdId" placeholder="UUID" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventType">이벤트 타입 *</label>
+                        <select id="eventType">
+                            <option value="impression">impression (노출)</option>
+                            <option value="click">click (클릭)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventStationId">관측소 ID (선택)</label>
+                        <input type="text" id="eventStationId" placeholder="DT_0001">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="fetchBtn" onclick="fetchData()">🔍 데이터 조회</button>
+                    <button onclick="clearResults()">🗑️ 결과 초기화</button>
+                </div>
+            </div>
+
+            <div id="resultContainer" style="display: none;">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('raw')">📄 Raw JSON</button>
+                    <button class="tab" onclick="switchTab('fields')">📋 필드 설명</button>
+                </div>
+
+                <div class="result-section">
+                    <div id="rawTab" class="tab-content active">
+                        <div class="sub-tabs">
+                            <button class="sub-tab active" onclick="switchSubTab('json')">JSON</button>
+                            <button class="sub-tab" onclick="switchSubTab('formatted')">정리된 텍스트</button>
+                        </div>
+
+                        <div id="jsonSubTab" class="sub-tab-content active">
+                            <div id="jsonViewer"></div>
+                        </div>
+
+                        <div id="formattedSubTab" class="sub-tab-content">
+                            <div class="formatted-text" id="formattedViewer"></div>
+                        </div>
+                    </div>
+
+                    <div id="fieldsTab" class="tab-content">
+                        <div id="fieldsViewer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 맨 위로 버튼 -->
+    <button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">↑</button>
+
+    <script>
+        // 스크롤 이벤트 - 맨 위로 버튼 표시/숨김
+        window.addEventListener('scroll', function() {
+            const scrollBtn = document.getElementById('scrollToTop');
+            if (window.pageYOffset > 300) {
+                scrollBtn.classList.add('show');
+            } else {
+                scrollBtn.classList.remove('show');
+            }
+
+            // 현재 보고 있는 섹션 하이라이트
+            updateActiveNavItem();
+        });
+
+        // 맨 위로 스크롤
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // 섹션으로 스크롤
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // 현재 보고 있는 섹션의 네비게이션 아이템 활성화
+        function updateActiveNavItem() {
+            const sections = document.querySelectorAll('.data-section');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            let currentSection = '';
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= 150 && rect.bottom >= 150) {
+                    currentSection = section.id;
+                }
+            });
+
+            navItems.forEach(item => {
+                if (item.getAttribute('data-target') === currentSection) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // 섹션 토글
+        function toggleSection(sectionId) {
+            const content = document.querySelector(`#${sectionId} .section-content`);
+            const toggle = document.querySelector(`#${sectionId} .section-toggle`);
+
+            if (content && toggle) {
+                content.classList.toggle('collapsed');
+                toggle.classList.toggle('collapsed');
+            }
+        }
+    </script>
+
+    <script>
+        // Location 데이터
+        const locations = [
+            {code: "SO_0326", name: "미조항"},
+            {code: "SO_0536", name: "덕적도"},
+            {code: "SO_0537", name: "벽파진(벽파항)"},
+            {code: "SO_0538", name: "안마도"},
+            {code: "SO_0539", name: "강화외포"},
+            {code: "SO_0540", name: "호산항"},
+            {code: "SO_0543", name: "서거차도"},
+            {code: "SO_0547", name: "말도"},
+            {code: "SO_0548", name: "우이도(신안)"},
+            {code: "SO_0550", name: "나로도"},
+            {code: "SO_0551", name: "여서도"},
+            {code: "SO_0552", name: "고현항"},
+            {code: "SO_0553", name: "해운대"},
+            {code: "SO_0554", name: "영종왕산"},
+            {code: "SO_0555", name: "서망항"},
+            {code: "SO_0562", name: "승봉도"},
+            {code: "SO_0563", name: "울도"},
+            {code: "SO_0564", name: "국화도"},
+            {code: "SO_0565", name: "향화도항"},
+            {code: "SO_0566", name: "송공항"},
+            {code: "SO_0567", name: "쉬미항"},
+            {code: "SO_0568", name: "백야도"},
+            {code: "SO_0569", name: "남포항"},
+            {code: "SO_0570", name: "광암항"},
+            {code: "SO_0571", name: "거제외포"},
+            {code: "SO_0572", name: "읍천항"},
+            {code: "SO_0573", name: "양포항"},
+            {code: "SO_0574", name: "백사장항"},
+            {code: "SO_0576", name: "화봉리"},
+            {code: "SO_0577", name: "가거도"},
+            {code: "SO_0578", name: "소매물도"},
+            {code: "SO_0581", name: "강양항"},
+            {code: "SO_0631", name: "암태도"},
+            {code: "SO_0699", name: "천리포항"},
+            {code: "SO_0701", name: "홍도항"},
+            {code: "SO_0702", name: "진도옥도"},
+            {code: "SO_0703", name: "땅끝항"},
+            {code: "SO_0704", name: "소안항(완도)"},
+            {code: "SO_0705", name: "마량항"},
+            {code: "SO_0706", name: "청산도"},
+            {code: "SO_0707", name: "시산항"},
+            {code: "SO_0708", name: "안도항"},
+            {code: "SO_0709", name: "두문포"},
+            {code: "SO_0710", name: "봉우항"},
+            {code: "SO_0711", name: "창선도"},
+            {code: "SO_0712", name: "능양항"},
+            {code: "SO_0731", name: "대진항"},
+            {code: "SO_0732", name: "남애항"},
+            {code: "SO_0733", name: "강릉항"},
+            {code: "SO_0734", name: "궁촌항"},
+            {code: "SO_0735", name: "죽변항"},
+            {code: "SO_0736", name: "축산항"},
+            {code: "SO_0737", name: "강구항"},
+            {code: "SO_0738", name: "여호항"},
+            {code: "SO_0739", name: "도장항"},
+            {code: "SO_0740", name: "보옥항"},
+            {code: "SO_0752", name: "검산항"},
+            {code: "SO_0753", name: "하의도웅곡"},
+            {code: "SO_0754", name: "평호리"},
+            {code: "SO_0755", name: "원동항"},
+            {code: "SO_0756", name: "사초항"},
+            {code: "SO_0757", name: "안남리"},
+            {code: "SO_0758", name: "달천도"},
+            {code: "SO_0759", name: "장문리"},
+            {code: "SO_0760", name: "오산항"},
+            {code: "SO_0761", name: "녹동항"},
+            {code: "DT_0001", name: "인천"},
+            {code: "DT_0002", name: "평택"},
+            {code: "DT_0003", name: "영광"},
+            {code: "DT_0004", name: "제주"},
+            {code: "DT_0005", name: "부산"},
+            {code: "DT_0006", name: "묵호"},
+            {code: "DT_0007", name: "목포"},
+            {code: "DT_0008", name: "안산"},
+            {code: "DT_0009", name: "포항"},
+            {code: "DT_0010", name: "서귀포"},
+            {code: "DT_0011", name: "후포"},
+            {code: "DT_0012", name: "속초"},
+            {code: "DT_0013", name: "울릉도"},
+            {code: "DT_0014", name: "통영"},
+            {code: "DT_0015", name: "마산"},
+            {code: "DT_0016", name: "여수"},
+            {code: "DT_0017", name: "대산"},
+            {code: "DT_0018", name: "군산"},
+            {code: "DT_0019", name: "가덕도"},
+            {code: "DT_0020", name: "울산"},
+            {code: "DT_0021", name: "추자도"},
+            {code: "DT_0022", name: "성산포"},
+            {code: "DT_0023", name: "모슬포"},
+            {code: "DT_0024", name: "장항"},
+            {code: "DT_0025", name: "보령"},
+            {code: "DT_0026", name: "고흥발포"},
+            {code: "DT_0027", name: "완도"},
+            {code: "DT_0028", name: "진도"},
+            {code: "DT_0029", name: "거제도"},
+            {code: "DT_0030", name: "위도"},
+            {code: "DT_0031", name: "거문도"},
+            {code: "DT_0032", name: "강화대교"},
+            {code: "DT_0034", name: "안흥"},
+            {code: "DT_0035", name: "흑산도"},
+            {code: "DT_0036", name: "대청도"},
+            {code: "DT_0037", name: "어청도"},
+            {code: "DT_0038", name: "굴업도"},
+            {code: "DT_0039", name: "왕돌초"},
+            {code: "DT_0040", name: "독도"},
+            {code: "DT_0041", name: "복사초"},
+            {code: "DT_0042", name: "교본초"},
+            {code: "DT_0043", name: "영흥도"},
+            {code: "DT_0044", name: "영종대교"},
+            {code: "DT_0045", name: "격렬비열도"},
+            {code: "DT_0046", name: "쌍정초"},
+            {code: "DT_0047", name: "도농탄"},
+            {code: "DT_0048", name: "속초등표"},
+            {code: "DT_0049", name: "광양"},
+            {code: "DT_0050", name: "태안"},
+            {code: "DT_0051", name: "서천마량"},
+            {code: "DT_0052", name: "인천송도"},
+            {code: "DT_0054", name: "진해"},
+            {code: "DT_0056", name: "부산항신항"},
+            {code: "DT_0057", name: "동해항"},
+            {code: "DT_0058", name: "경인항"},
+            {code: "DT_0059", name: "백령도"},
+            {code: "DT_0060", name: "연평도"},
+            {code: "DT_0061", name: "삼천포"},
+            {code: "DT_0062", name: "마산"},
+            {code: "DT_0063", name: "가덕도"},
+            {code: "DT_0064", name: "교동대교"},
+            {code: "DT_0065", name: "덕적도"},
+            {code: "DT_0067", name: "안흥"},
+            {code: "DT_0068", name: "위도"},
+            {code: "DT_0091", name: "포항"},
+            {code: "DT_0092", name: "여호항"},
+            {code: "DT_0093", name: "소무의도"},
+            {code: "DT_0094", name: "서거차도"},
+            {code: "IE_0060", name: "이어도"},
+            {code: "IE_0061", name: "신안가거초"},
+            {code: "IE_0062", name: "옹진소청초"}
+        ];
+
+        // Initialize
+        window.onload = function() {
+            // Populate location select with sorted locations
+            const select = document.getElementById('locationCode');
+
+            // Sort locations by code in ascending order
+            const sortedLocations = [...locations].sort((a, b) => a.code.localeCompare(b.code));
+
+            sortedLocations.forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc.code;
+                option.textContent = `${loc.code} - ${loc.name}`;
+                select.appendChild(option);
+            });
+
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+
+            // Set default location to DT_0058 (경인항)
+            document.getElementById('locationCode').value = 'DT_0058';
+        };
+
+        let currentData = null;
+        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+        const BASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co/functions/v1';
+
+        function updateFormFields() {
+            const apiSelect = document.getElementById('apiSelect').value;
+            const apiEndpoint = document.getElementById('apiEndpoint');
+
+            // Hide all forms
+            document.getElementById('weatherForm').style.display = 'none';
+            document.getElementById('adRepoForm').style.display = 'none';
+            document.getElementById('authForm').style.display = 'none';
+            document.getElementById('trackForm').style.display = 'none';
+
+            // Show relevant form and update endpoint
+            switch(apiSelect) {
+                case 'get-weather-tide-data':
+                    document.getElementById('weatherForm').style.display = 'grid';
+                    apiEndpoint.textContent = `${BASE_URL}/get-weather-tide-data`;
+                    break;
+                case 'get-ad-weather-data':
+                    document.getElementById('weatherForm').style.display = 'grid';
+                    apiEndpoint.textContent = `${BASE_URL}/get-ad-weather-data`;
+                    break;
+                case 'manage-ad-repo':
+                    document.getElementById('adRepoForm').style.display = 'grid';
+                    apiEndpoint.textContent = `${BASE_URL}/manage-ad-repo`;
+                    updateAdFormFields(); // 초기 필드 상태 설정
+                    break;
+                case 'partner-auth':
+                    document.getElementById('authForm').style.display = 'grid';
+                    apiEndpoint.textContent = `${BASE_URL}/partner-auth`;
+                    break;
+                case 'track-ad-event':
+                    document.getElementById('trackForm').style.display = 'grid';
+                    apiEndpoint.textContent = `${BASE_URL}/track-ad-event`;
+                    break;
+            }
+        }
+
+        function updateAdFormFields() {
+            const action = document.getElementById('adAction').value;
+            const adIdGroup = document.getElementById('adIdGroup');
+            const stationIdGroup = document.getElementById('stationIdGroup');
+
+            // 기본적으로 모두 숨김
+            adIdGroup.style.display = 'none';
+            stationIdGroup.style.display = 'none';
+
+            // action에 따라 필요한 필드만 표시
+            switch(action) {
+                case 'get':
+                case 'update':
+                case 'delete':
+                    adIdGroup.style.display = 'block';
+                    break;
+                case 'get_active':
+                    stationIdGroup.style.display = 'block';
+                    break;
+                case 'list':
+                case 'list_partners':
+                    // 아무 필드도 표시하지 않음
+                    break;
+            }
+        }
+
+        async function fetchData() {
+            const apiSelect = document.getElementById('apiSelect').value;
+            const fetchBtn = document.getElementById('fetchBtn');
+
+            fetchBtn.disabled = true;
+            fetchBtn.textContent = '⏳ 조회 중...';
+
+            try {
+                let url, options;
+
+                switch(apiSelect) {
+                    case 'get-weather-tide-data':
+                    case 'get-ad-weather-data':
+                        const code = document.getElementById('locationCode').value;
+                        const date = document.getElementById('date').value;
+                        const timeInput = document.getElementById('time').value;
+
+                        if (!code || !date) {
+                            alert('관측소 코드와 날짜를 입력해주세요.');
+                            return;
+                        }
+
+                        const time = timeInput ? timeInput.replace(':', '') : '';
+                        url = `${BASE_URL}/${apiSelect}?code=${code}&date=${date}`;
+                        if (time) url += `&time=${time}`;
+
+                        options = {
+                            method: 'GET',
+                            headers: { 'Authorization': `Bearer ${ANON_KEY}` }
+                        };
+                        break;
+
+                    case 'manage-ad-repo':
+                        const action = document.getElementById('adAction').value;
+                        const adId = document.getElementById('adId').value;
+                        const adStationId = document.getElementById('adStationId').value;
+
+                        // UUID가 필요한 action인지 확인
+                        const actionsNeedingId = ['get', 'update', 'delete'];
+                        if (actionsNeedingId.includes(action) && !adId) {
+                            alert(`❌ ${action} 작업에는 캠페인 UUID가 필요합니다.\n\n먼저 "list" 액션으로 캠페인 목록을 조회한 후,\n캠페인 ID(UUID)를 복사하여 입력하세요.`);
+                            return;
+                        }
+
+                        const body = { action };
+                        if (adId) {
+                            body.id = adId;
+                        }
+                        if (action === 'get_active' && adStationId) {
+                            body.station_id = adStationId;
+                        }
+
+                        url = `${BASE_URL}/manage-ad-repo`;
+                        options = {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${ANON_KEY}`
+                            },
+                            body: JSON.stringify(body)
+                        };
+                        break;
+
+                    case 'partner-auth':
+                        const authAction = document.getElementById('authAction').value;
+                        const partnerId = document.getElementById('partnerId').value;
+                        const password = document.getElementById('password').value;
+
+                        if (!partnerId || !password) {
+                            alert('업체 ID와 비밀번호를 입력해주세요.');
+                            return;
+                        }
+
+                        url = `${BASE_URL}/partner-auth`;
+                        options = {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${ANON_KEY}`
+                            },
+                            body: JSON.stringify({
+                                action: authAction,
+                                partner_id: partnerId,
+                                password: password
+                            })
+                        };
+                        break;
+
+                    case 'track-ad-event':
+                        const eventAdId = document.getElementById('eventAdId').value;
+                        const eventType = document.getElementById('eventType').value;
+                        const eventStationId = document.getElementById('eventStationId').value;
+
+                        if (!eventAdId) {
+                            alert('광고 캠페인 ID를 입력해주세요.');
+                            return;
+                        }
+
+                        url = `${BASE_URL}/track-ad-event`;
+                        options = {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${ANON_KEY}`
+                            },
+                            body: JSON.stringify({
+                                ad_repo_id: eventAdId,
+                                event_type: eventType,
+                                station_id: eventStationId || null
+                            })
+                        };
+                        break;
+                }
+
+                const response = await fetch(url, options);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                currentData = await response.json();
+                displayResults();
+
+            } catch (error) {
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('rawTab').innerHTML = `
+                    <div class="error">
+                        <strong>⚠️ 오류 발생:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            } finally {
+                fetchBtn.disabled = false;
+                fetchBtn.textContent = '🔍 데이터 조회';
+            }
+        }
+
+        function displayResults() {
+            document.getElementById('resultContainer').style.display = 'block';
+
+            // Display raw JSON with sticky navigation
+            document.getElementById('jsonViewer').innerHTML = formatJSONWithNavigation(currentData);
+
+            // Display formatted HTML with sections
+            document.getElementById('formattedViewer').innerHTML = formatDataAsHTML(currentData);
+
+            // Display field descriptions
+            displayFieldDescriptions();
+        }
+
+        function displayFieldDescriptions() {
+            const fieldsViewer = document.getElementById('fieldsViewer');
+
+            let html = '<div class="success">✅ 데이터 조회 완료</div>';
+
+            // Ad Data (for get-ad-weather-data API)
+            if (currentData.ads && currentData.ads.length > 0) {
+                html += `
+                    <div class="section-title">🎯 ads (광고 데이터 - ${currentData.ads.length}개)</div>
+                    <p style="margin-bottom: 15px; color: #666;">우선순위 순으로 정렬된 활성 광고 목록</p>
+                `;
+
+                currentData.ads.forEach((ad, index) => {
+                    html += `
+                    <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <h4 style="margin-bottom: 10px; color: #667eea;">광고 #${index + 1} (우선순위: ${ad.priority})</h4>
+                        <table class="field-table">
+                            <thead>
+                                <tr>
+                                    <th>필드명</th>
+                                    <th>설명</th>
+                                    <th>값</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>id</td><td>캠페인 ID</td><td>${ad.id || '-'}</td></tr>
+                                <tr><td>campaign_name</td><td>캠페인명</td><td>${ad.campaign_name || '-'}</td></tr>
+                                <tr><td>partner_id</td><td>제휴사 ID</td><td>${ad.partner_id || '-'}</td></tr>
+                                <tr><td>partner_name</td><td>제휴사명</td><td>${ad.partner_name || '-'}</td></tr>
+                                <tr><td>matched_station_id</td><td>매칭 관측소</td><td>${ad.matched_station_id || '전체'}</td></tr>
+                                <tr><td>matched_area</td><td>매칭 해역</td><td>${ad.matched_area || '전체'}</td></tr>
+                                <tr><td>ad_type_a</td><td>광고 타입 A</td><td>${ad.ad_type_a || '-'}</td></tr>
+                                <tr><td>ad_type_b</td><td>광고 타입 B</td><td>${ad.ad_type_b || '-'}</td></tr>
+                                <tr><td>image_a_url</td><td>이미지 A URL</td><td>${ad.image_a_url || '-'}</td></tr>
+                                <tr><td>image_b_url</td><td>이미지 B URL</td><td>${ad.image_b_url || '-'}</td></tr>
+                                <tr><td>landing_url</td><td>랜딩 페이지 URL</td><td>${ad.landing_url || '-'}</td></tr>
+                                <tr><td>priority</td><td>우선순위</td><td>${ad.priority || 0}</td></tr>
+                                <tr><td>business_type</td><td>업종</td><td>${ad.business_type || '-'}</td></tr>
+                                <tr><td>business_level</td><td>사업자 등급</td><td>${ad.business_level || '-'}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    `;
+                });
+            } else if (document.getElementById('apiSelect').value === 'get-ad-weather-data') {
+                html += `
+                    <div class="section-title">🎯 ads (광고 데이터)</div>
+                    <p style="margin-bottom: 15px; color: #999;">현재 조건에 맞는 활성 광고가 없습니다.</p>
+                `;
+            }
+
+            // Weather Forecasts
+            if (currentData.weather_forecasts && currentData.weather_forecasts.length > 0) {
+                html += `
+                    <div class="section-title">☁️ weather_forecasts (기상청 단기 예보 - 3일치)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.weather_forecasts.length}개 레코드</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>fcst_datetime_kr</td><td>예보 시각 (KST)</td><td>${currentData.weather_forecasts[0].fcst_datetime_kr || '-'}</td></tr>
+                            <tr><td>tmp</td><td>기온 (°C)</td><td>${currentData.weather_forecasts[0].tmp || '-'}</td></tr>
+                            <tr><td>tmn</td><td>최저 기온 (°C)</td><td>${currentData.weather_forecasts[0].tmn || '-'}</td></tr>
+                            <tr><td>tmx</td><td>최고 기온 (°C)</td><td>${currentData.weather_forecasts[0].tmx || '-'}</td></tr>
+                            <tr><td>wsd</td><td>풍속 (m/s)</td><td>${currentData.weather_forecasts[0].wsd || '-'}</td></tr>
+                            <tr><td>vec</td><td>풍향 (도)</td><td>${currentData.weather_forecasts[0].vec || '-'}</td></tr>
+                            <tr><td>sky</td><td>하늘 상태 (1:맑음, 3:구름많음, 4:흐림)</td><td>${currentData.weather_forecasts[0].sky || '-'}</td></tr>
+                            <tr><td>pty</td><td>강수 형태 (0:없음, 1:비, 2:비/눈, 3:눈)</td><td>${currentData.weather_forecasts[0].pty || '-'}</td></tr>
+                            <tr><td>pop</td><td>강수 확률 (%)</td><td>${currentData.weather_forecasts[0].pop || '-'}</td></tr>
+                            <tr><td>wav</td><td>파고 (m)</td><td>${currentData.weather_forecasts[0].wav || '-'}</td></tr>
+                            <tr><td>pcp</td><td>1시간 강수량 (mm)</td><td>${currentData.weather_forecasts[0].pcp || '-'}</td></tr>
+                            <tr><td>reh</td><td>습도 (%)</td><td>${currentData.weather_forecasts[0].reh || '-'}</td></tr>
+                            <tr><td>sno</td><td>1시간 신적설 (cm)</td><td>${currentData.weather_forecasts[0].sno || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Tide Data
+            if (currentData.tide_data && currentData.tide_data.length > 0) {
+                html += `
+                    <div class="section-title">🌊 tide_data (조석 데이터 - 14일치)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.tide_data.length}개 레코드</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>obs_date</td><td>관측 날짜 (YYYY-MM-DD)</td><td>${currentData.tide_data[0].obs_date || '-'}</td></tr>
+                            <tr><td>lvl1</td><td>1차 조석 시각 및 높이</td><td>${currentData.tide_data[0].lvl1 || '-'}</td></tr>
+                            <tr><td>lvl2</td><td>2차 조석 시각 및 높이</td><td>${currentData.tide_data[0].lvl2 || '-'}</td></tr>
+                            <tr><td>lvl3</td><td>3차 조석 시각 및 높이</td><td>${currentData.tide_data[0].lvl3 || '-'}</td></tr>
+                            <tr><td>lvl4</td><td>4차 조석 시각 및 높이</td><td>${currentData.tide_data[0].lvl4 || '-'}</td></tr>
+                            <tr><td>date_sun</td><td>일출/일몰 시각</td><td>${currentData.tide_data[0].date_sun || '-'}</td></tr>
+                            <tr><td>date_moon</td><td>월출/월몰 시각</td><td>${currentData.tide_data[0].date_moon || '-'}</td></tr>
+                            <tr><td>mool_normal</td><td>물때 (조석 주기)</td><td>${currentData.tide_data[0].mool_normal || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Marine Observations A
+            if (currentData.marine_observations && currentData.marine_observations.a && currentData.marine_observations.a.length > 0) {
+                html += `
+                    <div class="section-title">🌊 marine_observations.a (해양 관측 A - 수온/파고)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.marine_observations.a.length}개 레코드</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>station_id</td><td>관측소 ID</td><td>${currentData.marine_observations.a[0].station_id || '-'}</td></tr>
+                            <tr><td>observation_time_kst</td><td>관측 시각 (KST, YYYYMMDDHHmm)</td><td>${currentData.marine_observations.a[0].observation_time_kst || '-'}</td></tr>
+                            <tr><td>water_temperature</td><td>수온 (°C)</td><td>${currentData.marine_observations.a[0].water_temperature || '-'}</td></tr>
+                            <tr><td>significant_wave_height</td><td>유의파고 (m)</td><td>${currentData.marine_observations.a[0].significant_wave_height || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Marine Observations B
+            if (currentData.marine_observations && currentData.marine_observations.b && currentData.marine_observations.b.length > 0) {
+                html += `
+                    <div class="section-title">🌬️ marine_observations.b (해양 관측 B - 기상)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.marine_observations.b.length}개 레코드</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>station_id</td><td>관측소 ID</td><td>${currentData.marine_observations.b[0].station_id || '-'}</td></tr>
+                            <tr><td>observation_time_kst</td><td>관측 시각 (KST, YYYYMMDDHHmm)</td><td>${currentData.marine_observations.b[0].observation_time_kst || '-'}</td></tr>
+                            <tr><td>air_temperature</td><td>기온 (°C)</td><td>${currentData.marine_observations.b[0].air_temperature || '-'}</td></tr>
+                            <tr><td>wind_direction</td><td>풍향 (도)</td><td>${currentData.marine_observations.b[0].wind_direction || '-'}</td></tr>
+                            <tr><td>wind_speed</td><td>풍속 (m/s)</td><td>${currentData.marine_observations.b[0].wind_speed || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Marine (medium-term marine forecast)
+            if (currentData.marine && currentData.marine.length > 0) {
+                html += `
+                    <div class="section-title">🌊 marine (중기 해상 예보 - 4~11일째)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.marine.length}개 레코드</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>tm_ef_kr</td><td>예보 유효 시각 (KST)</td><td>${currentData.marine[0].tm_ef_kr || '-'}</td></tr>
+                            <tr><td>wh_a</td><td>파고 범위 시작 (m)</td><td>${currentData.marine[0].wh_a || '-'}</td></tr>
+                            <tr><td>wh_b</td><td>파고 범위 끝 (m)</td><td>${currentData.marine[0].wh_b || '-'}</td></tr>
+                            <tr><td>wf</td><td>날씨 설명</td><td>${currentData.marine[0].wf || '-'}</td></tr>
+                            <tr><td>sky</td><td>하늘 상태</td><td>${currentData.marine[0].sky || '-'}</td></tr>
+                            <tr><td>rn_st</td><td>강수 시작 확률 (%)</td><td>${currentData.marine[0].rn_st || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Temper (medium-term temperature forecast)
+            if (currentData.temper && currentData.temper.length > 0) {
+                html += `
+                    <div class="section-title">🌡️ temper (중기 기온 예보 - 4~11일째)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.temper.length}개 레코드</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>tm_ef_kr</td><td>예보 유효 시각 (KST)</td><td>${currentData.temper[0].tm_ef_kr || '-'}</td></tr>
+                            <tr><td>min_temp</td><td>최저 기온 (°C)</td><td>${currentData.temper[0].min_temp || '-'}</td></tr>
+                            <tr><td>max_temp</td><td>최고 기온 (°C)</td><td>${currentData.temper[0].max_temp || '-'}</td></tr>
+                            <tr><td>sky</td><td>하늘 상태</td><td>${currentData.temper[0].sky || '-'}</td></tr>
+                            <tr><td>wf</td><td>날씨 설명</td><td>${currentData.temper[0].wf || '-'}</td></tr>
+                            <tr><td>rn_st</td><td>강수 시작 확률 (%)</td><td>${currentData.temper[0].rn_st || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // OpenWeatherMap Current
+            if (currentData.openweathermap && currentData.openweathermap.current && currentData.openweathermap.current.length > 0) {
+                html += `
+                    <div class="section-title">🌤️ openweathermap.current (OpenWeatherMap 현재 날씨)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.openweathermap.current.length}개 레코드</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>observation_time_local</td><td>관측 시각 (Local)</td><td>${currentData.openweathermap.current[0].observation_time_local || '-'}</td></tr>
+                            <tr><td>weather_main</td><td>날씨 주 카테고리</td><td>${currentData.openweathermap.current[0].weather_main || '-'}</td></tr>
+                            <tr><td>weather_description</td><td>날씨 상태 설명</td><td>${currentData.openweathermap.current[0].weather_description || '-'}</td></tr>
+                            <tr><td>temp</td><td>현재 기온 (°C)</td><td>${currentData.openweathermap.current[0].temp || '-'}</td></tr>
+                            <tr><td>feels_like</td><td>체감 온도 (°C)</td><td>${currentData.openweathermap.current[0].feels_like || '-'}</td></tr>
+                            <tr><td>humidity</td><td>습도 (%)</td><td>${currentData.openweathermap.current[0].humidity || '-'}</td></tr>
+                            <tr><td>wind_speed</td><td>풍속 (m/s)</td><td>${currentData.openweathermap.current[0].wind_speed || '-'}</td></tr>
+                            <tr><td>wind_deg</td><td>풍향 (도)</td><td>${currentData.openweathermap.current[0].wind_deg || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // OpenWeatherMap Forecast
+            if (currentData.openweathermap && currentData.openweathermap.forecast && currentData.openweathermap.forecast.length > 0) {
+                html += `
+                    <div class="section-title">🌤️ openweathermap.forecast (OpenWeatherMap 예보)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.openweathermap.forecast.length}개 레코드 (5일 3시간 간격 + 8일 일별)</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>forecast_date</td><td>예보 날짜</td><td>${currentData.openweathermap.forecast[0].forecast_date || '-'}</td></tr>
+                            <tr><td>forecast_time</td><td>예보 시각 (12:00:00=일별, 그 외=3시간 간격)</td><td>${currentData.openweathermap.forecast[0].forecast_time || '-'}</td></tr>
+                            <tr><td>weather_main</td><td>날씨 주 카테고리</td><td>${currentData.openweathermap.forecast[0].weather_main || '-'}</td></tr>
+                            <tr><td>weather_description</td><td>날씨 상태 설명</td><td>${currentData.openweathermap.forecast[0].weather_description || '-'}</td></tr>
+                            <tr><td>temp</td><td>기온 (°C)</td><td>${currentData.openweathermap.forecast[0].temp || '-'}</td></tr>
+                            <tr><td>temp_min</td><td>최저 기온 (°C)</td><td>${currentData.openweathermap.forecast[0].temp_min || '-'}</td></tr>
+                            <tr><td>temp_max</td><td>최고 기온 (°C)</td><td>${currentData.openweathermap.forecast[0].temp_max || '-'}</td></tr>
+                            <tr><td>pop</td><td>강수 확률 (%)</td><td>${currentData.openweathermap.forecast[0].pop || '-'}</td></tr>
+                            <tr><td>wind_speed</td><td>풍속 (m/s)</td><td>${currentData.openweathermap.forecast[0].wind_speed || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            fieldsViewer.innerHTML = html;
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.tabs > .tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            const contents = document.querySelectorAll('.result-section > .tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            if (tabName === 'raw') {
+                document.getElementById('rawTab').classList.add('active');
+            } else {
+                document.getElementById('fieldsTab').classList.add('active');
+            }
+        }
+
+        function switchSubTab(subTabName) {
+            // Update sub-tab buttons
+            const subTabs = document.querySelectorAll('.sub-tab');
+            subTabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update sub-tab content
+            const subContents = document.querySelectorAll('.sub-tab-content');
+            subContents.forEach(content => content.classList.remove('active'));
+
+            if (subTabName === 'json') {
+                document.getElementById('jsonSubTab').classList.add('active');
+            } else {
+                document.getElementById('formattedSubTab').classList.add('active');
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('jsonViewer').textContent = '';
+            document.getElementById('fieldsViewer').innerHTML = '';
+            currentData = null;
+        }
+
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/(\"(\\u[a-zA-Z0-9]{4}|[^\\u]|\\.)*\"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^\"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function formatJSONWithNavigation(data) {
+            let html = '';
+            let navItems = [];
+
+            // Collect navigation items
+            if (data.ads && data.ads.length > 0) navItems.push({id: 'json-ads', label: '🎯 광고', count: data.ads.length});
+            if (data.weather_forecasts && data.weather_forecasts.length > 0) navItems.push({id: 'json-weather-forecasts', label: '☁️ 단기예보', count: data.weather_forecasts.length});
+            if (data.tide_data && data.tide_data.length > 0) navItems.push({id: 'json-tide-data', label: '🌊 조석', count: data.tide_data.length});
+            if (data.marine_observations && ((data.marine_observations.a && data.marine_observations.a.length > 0) || (data.marine_observations.b && data.marine_observations.b.length > 0))) navItems.push({id: 'json-marine-obs', label: '🌊 해상관측', count: (data.marine_observations.a?.length || 0) + (data.marine_observations.b?.length || 0)});
+            if (data.marine && data.marine.length > 0) navItems.push({id: 'json-marine', label: '🌊 중기해상', count: data.marine.length});
+            if (data.temper && data.temper.length > 0) navItems.push({id: 'json-temper', label: '🌡️ 중기기온', count: data.temper.length});
+            if (data.openweathermap?.current && data.openweathermap.current.length > 0) navItems.push({id: 'json-owm-current', label: '🌤️ OWM현재', count: data.openweathermap.current.length});
+            if (data.openweathermap?.forecast && data.openweathermap.forecast.length > 0) navItems.push({id: 'json-owm-forecast', label: '🌤️ OWM예보', count: data.openweathermap.forecast.length});
+
+            // Sticky navigation
+            if (navItems.length > 0) {
+                html += '<div class="sticky-nav">';
+                navItems.forEach(item => {
+                    html += `<span class="nav-item" data-target="${item.id}" onclick="scrollToSection('${item.id}')">${item.label} (${item.count})</span>`;
+                });
+                html += '</div>';
+            }
+
+            // Create sections for each data type
+            const sections = [];
+
+            if (data.ads && data.ads.length > 0) {
+                sections.push({
+                    id: 'json-ads',
+                    title: `🎯 ads (광고 캠페인 - ${data.ads.length}개)`,
+                    data: { ads: data.ads }
+                });
+            }
+
+            if (data.weather_forecasts && data.weather_forecasts.length > 0) {
+                sections.push({
+                    id: 'json-weather-forecasts',
+                    title: `☁️ weather_forecasts (${data.weather_forecasts.length}개)`,
+                    data: { weather_forecasts: data.weather_forecasts }
+                });
+            }
+
+            if (data.tide_data && data.tide_data.length > 0) {
+                sections.push({
+                    id: 'json-tide-data',
+                    title: `🌊 tide_data (${data.tide_data.length}개)`,
+                    data: { tide_data: data.tide_data }
+                });
+            }
+
+            if (data.marine_observations && ((data.marine_observations.a && data.marine_observations.a.length > 0) || (data.marine_observations.b && data.marine_observations.b.length > 0))) {
+                sections.push({
+                    id: 'json-marine-obs',
+                    title: `🌊 marine_observations (a: ${data.marine_observations.a?.length || 0}개, b: ${data.marine_observations.b?.length || 0}개)`,
+                    data: { marine_observations: data.marine_observations }
+                });
+            }
+
+            if (data.marine && data.marine.length > 0) {
+                sections.push({
+                    id: 'json-marine',
+                    title: `🌊 marine (${data.marine.length}개)`,
+                    data: { marine: data.marine }
+                });
+            }
+
+            if (data.temper && data.temper.length > 0) {
+                sections.push({
+                    id: 'json-temper',
+                    title: `🌡️ temper (${data.temper.length}개)`,
+                    data: { temper: data.temper }
+                });
+            }
+
+            if (data.openweathermap?.current && data.openweathermap.current.length > 0) {
+                sections.push({
+                    id: 'json-owm-current',
+                    title: `🌤️ openweathermap.current (${data.openweathermap.current.length}개)`,
+                    data: { current: data.openweathermap.current }
+                });
+            }
+
+            if (data.openweathermap?.forecast && data.openweathermap.forecast.length > 0) {
+                sections.push({
+                    id: 'json-owm-forecast',
+                    title: `🌤️ openweathermap.forecast (${data.openweathermap.forecast.length}개)`,
+                    data: { forecast: data.openweathermap.forecast }
+                });
+            }
+
+            // Render sections
+            sections.forEach(section => {
+                html += `<div class="data-section" id="${section.id}">`;
+                html += `<div class="section-header" onclick="toggleSection('${section.id}')">`;
+                html += `<h3 class="section-title">${section.title}</h3>`;
+                html += `<span class="section-toggle">▼</span>`;
+                html += `</div>`;
+                html += `<div class="section-content"><div style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.6; white-space: pre-wrap; overflow-x: auto;">`;
+                html += syntaxHighlight(section.data);
+                html += `</div></div></div>`;
+            });
+
+            if (sections.length === 0) {
+                html = '<div class="json-viewer">' + syntaxHighlight(data) + '</div>';
+            }
+
+            return html;
+        }
+
+        function getSkyDescription(skyCode) {
+            const descriptions = {
+                '1': '맑음',
+                '2': '구름조금',
+                '3': '구름많음',
+                '4': '흐림'
+            };
+            return descriptions[skyCode] || skyCode;
+        }
+
+        function formatDataAsHTML(data) {
+            let html = '';
+            let navItems = [];
+
+            // 스티키 네비게이션 아이템 수집
+            if (data.ads && data.ads.length > 0) navItems.push({id: 'ads-data', label: '🎯 광고', count: data.ads.length});
+            if (data.weather_forecasts && data.weather_forecasts.length > 0) navItems.push({id: 'weather-forecasts', label: '☁️ 단기예보', count: data.weather_forecasts.length});
+            if (data.tide_data && data.tide_data.length > 0) navItems.push({id: 'tide-data', label: '🌊 조석', count: data.tide_data.length});
+            if (data.marine_observations && ((data.marine_observations.a && data.marine_observations.a.length > 0) || (data.marine_observations.b && data.marine_observations.b.length > 0))) navItems.push({id: 'marine-obs', label: '🌊 해상관측', count: (data.marine_observations.a?.length || 0) + (data.marine_observations.b?.length || 0)});
+            if (data.marine && data.marine.length > 0) navItems.push({id: 'marine', label: '🌊 중기해상', count: data.marine.length});
+            if (data.temper && data.temper.length > 0) navItems.push({id: 'temper', label: '🌡️ 중기기온', count: data.temper.length});
+            if (data.openweathermap?.current && data.openweathermap.current.length > 0) navItems.push({id: 'owm-current', label: '🌤️ OWM현재', count: data.openweathermap.current.length});
+            if (data.openweathermap?.forecast && data.openweathermap.forecast.length > 0) navItems.push({id: 'owm-forecast', label: '🌤️ OWM예보', count: data.openweathermap.forecast.length});
+
+            // 스티키 네비게이션
+            if (navItems.length > 0) {
+                html += '<div class="sticky-nav">';
+                navItems.forEach(item => {
+                    html += `<span class="nav-item" data-target="${item.id}" onclick="scrollToSection('${item.id}')">${item.label} (${item.count})</span>`;
+                });
+                html += '</div>';
+            }
+
+            // 섹션별 데이터
+            html += formatDataAsText(data);
+
+            return html;
+        }
+
+        function formatDataAsText(data) {
+            let text = '';
+
+            // Ad Data (광고 데이터)
+            if (data.ads && data.ads.length > 0) {
+                text += `<div class="data-section" id="ads-data">`;
+                text += `<div class="section-header" onclick="toggleSection('ads-data')">`;
+                text += `<h3 class="section-title">🎯 광고 캠페인 (${data.ads.length}개)</h3>`;
+                text += `<span class="section-toggle">▼</span>`;
+                text += `</div>`;
+                text += `<div class="section-content"><pre>`;
+
+                data.ads.forEach((ad, index) => {
+                    text += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+                    text += `광고 #${index + 1} (우선순위: ${ad.priority})\n`;
+                    text += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+                    text += `📢 캠페인 정보\n`;
+                    text += `id: ${ad.id || 'N/A'}\n`;
+                    text += `campaign_name(캠페인명): ${ad.campaign_name || 'N/A'}\n`;
+                    text += `partner_id(제휴사ID): ${ad.partner_id || 'N/A'}\n`;
+                    text += `partner_name(제휴사명): ${ad.partner_name || 'N/A'}\n`;
+                    text += `\n매칭 정보\n`;
+                    text += `matched_station_id(관측소): ${ad.matched_station_id || '전체'}\n`;
+                    text += `matched_area(해역): ${ad.matched_area || '전체'}\n`;
+                    text += `\n광고 소재\n`;
+                    text += `ad_type_a: ${ad.ad_type_a || 'N/A'}\n`;
+                    text += `ad_type_b: ${ad.ad_type_b || 'N/A'}\n`;
+                    text += `image_a_url: ${ad.image_a_url || 'N/A'}\n`;
+                    text += `image_b_url: ${ad.image_b_url || 'N/A'}\n`;
+                    text += `landing_url: ${ad.landing_url || 'N/A'}\n`;
+                    text += `\n기타\n`;
+                    text += `priority(우선순위): ${ad.priority || 0}\n`;
+                    text += `business_type(업종): ${ad.business_type || 'N/A'}\n`;
+                    text += `business_level(등급): ${ad.business_level || 'N/A'}\n`;
+                });
+
+                text += `\n</pre></div></div>`;
+            }
+
+            // Weather Forecasts (기상청 단기 예보)
+            if (data.weather_forecasts && Array.isArray(data.weather_forecasts) && data.weather_forecasts.length > 0) {
+                text += `<div class="data-section" id="weather-forecasts">`;
+                text += `<div class="section-header" onclick="toggleSection('weather-forecasts')">`;
+                text += `<h3 class="section-title">☁️ 기상청 단기 예보 (${data.weather_forecasts.length}개)</h3>`;
+                text += `<span class="section-toggle">▼</span>`;
+                text += `</div>`;
+                text += `<div class="section-content"><pre>`;
+
+                data.weather_forecasts.forEach(forecast => {
+                    const datetime = forecast.fcst_datetime_kr || 'N/A';
+                    text += `📅 ${datetime}\n`;
+
+                    if (forecast.tmp !== undefined && forecast.tmp !== null) text += `tmp(기온): ${forecast.tmp}°C\n`;
+                    if (forecast.tmn !== undefined && forecast.tmn !== null) text += `tmn(최저기온): ${forecast.tmn}°C\n`;
+                    if (forecast.tmx !== undefined && forecast.tmx !== null) text += `tmx(최고기온): ${forecast.tmx}°C\n`;
+                    if (forecast.wsd !== undefined && forecast.wsd !== null) text += `wsd(풍속): ${forecast.wsd}m/s\n`;
+                    if (forecast.vec !== undefined && forecast.vec !== null) text += `vec(풍향): ${forecast.vec}°\n`;
+
+                    if (forecast.sky) {
+                        const skyDesc = getSkyDescription(forecast.sky);
+                        text += `sky(하늘상태): ${forecast.sky} (${skyDesc})\n`;
+                    }
+
+                    if (forecast.pty !== undefined && forecast.pty !== null) {
+                        const ptyDesc = {'0': '없음', '1': '비', '2': '비/눈', '3': '눈', '4': '소나기'}[forecast.pty] || forecast.pty;
+                        text += `pty(강수형태): ${forecast.pty} (${ptyDesc})\n`;
+                    }
+
+                    if (forecast.pop !== undefined && forecast.pop !== null) text += `pop(강수확률): ${forecast.pop}%\n`;
+                    if (forecast.wav !== undefined && forecast.wav !== null) text += `wav(파고): ${forecast.wav}m\n`;
+                    if (forecast.pcp) text += `pcp(강수량): ${forecast.pcp}\n`;
+                    if (forecast.reh !== undefined && forecast.reh !== null) text += `reh(습도): ${forecast.reh}%\n`;
+                    if (forecast.sno) text += `sno(신적설): ${forecast.sno}\n`;
+
+                    text += '\n';
+                });
+                text += `</pre></div></div>`;
+            }
+
+            // Tide Data (조석 데이터)
+            if (data.tide_data && Array.isArray(data.tide_data) && data.tide_data.length > 0) {
+                text += `<div class="data-section" id="tide-data">`;
+                text += `<div class="section-header" onclick="toggleSection('tide-data')">`;
+                text += `<h3 class="section-title">🌊 조석 데이터 (${data.tide_data.length}개)</h3>`;
+                text += `<span class="section-toggle">▼</span>`;
+                text += `</div>`;
+                text += `<div class="section-content"><pre>`;
+
+                data.tide_data.forEach(tide => {
+                    const date = tide.obs_date || 'N/A';
+                    text += `📅 ${date}\n`;
+
+                    if (tide.lvl1) text += `lvl1(1차 조석): ${tide.lvl1}\n`;
+                    if (tide.lvl2) text += `lvl2(2차 조석): ${tide.lvl2}\n`;
+                    if (tide.lvl3) text += `lvl3(3차 조석): ${tide.lvl3}\n`;
+                    if (tide.lvl4) text += `lvl4(4차 조석): ${tide.lvl4}\n`;
+                    if (tide.date_sun) text += `date_sun(일출/일몰): ${tide.date_sun}\n`;
+                    if (tide.date_moon) text += `date_moon(월출/월몰): ${tide.date_moon}\n`;
+                    if (tide.mool_normal) text += `mool_normal(물때): ${tide.mool_normal}\n`;
+                    if (tide.mool7) text += `mool7(음력7일 물때): ${tide.mool7}\n`;
+                    if (tide.mool8) text += `mool8(음력8일 물때): ${tide.mool8}\n`;
+
+                    text += '\n';
+                });
+                text += `</pre></div></div>`;
+            }
+
+            // Marine Observations (해상 관측 데이터)
+            if (data.marine_observations && ((data.marine_observations.a && data.marine_observations.a.length > 0) || (data.marine_observations.b && data.marine_observations.b.length > 0))) {
+                const totalCount = (data.marine_observations.a?.length || 0) + (data.marine_observations.b?.length || 0);
+                text += `<div class="data-section" id="marine-obs">`;
+                text += `<div class="section-header" onclick="toggleSection('marine-obs')">`;
+                text += `<h3 class="section-title">🌊 해상 관측 데이터 (${totalCount}개)</h3>`;
+                text += `<span class="section-toggle">▼</span>`;
+                text += `</div>`;
+                text += `<div class="section-content"><pre>`;
+
+                // A 섹션 (수온, 파고)
+                if (data.marine_observations.a && Array.isArray(data.marine_observations.a) && data.marine_observations.a.length > 0) {
+                    text += `💧 수온 및 파고 관측 (${data.marine_observations.a.length}개)\n`;
+
+                    data.marine_observations.a.forEach(obs => {
+                        const obsTime = obs.observation_time_kst || 'N/A';
+                        text += `observation_time_kst: ${obsTime}\n`;
+
+                        const stationId = obs.station_id || 'N/A';
+                        text += `station_id(관측소): ${stationId}\n`;
+
+                        const waveHeight = (obs.significant_wave_height !== undefined && obs.significant_wave_height !== null)
+                            ? obs.significant_wave_height : 'N/A';
+                        text += `significant_wave_height(파고): ${waveHeight}m\n`;
+
+                        const waterTemp = (obs.water_temperature !== undefined && obs.water_temperature !== null)
+                            ? `${obs.water_temperature}°C` : 'N/A';
+                        text += `water_temperature(수온): ${waterTemp}\n`;
+
+                        text += '\n';
+                    });
+                }
+
+                // B 섹션 (기상)
+                if (data.marine_observations.b && Array.isArray(data.marine_observations.b) && data.marine_observations.b.length > 0) {
+                    text += `🌬️ 기상 관측 (${data.marine_observations.b.length}개)\n`;
+
+                    data.marine_observations.b.forEach(obs => {
+                        const obsTime = obs.observation_time_kst || 'N/A';
+                        text += `observation_time_kst: ${obsTime}\n`;
+
+                        const stationId = obs.station_id || 'N/A';
+                        text += `station_id(관측소): ${stationId}\n`;
+
+                        const airTemp = (obs.air_temperature !== undefined && obs.air_temperature !== null)
+                            ? `${obs.air_temperature}°C` : 'N/A';
+                        text += `air_temperature(기온): ${airTemp}\n`;
+
+                        const windDir = (obs.wind_direction !== undefined && obs.wind_direction !== null)
+                            ? `${obs.wind_direction}°` : 'N/A';
+                        text += `wind_direction(풍향): ${windDir}\n`;
+
+                        const windSpeed = (obs.wind_speed !== undefined && obs.wind_speed !== null)
+                            ? `${obs.wind_speed}m/s` : 'N/A';
+                        text += `wind_speed(풍속): ${windSpeed}\n`;
+
+                        text += '\n';
+                    });
+                }
+                text += `</pre></div></div>`;
+            }
+
+            // Marine (중기 해상 예보)
+            if (data.marine && Array.isArray(data.marine) && data.marine.length > 0) {
+                text += `<div class="data-section" id="marine">`;
+                text += `<div class="section-header" onclick="toggleSection('marine')">`;
+                text += `<h3 class="section-title">🌊 중기 해상 예보 (${data.marine.length}개)</h3>`;
+                text += `<span class="section-toggle">▼</span>`;
+                text += `</div>`;
+                text += `<div class="section-content"><pre>`;
+
+                data.marine.forEach(marine => {
+                    const forecastTime = marine.tm_ef_kr || 'N/A';
+                    text += `📅 ${forecastTime}\n`;
+
+                    if (marine.reg_id) text += `reg_id(지역코드): ${marine.reg_id}\n`;
+                    if (marine.reg_sp) text += `reg_sp(지역구분): ${marine.reg_sp}\n`;
+                    const regName = marine.reg_name || 'N/A';
+                    text += `reg_name(해역): ${regName}\n`;
+
+                    const forecastType = marine.forecast_type || 'N/A';
+                    text += `forecast_type(예보 종류): ${forecastType}\n`;
+                    if (marine.mod) text += `mod(모드): ${marine.mod}\n`;
+
+                    if (marine.tm_fc) text += `tm_fc(예보시간): ${marine.tm_fc}\n`;
+                    if (marine.tm_fc_kr) text += `tm_fc_kr(예보시간_한국): ${marine.tm_fc_kr}\n`;
+                    if (marine.tm_ef) text += `tm_ef(유효시간): ${marine.tm_ef}\n`;
+                    if (marine.tm_ef_kr) text += `tm_ef_kr(유효시간_한국): ${marine.tm_ef_kr}\n`;
+
+                    if (marine.sky) {
+                        const skyDesc = getSkyDescription(marine.sky);
+                        text += `sky(하늘상태): ${marine.sky} (${skyDesc})\n`;
+                    }
+
+                    if (marine.pre) text += `pre(강수): ${marine.pre}\n`;
+                    if (marine.rn_st !== undefined && marine.rn_st !== null) text += `rn_st(강수상태): ${marine.rn_st}\n`;
+
+                    const whA = (marine.wh_a !== undefined && marine.wh_a !== null) ? marine.wh_a : 'N/A';
+                    const whB = (marine.wh_b !== undefined && marine.wh_b !== null) ? marine.wh_b : 'N/A';
+                    if (whA !== 'N/A' || whB !== 'N/A') {
+                        text += `wh_a~wh_b(파고): ${whA}~${whB}m\n`;
+                    }
+
+                    const wf = marine.wf || 'N/A';
+                    text += `wf(날씨예보): ${wf}\n`;
+
+                    if (marine.conf) text += `conf(신뢰도): ${marine.conf}\n`;
+
+                    text += '\n';
+                });
+                text += `</pre></div></div>`;
+            }
+
+            // Temper (중기 기온 예보)
+            if (data.temper && Array.isArray(data.temper) && data.temper.length > 0) {
+                text += `<div class="data-section" id="temper">`;
+                text += `<div class="section-header" onclick="toggleSection('temper')">`;
+                text += `<h3 class="section-title">🌡️ 중기 기온 예보 (${data.temper.length}개)</h3>`;
+                text += `<span class="section-toggle">▼</span>`;
+                text += `</div>`;
+                text += `<div class="section-content"><pre>`;
+
+                data.temper.forEach(temp => {
+                    const forecastTime = temp.tm_ef_kr || 'N/A';
+                    text += `📅 ${forecastTime}\n`;
+
+                    if (temp.reg_id) text += `reg_id(지역코드): ${temp.reg_id}\n`;
+                    if (temp.reg_name) text += `reg_name(지역명): ${temp.reg_name}\n`;
+
+                    if (temp.min_temp !== undefined && temp.min_temp !== null) text += `min_temp(최저기온): ${temp.min_temp}°C\n`;
+                    if (temp.max_temp !== undefined && temp.max_temp !== null) text += `max_temp(최고기온): ${temp.max_temp}°C\n`;
+                    if (temp.min_temp_l !== undefined && temp.min_temp_l !== null) text += `min_temp_l(최저기온 하한): ${temp.min_temp_l}°C\n`;
+                    if (temp.min_temp_h !== undefined && temp.min_temp_h !== null) text += `min_temp_h(최저기온 상한): ${temp.min_temp_h}°C\n`;
+                    if (temp.max_temp_l !== undefined && temp.max_temp_l !== null) text += `max_temp_l(최고기온 하한): ${temp.max_temp_l}°C\n`;
+                    if (temp.max_temp_h !== undefined && temp.max_temp_h !== null) text += `max_temp_h(최고기온 상한): ${temp.max_temp_h}°C\n`;
+
+                    if (temp.sky) {
+                        const skyDesc = getSkyDescription(temp.sky);
+                        text += `sky(하늘상태): ${temp.sky} (${skyDesc})\n`;
+                    }
+
+                    if (temp.wf) text += `wf(날씨): ${temp.wf}\n`;
+                    if (temp.pre) text += `pre(강수): ${temp.pre}\n`;
+                    if (temp.rn_st !== undefined && temp.rn_st !== null) text += `rn_st(강수확률): ${temp.rn_st}%\n`;
+                    if (temp.conf) text += `conf(신뢰도): ${temp.conf}\n`;
+
+                    text += '\n';
+                });
+                text += `</pre></div></div>`;
+            }
+
+            // OpenWeatherMap Current (현재 날씨)
+            if (data.openweathermap && data.openweathermap.current && Array.isArray(data.openweathermap.current) && data.openweathermap.current.length > 0) {
+                text += `<div class="data-section" id="owm-current">`;
+                text += `<div class="section-header" onclick="toggleSection('owm-current')">`;
+                text += `<h3 class="section-title">🌤️ OpenWeatherMap 현재 날씨 (${data.openweathermap.current.length}개)</h3>`;
+                text += `<span class="section-toggle">▼</span>`;
+                text += `</div>`;
+                text += `<div class="section-content"><pre>`;
+
+                data.openweathermap.current.forEach(weather => {
+                    const time = weather.observation_time_local || weather.observation_time_utc || 'N/A';
+                    text += `📅 ${time}\n`;
+
+                    if (weather.weather_main) text += `weather_main(날씨): ${weather.weather_main}\n`;
+                    if (weather.weather_description) text += `weather_description(상세): ${weather.weather_description}\n`;
+                    if (weather.temp !== undefined && weather.temp !== null) text += `temp(기온): ${weather.temp}°C\n`;
+                    if (weather.feels_like !== undefined && weather.feels_like !== null) text += `feels_like(체감온도): ${weather.feels_like}°C\n`;
+                    if (weather.humidity !== undefined && weather.humidity !== null) text += `humidity(습도): ${weather.humidity}%\n`;
+                    if (weather.pressure !== undefined && weather.pressure !== null) text += `pressure(기압): ${weather.pressure}hPa\n`;
+                    if (weather.wind_speed !== undefined && weather.wind_speed !== null) text += `wind_speed(풍속): ${weather.wind_speed}m/s\n`;
+                    if (weather.wind_deg !== undefined && weather.wind_deg !== null) text += `wind_deg(풍향): ${weather.wind_deg}°\n`;
+                    if (weather.wind_gust !== undefined && weather.wind_gust !== null) text += `wind_gust(돌풍): ${weather.wind_gust}m/s\n`;
+                    if (weather.clouds !== undefined && weather.clouds !== null) text += `clouds(구름량): ${weather.clouds}%\n`;
+                    if (weather.visibility !== undefined && weather.visibility !== null) text += `visibility(가시거리): ${weather.visibility}m\n`;
+
+                    text += '\n';
+                });
+                text += `</pre></div></div>`;
+            }
+
+            // OpenWeatherMap Forecast (예보)
+            if (data.openweathermap && data.openweathermap.forecast && Array.isArray(data.openweathermap.forecast) && data.openweathermap.forecast.length > 0) {
+                text += `<div class="data-section" id="owm-forecast">`;
+                text += `<div class="section-header" onclick="toggleSection('owm-forecast')">`;
+                text += `<h3 class="section-title">🌤️ OpenWeatherMap 예보 (${data.openweathermap.forecast.length}개)</h3>`;
+                text += `<span class="section-toggle">▼</span>`;
+                text += `</div>`;
+                text += `<div class="section-content"><pre>`;
+
+                data.openweathermap.forecast.forEach(forecast => {
+                    const date = forecast.forecast_date || 'N/A';
+                    const time = forecast.forecast_time || 'N/A';
+                    const forecastType = time === '12:00:00' ? '(일별 예보)' : '(3시간 예보)';
+                    text += `📅 ${date} ${time} ${forecastType}\n`;
+
+                    if (forecast.weather_main) text += `weather_main(날씨): ${forecast.weather_main}\n`;
+                    if (forecast.weather_description) text += `weather_description(상세): ${forecast.weather_description}\n`;
+                    if (forecast.temp !== undefined && forecast.temp !== null) text += `temp(기온): ${forecast.temp}°C\n`;
+                    if (forecast.feels_like !== undefined && forecast.feels_like !== null) text += `feels_like(체감온도): ${forecast.feels_like}°C\n`;
+                    if (forecast.temp_min !== undefined && forecast.temp_min !== null) text += `temp_min(최저기온): ${forecast.temp_min}°C\n`;
+                    if (forecast.temp_max !== undefined && forecast.temp_max !== null) text += `temp_max(최고기온): ${forecast.temp_max}°C\n`;
+                    if (forecast.pop !== undefined && forecast.pop !== null) text += `pop(강수확률): ${(forecast.pop * 100).toFixed(0)}%\n`;
+                    if (forecast.humidity !== undefined && forecast.humidity !== null) text += `humidity(습도): ${forecast.humidity}%\n`;
+                    if (forecast.wind_speed !== undefined && forecast.wind_speed !== null) text += `wind_speed(풍속): ${forecast.wind_speed}m/s\n`;
+                    if (forecast.wind_deg !== undefined && forecast.wind_deg !== null) text += `wind_deg(풍향): ${forecast.wind_deg}°\n`;
+                    if (forecast.clouds !== undefined && forecast.clouds !== null) text += `clouds(구름량): ${forecast.clouds}%\n`;
+                    if (forecast.rain_3h !== undefined && forecast.rain_3h !== null) text += `rain_3h(3시간 강수량): ${forecast.rain_3h}mm\n`;
+                    if (forecast.snow_3h !== undefined && forecast.snow_3h !== null) text += `snow_3h(3시간 적설량): ${forecast.snow_3h}mm\n`;
+
+                    text += '\n';
+                });
+                text += `</pre></div></div>`;
+            }
+
+            if (text === '') {
+                text = '포맷팅할 데이터가 없습니다.';
+            }
+
+            return text;
+        }
+    </script>
+</body>
+</html>

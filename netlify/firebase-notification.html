@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 푸시 알림 관리</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
+        textarea { height: 80px; resize: vertical; }
+        button { background-color: #4CAF50; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; }
+        button:hover { background-color: #45a049; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .clear-btn { background-color: #f44336; }
+        .clear-btn:hover { background-color: #da190b; }
+        .status { padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .status.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.loading { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .log-container { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; font-family: monospace; font-size: 12px; }
+        .log-entry { margin-bottom: 8px; padding: 5px; border-left: 3px solid #4CAF50; background-color: white; }
+        .log-entry.error { border-left-color: #f44336; }
+        .log-timestamp { color: #666; font-size: 11px; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .radio-group { display: flex; gap: 15px; margin-top: 5px; }
+        .radio-group label { display: flex; align-items: center; font-weight: normal; margin-bottom: 0; }
+        .radio-group input[type="radio"] { width: auto; margin-right: 5px; }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: gap 0.2s;
+            font-size: 14px;
+        }
+        .back-button:hover {
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">← 대시보드로 돌아가기</a>
+    <h1>🔥 Firebase 푸시 알림 관리</h1>
+    <div class="container">
+        <h2>📱 알림 발송</h2>
+        <div class="form-group" style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px solid #007bff;">
+            <label for="adminPassword">🔒 관리자 인증</label>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="password" id="adminPassword" placeholder="관리자 비밀번호를 입력하세요"
+                       style="flex: 1; border: 2px solid #007bff;">
+                <button onclick="verifyPassword()" id="verifyBtn"
+                        style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; white-space: nowrap;">
+                    🔐 확인
+                </button>
+            </div>
+            <div id="authStatus" style="margin-top: 10px; font-weight: bold; padding: 8px; border-radius: 4px;">
+                ⚠️ 인증이 필요합니다. 관리자 비밀번호를 입력하고 확인 버튼을 눌러주세요.
+            </div>
+        </div>
+        <div id="mainForm" style="opacity: 0.5; pointer-events: none;">
+        <div class="form-group">
+            <label>발송 대상</label>
+            <div class="radio-group">
+                <label><input type="radio" name="sendType" value="topic" checked disabled> 토픽</label>
+                <label><input type="radio" name="sendType" value="token" disabled> 개별 디바이스</label>
+            </div>
+        </div>
+        <div class="form-group" id="topicGroup">
+            <label for="topic">토픽 선택</label>
+            <select id="topic">
+                <option value="all_users">전체 사용자 (all_users)</option>
+                <option value="push_enabled_users">푸시 활성화 사용자 (push_enabled_users)</option>
+            </select>
+        </div>
+        <div class="form-group" id="tokenGroup" style="display: none;">
+            <label for="token">FCM 토큰</label>
+            <input type="text" id="token" placeholder="FCM 디바이스 토큰 입력">
+        </div>
+        <div class="two-column">
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input type="text" id="title" placeholder="알림 제목" value="🎉 특별 할인">
+            </div>
+            <div class="form-group">
+                <label for="type">타입</label>
+                <select id="type">
+                    <option value="promotion">프로모션</option>
+                    <option value="notice">공지사항</option>
+                    <option value="message">일반 메시지</option>
+                    <option value="news">뉴스</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="body">내용</label>
+            <textarea id="body" placeholder="알림 내용">50% 할인 이벤트 진행중!</textarea>
+        </div>
+        <div class="form-group">
+            <label for="promotionUrl">프로모션 URL (선택사항)</label>
+            <input type="url" id="promotionUrl" placeholder="https://mancool.netlify.app/notifications.html" value="https://mancool.netlify.app/notifications.html">
+        </div>
+        <div class="form-group">
+            <label for="priority">우선순위</label>
+            <select id="priority">
+                <option value="high">높음 (High)</option>
+                <option value="normal">보통 (Normal)</option>
+            </select>
+        </div>
+        <button onclick="sendNotification()" id="sendBtn" disabled style="opacity: 0.5;">🚀 알림 발송</button>
+        <button onclick="clearForm()" class="clear-btn" disabled style="opacity: 0.5;">🗑️ 초기화</button>
+        <div id="status"></div>
+        </div>
+    </div>
+    <div class="container">
+        <h2>📋 발송 로그</h2>
+        <button onclick="clearLogs()" class="clear-btn">로그 초기화</button>
+        <div class="log-container" id="logContainer">
+            <div class="log-entry"><div class="log-timestamp">[시작] 푸시 알림 관리 시스템 준비 완료</div></div>
+        </div>
+    </div>
+    <script>
+        // Supabase 설정 - 실제 배포 시 환경에 맞게 설정
+        const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+        const FUNCTION_URL = SUPABASE_URL + '/functions/v1/send-firebase-notification';
+
+        // 인증 상태 관리
+        let isAuthenticated = false;
+
+        // 비밀번호 검증 함수
+        async function verifyPassword() {
+            const adminPassword = document.getElementById('adminPassword').value;
+            const authStatus = document.getElementById('authStatus');
+            const verifyBtn = document.getElementById('verifyBtn');
+
+            if (!adminPassword) {
+                authStatus.style.background = '#f8d7da';
+                authStatus.style.color = '#721c24';
+                authStatus.innerHTML = '❌ 비밀번호를 입력해주세요.';
+                return;
+            }
+
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '⏳  확인 중...';
+            authStatus.style.background = '#fff3cd';
+            authStatus.style.color = '#856404';
+            authStatus.innerHTML = '🔄 인증 확인 중입니다...';
+
+            try {
+                // 서버에 인증 요청 (빈 payload로 비밀번호만 검증)
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminPassword: adminPassword, testAuth: true })
+                });
+
+                if (response.status === 401) {
+                    // 인증 실패
+                    authStatus.style.background = '#f8d7da';
+                    authStatus.style.color = '#721c24';
+                    authStatus.innerHTML = '❌ 관리자 비밀번호가 올바르지 않습니다.';
+                    isAuthenticated = false;
+                } else {
+                    // 인증 성공
+                    authStatus.style.background = '#d4edda';
+                    authStatus.style.color = '#155724';
+                    authStatus.innerHTML = '✅ 인증 성공! 알림을 발송할 수 있습니다.';
+                    isAuthenticated = true;
+                    enableForm();
+                }
+            } catch (error) {
+                authStatus.style.background = '#f8d7da';
+                authStatus.style.color = '#721c24';
+                authStatus.innerHTML = '❌ 네트워크 오류: ' + error.message;
+                isAuthenticated = false;
+            }
+
+            verifyBtn.disabled = false;
+            verifyBtn.innerHTML = '🔐 확인';
+        }
+
+        // 폼 활성화 함수
+        function enableForm() {
+            const mainForm = document.getElementById('mainForm');
+            const sendBtn = document.getElementById('sendBtn');
+            const clearBtns = document.querySelectorAll('.clear-btn');
+
+            mainForm.style.opacity = '1';
+            mainForm.style.pointerEvents = 'auto';
+
+            sendBtn.disabled = false;
+            sendBtn.style.opacity = '1';
+
+            clearBtns.forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            });
+
+            // 라디오 버튼 활성화
+            document.querySelectorAll('input[name="sendType"]').forEach(radio => {
+                radio.disabled = false;
+            });
+
+            addLog('🔓 인증 성공 - 폼이 활성화되었습니다.');
+        }
+
+        document.querySelectorAll('input[name="sendType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const topicGroup = document.getElementById('topicGroup');
+                const tokenGroup = document.getElementById('tokenGroup');
+                if (this.value === 'topic') {
+                    topicGroup.style.display = 'block';
+                    tokenGroup.style.display = 'none';
+                } else {
+                    topicGroup.style.display = 'none';
+                    tokenGroup.style.display = 'block';
+                }
+            });
+        });
+        function addLog(message, isError = false) {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleString('ko-KR');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry ' + (isError ? 'error' : '');
+            logEntry.innerHTML = '<div class="log-timestamp">[' + timestamp + '] ' + message + '</div>';
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        function showStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status ' + type;
+            statusDiv.textContent = message;
+            if (type !== 'loading') {
+                setTimeout(() => { statusDiv.innerHTML = ''; statusDiv.className = ''; }, 5000);
+            }
+        }
+        async function sendNotification() {
+            const sendBtn = document.getElementById('sendBtn');
+            const sendType = document.querySelector('input[name="sendType"]:checked').value;
+            const adminPassword = document.getElementById('adminPassword').value;
+
+            // Step 1: 인증 상태 확인
+            if (!isAuthenticated) {
+                showStatus('먼저 관리자 인증을 완료해주세요.', 'error');
+                return;
+            }
+
+            const payload = {
+                adminPassword: adminPassword,
+                authenticated: true, // 클라이언트에서 인증된 상태임을 표시
+                dataOnly: true,
+                priority: document.getElementById('priority').value,
+                data: {
+                    title: document.getElementById('title').value,
+                    body: document.getElementById('body').value,
+                    type: document.getElementById('type').value
+                }
+            };
+            const promotionUrl = document.getElementById('promotionUrl').value;
+            if (promotionUrl) { payload.data.promotion_url = promotionUrl; }
+            if (sendType === 'topic') {
+                payload.topic = document.getElementById('topic').value;
+            } else {
+                const token = document.getElementById('token').value;
+                if (!token) { showStatus('FCM 토큰을 입력해주세요.', 'error'); return; }
+                payload.token = token;
+            }
+            if (!payload.data.title || !payload.data.body) {
+                showStatus('제목과 내용을 입력해주세요.', 'error'); return;
+            }
+            sendBtn.disabled = true;
+            showStatus('알림 발송 중...', 'loading');
+            const sendTarget = sendType === 'topic' ? '토픽: ' + payload.topic : '토큰: ' + payload.token.substring(0, 20) + '...';
+            addLog('🚀 알림 발송 시작 - ' + sendTarget);
+            addLog('📝 내용: ' + payload.data.title + ' / ' + payload.data.body);
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    mode: 'cors',
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    showStatus('✅ 알림이 성공적으로 발송되었습니다!', 'success');
+                    addLog('✅ 발송 성공 - 메시지 ID: ' + result.result.name);
+                } else {
+                    showStatus('❌ 발송 실패: ' + (result.error || '알 수 없는 오류'), 'error');
+                    addLog('❌ 발송 실패: ' + (result.error || JSON.stringify(result)), true);
+                }
+            } catch (error) {
+                showStatus('❌ 네트워크 오류: ' + error.message, 'error');
+                addLog('❌ 네트워크 오류: ' + error.message, true);
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+        function clearForm() {
+            document.getElementById('title').value = '🎉 특별 할인';
+            document.getElementById('body').value = '50% 할인 이벤트 진행중!';
+            document.getElementById('promotionUrl').value = 'https://mancool.netlify.app/notifications.html';
+            document.getElementById('token').value = '';
+            document.querySelector('input[value="topic"]').checked = true;
+            document.getElementById('topicGroup').style.display = 'block';
+            document.getElementById('tokenGroup').style.display = 'none';
+            showStatus('', '');
+            addLog('🗑️ 폼이 초기화되었습니다.');
+        }
+        function clearLogs() {
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML = '<div class="log-entry"><div class="log-timestamp">[초기화] 로그가 초기화되었습니다.</div></div>';
+        }
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', function() {
+            addLog('🌟 Firebase 푸시 알림 관리 시스템이 준비되었습니다.');
+            addLog('🔒 보안 강화: 2단계 인증 시스템이 적용되었습니다.');
+
+            // 비밀번호 입력 필드에서 Enter 키 처리
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    verifyPassword();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

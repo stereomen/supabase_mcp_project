@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>광고 시스템 마이그레이션</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .step h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .step p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            margin: 10px 0;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .sql-preview {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 광고 시스템 마이그레이션</h1>
+            <p>데이터베이스 테이블 및 뷰를 자동으로 생성합니다</p>
+        </div>
+
+        <div class="content">
+            <div class="step">
+                <h2>📋 1단계: SQL 복사하기</h2>
+                <p>아래 버튼을 클릭하면 마이그레이션 SQL이 자동으로 클립보드에 복사됩니다.</p>
+                <button onclick="copySQLToClipboard()">📋 SQL 복사하기</button>
+                <div id="copyStatus"></div>
+            </div>
+
+            <div class="step">
+                <h2>🔗 2단계: SQL Editor 열기</h2>
+                <p>Supabase SQL Editor를 새 탭에서 엽니다.</p>
+                <button onclick="openSQLEditor()">🔗 SQL Editor 열기</button>
+            </div>
+
+            <div class="step">
+                <h2>▶️ 3단계: SQL 실행하기</h2>
+                <p>SQL Editor에서:</p>
+                <ol style="margin-left: 20px; line-height: 1.8;">
+                    <li><strong>Ctrl+V</strong> (또는 Cmd+V)로 복사한 SQL 붙여넣기</li>
+                    <li><strong>Run</strong> 버튼 클릭 또는 <strong>Ctrl+Enter</strong></li>
+                    <li>성공 메시지 확인</li>
+                </ol>
+            </div>
+
+            <div class="step">
+                <h2>✅ 완료 확인</h2>
+                <p>마이그레이션이 성공하면 아래 페이지들이 정상 작동합니다:</p>
+                <ul style="margin-left: 20px; line-height: 1.8;">
+                    <li><a href="ad-partners.html" class="link">제휴사 관리</a></li>
+                    <li><a href="ad-post.html" class="link">광고 캠페인 등록</a></li>
+                    <li><a href="ad-analytics.html" class="link">광고 성과 분석</a></li>
+                    <li><a href="ad-partner-analytics.html" class="link">제휴사 성과 조회</a></li>
+                </ul>
+            </div>
+
+            <div class="step" style="background: #fff3cd; border-left-color: #ffc107;">
+                <h2>🎲 보너스: 더미 데이터 삽입 (선택사항)</h2>
+                <p>테스트용 제휴사 5개, 광고 캠페인 11개, 이벤트 데이터를 자동으로 생성합니다.</p>
+                <button onclick="copyDummyDataSQL()" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);">
+                    🎲 더미 데이터 SQL 복사하기
+                </button>
+                <div id="dummyStatus"></div>
+                <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                    ※ 마이그레이션 완료 후에 실행하세요<br>
+                    ※ 포함 내용: 제휴사 5개, 현재/예정/종료 캠페인 11개, 조회/클릭 이벤트 수백 건
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const migrationSQL = `-- ============================================
+-- 광고 시스템 통합 마이그레이션
+-- 실행일: 2025-12-23
+-- ============================================
+
+-- 1. ad_repo 테이블 생성
+CREATE TABLE IF NOT EXISTS ad_repo (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    partner_id TEXT NOT NULL REFERENCES ad_partners(partner_id),
+    campaign_name TEXT NOT NULL,
+    matched_station_id TEXT,
+    matched_area TEXT,
+    ad_type_a TEXT,
+    ad_type_b TEXT,
+    image_a_url TEXT,
+    image_b_url TEXT,
+    landing_url TEXT,
+    display_start_date DATE NOT NULL,
+    display_end_date DATE NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    priority INTEGER DEFAULT 0,
+    description TEXT,
+    additional_data JSONB,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT valid_display_period CHECK (display_end_date >= display_start_date),
+    CONSTRAINT valid_priority CHECK (priority >= 0)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ad_repo_station_active ON ad_repo(matched_station_id, is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_ad_repo_area_active ON ad_repo(matched_area, is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_ad_repo_display_period ON ad_repo(display_start_date, display_end_date) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_ad_repo_partner_id ON ad_repo(partner_id);
+CREATE INDEX IF NOT EXISTS idx_ad_repo_station_date_active ON ad_repo(matched_station_id, display_start_date, display_end_date, is_active) WHERE is_active = true;
+
+ALTER TABLE ad_repo DISABLE ROW LEVEL SECURITY;
+
+-- 2. ad_analytics 테이블 생성
+CREATE TABLE IF NOT EXISTS ad_analytics (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    ad_repo_id UUID NOT NULL REFERENCES ad_repo(id) ON DELETE CASCADE,
+    event_type TEXT NOT NULL,
+    station_id TEXT,
+    event_timestamp TIMESTAMPTZ DEFAULT NOW(),
+    event_date DATE,
+    user_agent TEXT,
+    ip_address TEXT,
+    additional_data JSONB,
+    CONSTRAINT valid_event_type CHECK (event_type IN ('impression', 'click'))
+);
+
+-- event_date 자동 설정 트리거 함수
+CREATE OR REPLACE FUNCTION set_ad_analytics_event_date()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.event_date := (NEW.event_timestamp AT TIME ZONE 'UTC')::DATE;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 트리거 생성
+DROP TRIGGER IF EXISTS trg_set_ad_analytics_event_date ON ad_analytics;
+CREATE TRIGGER trg_set_ad_analytics_event_date
+    BEFORE INSERT OR UPDATE ON ad_analytics
+    FOR EACH ROW
+    EXECUTE FUNCTION set_ad_analytics_event_date();
+
+CREATE INDEX IF NOT EXISTS idx_ad_analytics_repo_id ON ad_analytics(ad_repo_id);
+CREATE INDEX IF NOT EXISTS idx_ad_analytics_event_type ON ad_analytics(event_type);
+CREATE INDEX IF NOT EXISTS idx_ad_analytics_date ON ad_analytics(event_date);
+CREATE INDEX IF NOT EXISTS idx_ad_analytics_repo_date ON ad_analytics(ad_repo_id, event_date);
+CREATE INDEX IF NOT EXISTS idx_ad_analytics_timestamp ON ad_analytics(event_timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_ad_analytics_repo_event_date ON ad_analytics(ad_repo_id, event_type, event_date);
+
+ALTER TABLE ad_analytics DISABLE ROW LEVEL SECURITY;
+
+-- 3. 성과 요약 뷰
+CREATE OR REPLACE VIEW ad_analytics_daily_summary AS
+SELECT
+    ad_repo_id,
+    event_date,
+    COUNT(*) FILTER (WHERE event_type = 'impression') as impressions,
+    COUNT(*) FILTER (WHERE event_type = 'click') as clicks,
+    CASE
+        WHEN COUNT(*) FILTER (WHERE event_type = 'impression') > 0
+        THEN ROUND((COUNT(*) FILTER (WHERE event_type = 'click')::NUMERIC / COUNT(*) FILTER (WHERE event_type = 'impression')::NUMERIC) * 100, 2)
+        ELSE 0
+    END as ctr_percentage
+FROM ad_analytics
+GROUP BY ad_repo_id, event_date
+ORDER BY event_date DESC, ad_repo_id;
+
+CREATE OR REPLACE VIEW ad_analytics_campaign_summary AS
+SELECT
+    a.ad_repo_id,
+    r.campaign_name,
+    r.partner_id,
+    p.partner_name,
+    COUNT(*) FILTER (WHERE a.event_type = 'impression') as total_impressions,
+    COUNT(*) FILTER (WHERE a.event_type = 'click') as total_clicks,
+    CASE
+        WHEN COUNT(*) FILTER (WHERE a.event_type = 'impression') > 0
+        THEN ROUND((COUNT(*) FILTER (WHERE a.event_type = 'click')::NUMERIC / COUNT(*) FILTER (WHERE a.event_type = 'impression')::NUMERIC) * 100, 2)
+        ELSE 0
+    END as overall_ctr_percentage,
+    MIN(a.event_timestamp) as first_event,
+    MAX(a.event_timestamp) as last_event
+FROM ad_analytics a
+JOIN ad_repo r ON a.ad_repo_id = r.id
+LEFT JOIN ad_partners p ON r.partner_id = p.partner_id
+GROUP BY a.ad_repo_id, r.campaign_name, r.partner_id, p.partner_name
+ORDER BY total_impressions DESC;
+
+-- 4. 광고 저장소 뷰
+CREATE OR REPLACE VIEW ad_repo_view AS
+SELECT
+    r.id, r.partner_id, r.campaign_name, r.matched_station_id, r.matched_area,
+    r.ad_type_a, r.ad_type_b, r.image_a_url, r.image_b_url, r.landing_url,
+    r.display_start_date, r.display_end_date, r.is_active, r.priority,
+    r.description, r.additional_data as ad_additional_data, r.created_at, r.updated_at,
+    p.partner_name, p.address, p.phone, p.contact_name, p.business_type, p.business_level,
+    p.staff_name_1, p.staff_name_2, p.staff_name_3, p.additional_data as partner_additional_data,
+    CURRENT_DATE BETWEEN r.display_start_date AND r.display_end_date as is_currently_active,
+    r.display_end_date - CURRENT_DATE as days_remaining,
+    CURRENT_DATE - r.display_start_date as days_since_start
+FROM ad_repo r
+LEFT JOIN ad_partners p ON r.partner_id = p.partner_id
+ORDER BY r.priority DESC, r.created_at DESC;
+
+CREATE OR REPLACE VIEW ad_repo_active_view AS
+SELECT * FROM ad_repo_view
+WHERE is_active = true AND CURRENT_DATE BETWEEN display_start_date AND display_end_date
+ORDER BY priority DESC, created_at DESC;
+
+-- 5. 광고 조회 함수
+CREATE OR REPLACE FUNCTION get_active_ads_for_station(p_station_id TEXT, p_date DATE DEFAULT CURRENT_DATE)
+RETURNS TABLE (
+    id UUID, partner_id TEXT, partner_name TEXT, campaign_name TEXT,
+    matched_station_id TEXT, matched_area TEXT, ad_type_a TEXT, ad_type_b TEXT,
+    image_a_url TEXT, image_b_url TEXT, landing_url TEXT, priority INTEGER,
+    business_type TEXT, business_level INTEGER
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT r.id, r.partner_id, r.partner_name, r.campaign_name, r.matched_station_id,
+           r.matched_area, r.ad_type_a, r.ad_type_b, r.image_a_url, r.image_b_url,
+           r.landing_url, r.priority, r.business_type, r.business_level
+    FROM ad_repo_view r
+    WHERE r.is_active = true
+      AND p_date BETWEEN r.display_start_date AND r.display_end_date
+      AND (r.matched_station_id = p_station_id OR r.matched_station_id IS NULL)
+    ORDER BY r.priority DESC, r.created_at DESC
+    LIMIT 1;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_active_ads_for_area(p_area TEXT, p_date DATE DEFAULT CURRENT_DATE)
+RETURNS TABLE (
+    id UUID, partner_id TEXT, partner_name TEXT, campaign_name TEXT,
+    matched_station_id TEXT, matched_area TEXT, ad_type_a TEXT, ad_type_b TEXT,
+    image_a_url TEXT, image_b_url TEXT, landing_url TEXT, priority INTEGER
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT r.id, r.partner_id, r.partner_name, r.campaign_name, r.matched_station_id,
+           r.matched_area, r.ad_type_a, r.ad_type_b, r.image_a_url, r.image_b_url,
+           r.landing_url, r.priority
+    FROM ad_repo_view r
+    WHERE r.is_active = true
+      AND p_date BETWEEN r.display_start_date AND r.display_end_date
+      AND (r.matched_area = p_area OR r.matched_area IS NULL)
+    ORDER BY r.priority DESC, r.created_at DESC
+    LIMIT 1;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 6. 제휴사 비밀번호 필드 추가
+ALTER TABLE ad_partners ADD COLUMN IF NOT EXISTS password TEXT;
+UPDATE ad_partners SET password = partner_id WHERE password IS NULL;
+
+CREATE TABLE IF NOT EXISTS ad_partner_password_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    partner_id TEXT NOT NULL REFERENCES ad_partners(partner_id) ON DELETE CASCADE,
+    changed_at TIMESTAMPTZ DEFAULT NOW(),
+    changed_by TEXT
+);
+
+ALTER TABLE ad_partner_password_history DISABLE ROW LEVEL SECURITY;
+CREATE INDEX IF NOT EXISTS idx_password_history_partner ON ad_partner_password_history(partner_id);
+CREATE INDEX IF NOT EXISTS idx_password_history_date ON ad_partner_password_history(changed_at DESC);`;
+
+        async function copySQLToClipboard() {
+            try {
+                await navigator.clipboard.writeText(migrationSQL);
+                document.getElementById('copyStatus').innerHTML = '<div class="success">✅ SQL이 클립보드에 복사되었습니다!</div>';
+                setTimeout(() => {
+                    document.getElementById('copyStatus').innerHTML = '';
+                }, 3000);
+            } catch (err) {
+                alert('복사 실패: ' + err.message);
+            }
+        }
+
+        function openSQLEditor() {
+            window.open('https://supabase.com/dashboard/project/iwpgvdtfpwazzfeniusk/sql', '_blank');
+        }
+
+        const dummyDataSQL = `-- 광고 시스템 더미 데이터 삽입
+
+-- 1. 제휴사 더미 데이터
+INSERT INTO ad_partners (partner_id, partner_name, address, phone, contact_name, business_type, business_level, staff_name_1, password)
+VALUES
+    ('PARTNER_001', '바다낚시 전문점', '부산광역시 해운대구 우동 123', '051-123-4567', '김해운', '낚시가게', 5, '이민수', 'PARTNER_001'),
+    ('PARTNER_002', '해양레저 마린', '인천광역시 중구 연안부두로 456', '032-987-6543', '박인천', '선박', 4, '최바다', 'PARTNER_002'),
+    ('PARTNER_003', '남해 좌대낚시', '경상남도 남해군 미조면 789', '055-555-8888', '정남해', '좌대', 3, '강물고기', 'PARTNER_003'),
+    ('PARTNER_004', '서해 피싱샵', '충청남도 태안군 안면읍 101', '041-333-2222', '오서해', '낚시가게', 4, '윤조수', 'PARTNER_004'),
+    ('PARTNER_005', '동해 마린스포츠', '강원도 속초시 동명항 202', '033-444-5555', '한동해', '선박', 5, '송파도', 'PARTNER_005')
+ON CONFLICT (partner_id) DO NOTHING;
+
+-- 2. 광고 캠페인 더미 데이터
+INSERT INTO ad_repo (partner_id, campaign_name, matched_station_id, matched_area, ad_type_a, ad_type_b, image_a_url, image_b_url, landing_url, display_start_date, display_end_date, is_active, priority, description)
+VALUES
+    ('PARTNER_001', '부산 해운대 낚시 장비 할인', 'DT_0005', NULL, 'banner', 'popup', 'https://picsum.photos/800/400?random=1', 'https://picsum.photos/400/600?random=2', 'https://example.com/busan-fishing', CURRENT_DATE - INTERVAL '5 days', CURRENT_DATE + INTERVAL '25 days', true, 10, '부산 지역 낚시 장비 20% 할인 이벤트'),
+    ('PARTNER_002', '인천 선상낚시 패키지', 'DT_0001', '서해중부', 'banner', 'inline', 'https://picsum.photos/800/400?random=3', 'https://picsum.photos/600/400?random=4', 'https://example.com/incheon-boat', CURRENT_DATE - INTERVAL '10 days', CURRENT_DATE + INTERVAL '20 days', true, 8, '인천 선상낚시 주말 특가 - 4인 패키지 30% 할인'),
+    ('PARTNER_003', '남해 좌대낚시 시즌 오픈', NULL, '남해동부', 'banner', NULL, 'https://picsum.photos/800/400?random=5', NULL, 'https://example.com/namhae-jwadae', CURRENT_DATE - INTERVAL '3 days', CURRENT_DATE + INTERVAL '27 days', true, 9, '남해 좌대낚시 봄 시즌 오픈 - 예약자 사은품 증정'),
+    ('PARTNER_004', '태안 갯바위 낚시투어', 'DT_0050', '서해중부', 'banner', 'popup', 'https://picsum.photos/800/400?random=6', 'https://picsum.photos/400/600?random=7', 'https://example.com/taean-tour', CURRENT_DATE, CURRENT_DATE + INTERVAL '30 days', true, 7, '태안 갯바위 낚시투어 - 전문 가이드 동행'),
+    ('PARTNER_005', '속초 마린스포츠 체험', 'DT_0012', '동해중부', 'inline', 'banner', 'https://picsum.photos/600/400?random=8', 'https://picsum.photos/800/400?random=9', 'https://example.com/sokcho-marine', CURRENT_DATE - INTERVAL '7 days', CURRENT_DATE + INTERVAL '23 days', true, 6, '속초 마린스포츠 여름 시즌 조기 예약 할인'),
+    ('PARTNER_001', '여름 릴 낚시대 신제품', NULL, NULL, 'banner', 'popup', 'https://picsum.photos/800/400?random=10', 'https://picsum.photos/400/600?random=11', 'https://example.com/summer-reel', CURRENT_DATE + INTERVAL '5 days', CURRENT_DATE + INTERVAL '35 days', true, 5, '여름 시즌 신제품 릴 낚시대 사전 예약'),
+    ('PARTNER_003', '가족 낚시 체험', NULL, '남해서부', 'banner', NULL, 'https://picsum.photos/800/400?random=12', NULL, 'https://example.com/family-fishing', CURRENT_DATE + INTERVAL '10 days', CURRENT_DATE + INTERVAL '40 days', true, 4, '가족과 함께하는 낚시 체험 프로그램'),
+    ('PARTNER_002', '겨울 방한 낚시복 세일', 'DT_0001', NULL, 'banner', 'inline', 'https://picsum.photos/800/400?random=13', 'https://picsum.photos/600/400?random=14', 'https://example.com/winter-clothes', CURRENT_DATE - INTERVAL '60 days', CURRENT_DATE - INTERVAL '30 days', false, 3, '겨울 시즌 방한 낚시복 재고 정리 세일 (종료)'),
+    ('PARTNER_004', '테스트 캠페인', 'DT_0050', NULL, 'banner', NULL, 'https://picsum.photos/800/400?random=15', NULL, 'https://example.com/test', CURRENT_DATE, CURRENT_DATE + INTERVAL '30 days', false, 1, '테스트용 캠페인 - 비활성화됨'),
+    ('PARTNER_005', '전국 낚시 페스티벌', NULL, NULL, 'banner', 'popup', 'https://picsum.photos/800/400?random=16', 'https://picsum.photos/400/600?random=17', 'https://example.com/festival', CURRENT_DATE - INTERVAL '2 days', CURRENT_DATE + INTERVAL '28 days', true, 15, '전국 낚시 페스티벌 - 다양한 이벤트 및 경품 행사');
+
+-- 3. 광고 이벤트 더미 데이터 (조회/클릭 통계)
+DO $$
+DECLARE
+    campaign RECORD;
+    event_count INTEGER;
+    i INTEGER;
+BEGIN
+    FOR campaign IN
+        SELECT id, matched_station_id FROM ad_repo
+        WHERE display_start_date <= CURRENT_DATE AND display_end_date >= CURRENT_DATE - INTERVAL '30 days'
+    LOOP
+        event_count := 100 + floor(random() * 400)::INTEGER;
+        FOR i IN 1..event_count LOOP
+            INSERT INTO ad_analytics (ad_repo_id, event_type, station_id, event_timestamp)
+            VALUES (campaign.id, 'impression', COALESCE(campaign.matched_station_id, 'DT_0001'), CURRENT_TIMESTAMP - (random() * INTERVAL '30 days'));
+        END LOOP;
+        event_count := floor(event_count * (0.03 + random() * 0.07))::INTEGER;
+        FOR i IN 1..event_count LOOP
+            INSERT INTO ad_analytics (ad_repo_id, event_type, station_id, event_timestamp)
+            VALUES (campaign.id, 'click', COALESCE(campaign.matched_station_id, 'DT_0001'), CURRENT_TIMESTAMP - (random() * INTERVAL '30 days'));
+        END LOOP;
+    END LOOP;
+END $$;
+
+SELECT '✅ 더미 데이터 삽입 완료!' as message,
+       (SELECT COUNT(*) FROM ad_partners) as partners,
+       (SELECT COUNT(*) FROM ad_repo) as campaigns,
+       (SELECT COUNT(*) FROM ad_analytics) as events;`;
+
+        async function copyDummyDataSQL() {
+            try {
+                await navigator.clipboard.writeText(dummyDataSQL);
+                document.getElementById('dummyStatus').innerHTML = '<div class="success">✅ 더미 데이터 SQL이 클립보드에 복사되었습니다!<br>SQL Editor에서 붙여넣고 실행하세요.</div>';
+                setTimeout(() => {
+                    document.getElementById('dummyStatus').innerHTML = '';
+                }, 5000);
+            } catch (err) {
+                alert('복사 실패: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

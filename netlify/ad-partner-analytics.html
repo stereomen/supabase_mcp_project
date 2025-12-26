@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제휴사 광고 성과 조회</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .auth-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .auth-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .form-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        .form-group > div {
+            flex: 1;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+            white-space: nowrap;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-card .label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .partner-info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .partner-info h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .info-item label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+        .info-item value {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .ctr-bar {
+            background: #e0e0e0;
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .ctr-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .ctr-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            line-height: 24px;
+            font-size: 13px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge.active {
+            background: #28a745;
+            color: white;
+        }
+        .badge.inactive {
+            background: #6c757d;
+            color: white;
+        }
+        .badge.waiting {
+            background: #ffc107;
+            color: #333;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        #dataContainer {
+            display: none;
+        }
+        #dataContainer.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 제휴사 광고 성과 조회</h1>
+            <p>우리 업체의 광고 캠페인 성과를 확인하세요</p>
+        </div>
+
+        <div class="content">
+            <!-- 인증 섹션 -->
+            <div class="auth-section">
+                <h2>🔐 제휴사 로그인</h2>
+                <div class="form-group">
+                    <div>
+                        <label for="partnerId">업체 ID</label>
+                        <input type="text" id="partnerId" placeholder="예: PARTNER_0001"
+                               onkeypress="if(event.key==='Enter') document.getElementById('password').focus()">
+                    </div>
+                    <div>
+                        <label for="password">비밀번호</label>
+                        <input type="password" id="password" placeholder="비밀번호"
+                               onkeypress="if(event.key==='Enter') loginPartner()">
+                    </div>
+                    <button onclick="loginPartner()">로그인</button>
+                </div>
+                <div id="authMessage"></div>
+                <div style="margin-top: 15px; text-align: center;">
+                    <button onclick="showPasswordChange()" style="background: #6c757d; padding: 8px 20px; font-size: 14px;">비밀번호 변경</button>
+                </div>
+            </div>
+
+            <!-- 데이터 컨테이너 (인증 후 표시) -->
+            <div id="dataContainer">
+                <!-- 제휴사 정보 -->
+                <div class="partner-info">
+                    <h3>업체 정보</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>업체명</label>
+                            <value id="partnerName">-</value>
+                        </div>
+                        <div class="info-item">
+                            <label>업체 ID</label>
+                            <value id="partnerIdDisplay">-</value>
+                        </div>
+                        <div class="info-item">
+                            <label>업종</label>
+                            <value id="businessType">-</value>
+                        </div>
+                        <div class="info-item">
+                            <label>매칭 관측소</label>
+                            <value id="stationId">-</value>
+                        </div>
+                        <div class="info-item">
+                            <label>매칭 해역</label>
+                            <value id="area">-</value>
+                        </div>
+                        <div class="info-item">
+                            <label>연락처</label>
+                            <value id="phone">-</value>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 전체 통계 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>진행중 캠페인</h3>
+                        <div class="value" id="activeCampaigns">-</div>
+                        <div class="label">개</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>총 노출 수</h3>
+                        <div class="value" id="totalImpressions">-</div>
+                        <div class="label">회</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>총 클릭 수</h3>
+                        <div class="value" id="totalClicks">-</div>
+                        <div class="label">회</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>평균 CTR</h3>
+                        <div class="value" id="averageCTR">-</div>
+                        <div class="label">%</div>
+                    </div>
+                </div>
+
+                <!-- 캠페인별 성과 -->
+                <div class="section">
+                    <h2>📈 캠페인별 상세 성과</h2>
+                    <div id="campaignsTable"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+        const AUTH_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co/functions/v1/partner-auth';
+
+        let currentPartnerId = null;
+        let partnerData = null;
+
+        async function loginPartner() {
+            const partnerId = document.getElementById('partnerId').value.trim();
+            const password = document.getElementById('password').value;
+            const authMessage = document.getElementById('authMessage');
+
+            if (!partnerId || !password) {
+                authMessage.innerHTML = '<div class="message error">업체 ID와 비밀번호를 입력하세요.</div>';
+                return;
+            }
+
+            authMessage.innerHTML = '<div class="loading">🔄 로그인 중...</div>';
+
+            try {
+                // 로그인 API 호출
+                const response = await fetch(AUTH_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        action: 'login',
+                        partner_id: partnerId,
+                        password: password
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    authMessage.innerHTML = `<div class="message error">❌ ${result.error}</div>`;
+                    document.getElementById('dataContainer').classList.remove('show');
+                    return;
+                }
+
+                partnerData = result.data;
+                currentPartnerId = partnerId;
+
+                // 제휴사 정보 표시
+                displayPartnerInfo(partnerData);
+
+                // 캠페인 및 성과 데이터 로드
+                await loadCampaignsAndAnalytics(partnerId);
+
+                authMessage.innerHTML = '<div class="message info">✅ 로그인 성공</div>';
+                document.getElementById('dataContainer').classList.add('show');
+
+            } catch (error) {
+                console.error('Login error:', error);
+                authMessage.innerHTML = `<div class="message error">❌ 로그인 실패: ${error.message}</div>`;
+                document.getElementById('dataContainer').classList.remove('show');
+            }
+        }
+
+        function showPasswordChange() {
+            if (!currentPartnerId) {
+                alert('먼저 로그인 해주세요.');
+                return;
+            }
+
+            const currentPwd = prompt('현재 비밀번호를 입력하세요:');
+            if (!currentPwd) return;
+
+            const newPwd = prompt('새 비밀번호를 입력하세요 (최소 4자):');
+            if (!newPwd || newPwd.length < 4) {
+                alert('새 비밀번호는 최소 4자 이상이어야 합니다.');
+                return;
+            }
+
+            const confirmPwd = prompt('새 비밀번호를 다시 입력하세요:');
+            if (newPwd !== confirmPwd) {
+                alert('새 비밀번호가 일치하지 않습니다.');
+                return;
+            }
+
+            changePassword(currentPwd, newPwd);
+        }
+
+        async function changePassword(currentPassword, newPassword) {
+            try {
+                const response = await fetch(AUTH_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        action: 'change_password',
+                        partner_id: currentPartnerId,
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ 비밀번호가 성공적으로 변경되었습니다.\n다음 로그인부터 새 비밀번호를 사용하세요.');
+                } else {
+                    alert('❌ ' + result.error);
+                }
+            } catch (error) {
+                console.error('Password change error:', error);
+                alert('❌ 비밀번호 변경 실패: ' + error.message);
+            }
+        }
+
+        function displayPartnerInfo(partner) {
+            document.getElementById('partnerName').textContent = partner.partner_name || '-';
+            document.getElementById('partnerIdDisplay').textContent = partner.partner_id || '-';
+            document.getElementById('businessType').textContent = partner.business_type || '-';
+            document.getElementById('stationId').textContent = partner.matched_station_id || '-';
+            document.getElementById('area').textContent = partner.matched_area || '-';
+            document.getElementById('phone').textContent = partner.phone || '-';
+        }
+
+        async function loadCampaignsAndAnalytics(partnerId) {
+            try {
+                // 캠페인 목록 조회
+                const campaignsResponse = await fetch(`${SUPABASE_URL}/rest/v1/ad_repo_view?partner_id=eq.${partnerId}&select=*&order=priority.desc,created_at.desc`, {
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    }
+                });
+
+                if (!campaignsResponse.ok) {
+                    throw new Error('캠페인 조회 실패');
+                }
+
+                const campaigns = await campaignsResponse.json();
+
+                // 성과 데이터 조회
+                const analyticsResponse = await fetch(`${SUPABASE_URL}/rest/v1/ad_analytics_campaign_summary?partner_id=eq.${partnerId}&select=*`, {
+                    headers: {
+                        'apikey': ANON_KEY,
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    }
+                });
+
+                let analytics = [];
+                if (analyticsResponse.ok) {
+                    analytics = await analyticsResponse.json();
+                }
+
+                // 캠페인과 성과 데이터 매칭
+                const campaignsWithAnalytics = campaigns.map(campaign => {
+                    const analytic = analytics.find(a => a.ad_repo_id === campaign.id);
+                    return {
+                        ...campaign,
+                        total_impressions: analytic?.total_impressions || 0,
+                        total_clicks: analytic?.total_clicks || 0,
+                        overall_ctr_percentage: analytic?.overall_ctr_percentage || 0,
+                        first_event: analytic?.first_event,
+                        last_event: analytic?.last_event
+                    };
+                });
+
+                displayCampaigns(campaignsWithAnalytics);
+                calculateStats(campaignsWithAnalytics);
+
+            } catch (error) {
+                console.error('Analytics load error:', error);
+                document.getElementById('campaignsTable').innerHTML =
+                    `<div class="message error">❌ 성과 데이터 로드 실패: ${error.message}</div>`;
+            }
+        }
+
+        function displayCampaigns(campaigns) {
+            const tableDiv = document.getElementById('campaignsTable');
+
+            if (campaigns.length === 0) {
+                tableDiv.innerHTML = '<div class="no-data">등록된 캠페인이 없습니다.</div>';
+                return;
+            }
+
+            let html = '<table><thead><tr>';
+            html += '<th>캠페인명</th><th>타겟</th><th>노출기간</th><th>상태</th>';
+            html += '<th>노출 수</th><th>클릭 수</th><th>CTR</th>';
+            html += '</tr></thead><tbody>';
+
+            campaigns.forEach(campaign => {
+                const today = new Date();
+                const startDate = new Date(campaign.display_start_date);
+                const endDate = new Date(campaign.display_end_date);
+
+                let statusBadge = '';
+                if (!campaign.is_active) {
+                    statusBadge = '<span class="badge inactive">비활성</span>';
+                } else if (today < startDate) {
+                    statusBadge = '<span class="badge waiting">대기중</span>';
+                } else if (today > endDate) {
+                    statusBadge = '<span class="badge inactive">종료</span>';
+                } else {
+                    statusBadge = '<span class="badge active">노출중</span>';
+                }
+
+                const ctr = campaign.overall_ctr_percentage || 0;
+                const target = `${campaign.matched_station_id || '전체'} / ${campaign.matched_area || '전체'}`;
+
+                html += '<tr>';
+                html += `<td><strong>${campaign.campaign_name}</strong></td>`;
+                html += `<td>${target}</td>`;
+                html += `<td>${campaign.display_start_date}<br>~ ${campaign.display_end_date}</td>`;
+                html += `<td>${statusBadge}</td>`;
+                html += `<td>${campaign.total_impressions.toLocaleString()}</td>`;
+                html += `<td>${campaign.total_clicks.toLocaleString()}</td>`;
+                html += `<td>
+                    <div class="ctr-bar">
+                        <div class="ctr-fill" style="width: ${Math.min(ctr, 100)}%"></div>
+                        <div class="ctr-text">${ctr}%</div>
+                    </div>
+                </td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            tableDiv.innerHTML = html;
+        }
+
+        function calculateStats(campaigns) {
+            const today = new Date();
+            const activeCampaigns = campaigns.filter(c => {
+                const startDate = new Date(c.display_start_date);
+                const endDate = new Date(c.display_end_date);
+                return c.is_active && today >= startDate && today <= endDate;
+            }).length;
+
+            const totalImpressions = campaigns.reduce((sum, c) => sum + (c.total_impressions || 0), 0);
+            const totalClicks = campaigns.reduce((sum, c) => sum + (c.total_clicks || 0), 0);
+            const averageCTR = totalImpressions > 0 ?
+                ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
+
+            document.getElementById('activeCampaigns').textContent = activeCampaigns.toLocaleString();
+            document.getElementById('totalImpressions').textContent = totalImpressions.toLocaleString();
+            document.getElementById('totalClicks').textContent = totalClicks.toLocaleString();
+            document.getElementById('averageCTR').textContent = averageCTR;
+        }
+    </script>
+</body>
+</html>

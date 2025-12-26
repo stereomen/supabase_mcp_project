@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 관리자 대시보드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .dashboard {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px 40px;
+        }
+        .section-title {
+            color: #333;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .menu-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px 20px;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .menu-item:hover {
+            background: #e9ecef;
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+        .menu-icon {
+            font-size: 2em;
+            min-width: 40px;
+            text-align: center;
+        }
+        .menu-content {
+            flex: 1;
+        }
+        .menu-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        .menu-description {
+            color: #666;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+        .menu-arrow {
+            color: #999;
+            font-size: 1.2em;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
+        }
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>🔥 Firebase 관리자 대시보드</h1>
+            <p>안전하고 효율적인 Firebase 서비스 관리</p>
+        </div>
+
+        <div class="content">
+            <!-- Firebase 관리 -->
+            <div class="section-title">🔥 Firebase 관리</div>
+            <div class="menu-list">
+                <a href="firebase-remote-config.html" class="menu-item">
+                    <div class="menu-icon">🔧</div>
+                    <div class="menu-content">
+                        <div class="menu-title">Remote Config 관리</div>
+                        <div class="menu-description">Firebase Remote Config 매개변수 조회 및 업데이트</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </a>
+
+                <a href="firebase-notification.html" class="menu-item">
+                    <div class="menu-icon">📱</div>
+                    <div class="menu-content">
+                        <div class="menu-title">푸시 알림 발송</div>
+                        <div class="menu-description">FCM을 통한 Android 앱 푸시 알림 전송</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </a>
+
+                <a href="notifications.html" class="menu-item">
+                    <div class="menu-icon">📋</div>
+                    <div class="menu-content">
+                        <div class="menu-title">알림 내역 목록</div>
+                        <div class="menu-description">발송된 푸시 알림 히스토리 확인 및 필터링</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </a>
+            </div>
+
+            <!-- 광고 시스템 -->
+            <div class="section-title">📢 광고 시스템</div>
+            <div class="menu-list">
+                <a href="ad-partners.html" class="menu-item">
+                    <div class="menu-icon">🏢</div>
+                    <div class="menu-content">
+                        <div class="menu-title">광고 제휴사 관리</div>
+                        <div class="menu-description">제휴사 정보 등록 및 관리</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </a>
+
+                <a href="ad-post.html" class="menu-item">
+                    <div class="menu-icon">🎯</div>
+                    <div class="menu-content">
+                        <div class="menu-title">광고 캠페인 등록</div>
+                        <div class="menu-description">캠페인 생성, 노출 기간 및 타겟 설정</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </a>
+
+                <a href="ad-analytics.html" class="menu-item">
+                    <div class="menu-icon">📊</div>
+                    <div class="menu-content">
+                        <div class="menu-title">광고 성과 분석</div>
+                        <div class="menu-description">캠페인별 노출, 클릭, CTR 분석 및 필터링</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </a>
+            </div>
+
+            <!-- 개발 도구 -->
+            <div class="section-title">🛠️ 개발 도구</div>
+            <div class="menu-list">
+                <a href="api-validator.html" class="menu-item">
+                    <div class="menu-icon">⛵</div>
+                    <div class="menu-content">
+                        <div class="menu-title">API 데이터 검증</div>
+                        <div class="menu-description">날씨/조석/광고 API 응답 확인 및 검증</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </a>
+
+                <a href="run-migration.html" class="menu-item">
+                    <div class="menu-icon">🚀</div>
+                    <div class="menu-content">
+                        <div class="menu-title">데이터베이스 마이그레이션</div>
+                        <div class="menu-description">광고 시스템 테이블 및 함수 생성</div>
+                    </div>
+                    <div class="menu-arrow">›</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            Powered by Supabase Edge Functions & Firebase Admin SDK
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 애니메이션
+        window.addEventListener('load', function() {
+            const items = document.querySelectorAll('.menu-item');
+            items.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(-20px)';
+                    requestAnimationFrame(() => {
+                        item.style.transition = 'all 0.3s ease';
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateX(0)';
+                    });
+                }, index * 50);
+            });
+        });
+    </script>
+</body>
+</html>

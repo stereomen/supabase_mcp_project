@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>광고 제휴사 관리</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 15px;
+            transition: gap 0.2s;
+        }
+        .back-button:hover {
+            gap: 12px;
+        }
+        .content {
+            padding: 30px 40px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .section h2 {
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        button {
+            background-color: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #5568d3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .message {
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .tab:hover {
+            background-color: #f5f5f5;
+        }
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .action-buttons button {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin: 0;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="https://mancool.netlify.app/" class="back-button">← 대시보드로 돌아가기</a>
+            <h1>📢 광고 제휴사 관리</h1>
+            <p>제휴광고상품 판매를 위한 제휴사 정보 관리</p>
+        </div>
+
+        <div class="content">
+            <!-- 탭 메뉴 -->
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('list')">제휴사 목록</div>
+                <div class="tab" onclick="showTab('create')">새 제휴사 등록</div>
+            </div>
+
+            <!-- 제휴사 목록 탭 -->
+            <div id="listTab" class="tab-content active">
+                <div class="section">
+                    <h2>📋 제휴사 목록</h2>
+                    <button onclick="loadPartners()">목록 새로고침</button>
+                    <div id="partnersList"></div>
+                </div>
+            </div>
+
+            <!-- 새 제휴사 등록 탭 -->
+            <div id="createTab" class="tab-content">
+                <div class="section">
+                    <h2>➕ 새 제휴사 등록</h2>
+                    <form id="createForm" onsubmit="createPartner(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="partner_id">업체ID *</label>
+                                <input type="text" id="partner_id" required placeholder="예: PARTNER_0001">
+                            </div>
+                            <div class="form-group">
+                                <label for="partner_name">업체명 *</label>
+                                <input type="text" id="partner_name" required placeholder="예: 바다낚시">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">주소</label>
+                            <input type="text" id="address" placeholder="예: 서울시 강남구...">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">전화번호</label>
+                                <input type="text" id="phone" placeholder="예: 02-1234-5678">
+                            </div>
+                            <div class="form-group">
+                                <label for="contact_name">담당자 이름</label>
+                                <input type="text" id="contact_name" placeholder="예: 홍길동">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="matched_station_id">매칭 관측소 ID</label>
+                                <input type="text" id="matched_station_id" placeholder="예: DT_0001">
+                            </div>
+                            <div class="form-group">
+                                <label for="matched_area">매칭 해역</label>
+                                <select id="matched_area">
+                                    <option value="">선택하세요</option>
+                                    <option value="서해북부">서해북부</option>
+                                    <option value="서해중부">서해중부</option>
+                                    <option value="서해남부">서해남부</option>
+                                    <option value="남해서부">남해서부</option>
+                                    <option value="남해중부">남해중부</option>
+                                    <option value="남해동부">남해동부</option>
+                                    <option value="동해남부">동해남부</option>
+                                    <option value="동해중부">동해중부</option>
+                                    <option value="동해북부">동해북부</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="business_type">업체 구분</label>
+                                <select id="business_type">
+                                    <option value="">선택하세요</option>
+                                    <option value="낚시가게">낚시가게</option>
+                                    <option value="선박">선박</option>
+                                    <option value="좌대">좌대</option>
+                                    <option value="낚시터">낚시터</option>
+                                    <option value="펜션">펜션</option>
+                                    <option value="민박">민박</option>
+                                    <option value="식당">식당</option>
+                                    <option value="기타">기타</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="business_level">업체 레벨</label>
+                                <input type="number" id="business_level" min="1" max="10" value="1" placeholder="1-10">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="staff_name_1">직원 이름 1</label>
+                                <input type="text" id="staff_name_1" placeholder="예: 김직원">
+                            </div>
+                            <div class="form-group">
+                                <label for="staff_name_2">직원 이름 2</label>
+                                <input type="text" id="staff_name_2" placeholder="예: 이직원">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="staff_name_3">직원 이름 3</label>
+                            <input type="text" id="staff_name_3" placeholder="예: 박직원">
+                        </div>
+
+                        <button type="submit" class="btn-success">등록하기</button>
+                        <button type="button" onclick="resetForm()">초기화</button>
+                    </form>
+                    <div id="createMessage"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 수정 모달 -->
+    <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+        <div style="max-width: 800px; margin: 50px auto; background: white; border-radius: 10px; padding: 30px;">
+            <h2>✏️ 제휴사 정보 수정</h2>
+            <form id="editForm" onsubmit="updatePartner(event)">
+                <input type="hidden" id="edit_id">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_partner_id">업체ID *</label>
+                        <input type="text" id="edit_partner_id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_partner_name">업체명 *</label>
+                        <input type="text" id="edit_partner_name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_address">주소</label>
+                    <input type="text" id="edit_address">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_phone">전화번호</label>
+                        <input type="text" id="edit_phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_contact_name">담당자 이름</label>
+                        <input type="text" id="edit_contact_name">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_matched_station_id">매칭 관측소 ID</label>
+                        <input type="text" id="edit_matched_station_id">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_matched_area">매칭 해역</label>
+                        <select id="edit_matched_area">
+                            <option value="">선택하세요</option>
+                            <option value="서해북부">서해북부</option>
+                            <option value="서해중부">서해중부</option>
+                            <option value="서해남부">서해남부</option>
+                            <option value="남해서부">남해서부</option>
+                            <option value="남해중부">남해중부</option>
+                            <option value="남해동부">남해동부</option>
+                            <option value="동해남부">동해남부</option>
+                            <option value="동해중부">동해중부</option>
+                            <option value="동해북부">동해북부</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_business_type">업체 구분</label>
+                        <select id="edit_business_type">
+                            <option value="">선택하세요</option>
+                            <option value="낚시가게">낚시가게</option>
+                            <option value="선박">선박</option>
+                            <option value="좌대">좌대</option>
+                            <option value="낚시터">낚시터</option>
+                            <option value="펜션">펜션</option>
+                            <option value="민박">민박</option>
+                            <option value="식당">식당</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_business_level">업체 레벨</label>
+                        <input type="number" id="edit_business_level" min="1" max="10">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_staff_name_1">직원 이름 1</label>
+                        <input type="text" id="edit_staff_name_1">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_staff_name_2">직원 이름 2</label>
+                        <input type="text" id="edit_staff_name_2">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_staff_name_3">직원 이름 3</label>
+                    <input type="text" id="edit_staff_name_3">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="edit_is_active" checked>
+                        활성 상태
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-success">저장</button>
+                <button type="button" onclick="closeEditModal()">취소</button>
+            </form>
+            <div id="editMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        const FUNCTION_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co/functions/v1/manage-ad-partners';
+        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+        let partnersData = [];
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        async function loadPartners() {
+            const listDiv = document.getElementById('partnersList');
+            listDiv.innerHTML = '<div class="loading">🔄 로딩 중...</div>';
+
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify({ action: 'list' })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    partnersData = result.data || [];
+                    displayPartners(partnersData);
+                } else {
+                    listDiv.innerHTML = '<div class="message error">❌ ' + (result.error || '목록 조회 실패') + '</div>';
+                }
+            } catch (error) {
+                listDiv.innerHTML = '<div class="message error">❌ 네트워크 오류: ' + error.message + '</div>';
+            }
+        }
+
+        function displayPartners(partners) {
+            const listDiv = document.getElementById('partnersList');
+
+            if (!partners || partners.length === 0) {
+                listDiv.innerHTML = '<div class="message">등록된 제휴사가 없습니다.</div>';
+                return;
+            }
+
+            let html = '<table><thead><tr>';
+            html += '<th>업체ID</th><th>업체명</th><th>전화번호</th><th>매칭해역</th><th>업체구분</th><th>레벨</th><th>상태</th><th>작업</th>';
+            html += '</tr></thead><tbody>';
+
+            partners.forEach(partner => {
+                html += '<tr>';
+                html += '<td>' + (partner.partner_id || '-') + '</td>';
+                html += '<td>' + (partner.partner_name || '-') + '</td>';
+                html += '<td>' + (partner.phone || '-') + '</td>';
+                html += '<td>' + (partner.matched_area || '-') + '</td>';
+                html += '<td>' + (partner.business_type || '-') + '</td>';
+                html += '<td>' + (partner.business_level || '-') + '</td>';
+                html += '<td><span class="status-badge ' + (partner.is_active ? 'status-active' : 'status-inactive') + '">' + (partner.is_active ? '활성' : '비활성') + '</span></td>';
+                html += '<td class="action-buttons">';
+                html += '<button onclick="editPartner(\'' + partner.id + '\')">수정</button>';
+                html += '<button onclick="resetPassword(\'' + partner.partner_id + '\')" style="background: #ffc107; color: #333;">비밀번호 초기화</button>';
+                html += '<button class="btn-danger" onclick="deletePartner(\'' + partner.id + '\')">삭제</button>';
+                html += '</td>';
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            listDiv.innerHTML = html;
+        }
+
+        async function createPartner(event) {
+            event.preventDefault();
+
+            const messageDiv = document.getElementById('createMessage');
+
+            const partnerData = {
+                partner_id: document.getElementById('partner_id').value,
+                partner_name: document.getElementById('partner_name').value,
+                address: document.getElementById('address').value || null,
+                phone: document.getElementById('phone').value || null,
+                contact_name: document.getElementById('contact_name').value || null,
+                matched_station_id: document.getElementById('matched_station_id').value || null,
+                matched_area: document.getElementById('matched_area').value || null,
+                business_type: document.getElementById('business_type').value || null,
+                business_level: parseInt(document.getElementById('business_level').value) || 1,
+                staff_name_1: document.getElementById('staff_name_1').value || null,
+                staff_name_2: document.getElementById('staff_name_2').value || null,
+                staff_name_3: document.getElementById('staff_name_3').value || null,
+                is_active: true
+            };
+
+            messageDiv.innerHTML = '<div class="loading">⏳ 등록 중...</div>';
+
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify({ action: 'create', data: partnerData })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageDiv.innerHTML = '<div class="message success">✅ 제휴사가 성공적으로 등록되었습니다.</div>';
+                    resetForm();
+                    loadPartners();
+                } else {
+                    messageDiv.innerHTML = '<div class="message error">❌ ' + (result.error || '등록 실패') + '</div>';
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<div class="message error">❌ 네트워크 오류: ' + error.message + '</div>';
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('createForm').reset();
+            document.getElementById('createMessage').innerHTML = '';
+        }
+
+        function editPartner(id) {
+            const partner = partnersData.find(p => p.id === id);
+            if (!partner) return;
+
+            document.getElementById('edit_id').value = partner.id;
+            document.getElementById('edit_partner_id').value = partner.partner_id || '';
+            document.getElementById('edit_partner_name').value = partner.partner_name || '';
+            document.getElementById('edit_address').value = partner.address || '';
+            document.getElementById('edit_phone').value = partner.phone || '';
+            document.getElementById('edit_contact_name').value = partner.contact_name || '';
+            document.getElementById('edit_matched_station_id').value = partner.matched_station_id || '';
+            document.getElementById('edit_matched_area').value = partner.matched_area || '';
+            document.getElementById('edit_business_type').value = partner.business_type || '';
+            document.getElementById('edit_business_level').value = partner.business_level || 1;
+            document.getElementById('edit_staff_name_1').value = partner.staff_name_1 || '';
+            document.getElementById('edit_staff_name_2').value = partner.staff_name_2 || '';
+            document.getElementById('edit_staff_name_3').value = partner.staff_name_3 || '';
+            document.getElementById('edit_is_active').checked = partner.is_active !== false;
+
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('editMessage').innerHTML = '';
+        }
+
+        async function updatePartner(event) {
+            event.preventDefault();
+
+            const messageDiv = document.getElementById('editMessage');
+            const id = document.getElementById('edit_id').value;
+
+            const updateData = {
+                partner_id: document.getElementById('edit_partner_id').value,
+                partner_name: document.getElementById('edit_partner_name').value,
+                address: document.getElementById('edit_address').value || null,
+                phone: document.getElementById('edit_phone').value || null,
+                contact_name: document.getElementById('edit_contact_name').value || null,
+                matched_station_id: document.getElementById('edit_matched_station_id').value || null,
+                matched_area: document.getElementById('edit_matched_area').value || null,
+                business_type: document.getElementById('edit_business_type').value || null,
+                business_level: parseInt(document.getElementById('edit_business_level').value) || 1,
+                staff_name_1: document.getElementById('edit_staff_name_1').value || null,
+                staff_name_2: document.getElementById('edit_staff_name_2').value || null,
+                staff_name_3: document.getElementById('edit_staff_name_3').value || null,
+                is_active: document.getElementById('edit_is_active').checked
+            };
+
+            messageDiv.innerHTML = '<div class="loading">⏳ 업데이트 중...</div>';
+
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify({ action: 'update', id: id, data: updateData })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageDiv.innerHTML = '<div class="message success">✅ 제휴사 정보가 성공적으로 업데이트되었습니다.</div>';
+                    setTimeout(() => {
+                        closeEditModal();
+                        loadPartners();
+                    }, 1500);
+                } else {
+                    messageDiv.innerHTML = '<div class="message error">❌ ' + (result.error || '업데이트 실패') + '</div>';
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<div class="message error">❌ 네트워크 오류: ' + error.message + '</div>';
+            }
+        }
+
+        async function deletePartner(id) {
+            if (!confirm('이 제휴사를 비활성화하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify({ action: 'delete', id: id, hardDelete: false })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('제휴사가 비활성화되었습니다.');
+                    loadPartners();
+                } else {
+                    alert('삭제 실패: ' + (result.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                alert('네트워크 오류: ' + error.message);
+            }
+        }
+
+        async function resetPassword(partnerId) {
+            const newPassword = prompt(`${partnerId}의 비밀번호를 초기화합니다.\n\n새 비밀번호를 입력하세요 (최소 4자):`);
+
+            if (!newPassword) return;
+
+            if (newPassword.length < 4) {
+                alert('비밀번호는 최소 4자 이상이어야 합니다.');
+                return;
+            }
+
+            if (!confirm(`${partnerId}의 비밀번호를 "${newPassword}"로 초기화하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('https://iwpgvdtfpwazzfeniusk.supabase.co/functions/v1/partner-auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        action: 'reset_password',
+                        partner_id: partnerId,
+                        new_password: newPassword
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ ${partnerId}의 비밀번호가 초기화되었습니다.\n\n새 비밀번호: ${newPassword}\n\n제휴사에게 전달해주세요.`);
+                } else {
+                    alert('❌ 초기화 실패: ' + (result.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                alert('❌ 네트워크 오류: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

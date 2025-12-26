@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알림 센터</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 2.2em;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .header p {
+            color: #6b7280;
+            font-size: 1em;
+        }
+        .stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .stat-item {
+            background: #f9fafb;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        .stat-number {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        .stat-label {
+            color: #6b7280;
+            margin-left: 4px;
+        }
+        .notifications-list {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .notification-card {
+            padding: 28px 32px;
+            border-bottom: 1px solid #f3f4f6;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .notification-card:last-child {
+            border-bottom: none;
+        }
+        .notification-card:hover {
+            background: #fafbfc;
+        }
+        .notification-card.clickable {
+            cursor: pointer;
+        }
+        .notification-card.clickable:hover {
+            background: #f9fafb;
+        }
+        .notification-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+        .notification-icon {
+            font-size: 2.4em;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .notification-title {
+            font-size: 1.15em;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .notification-body {
+            color: #4b5563;
+            line-height: 1.6;
+            font-size: 0.95em;
+            margin-bottom: 12px;
+        }
+        .notification-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.85em;
+            color: #9ca3af;
+        }
+        .notification-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .badge-promotion {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .badge-notice {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        .badge-message {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        .badge-news {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+        .notification-time {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .notification-link {
+            color: #667eea;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .notification-link:hover {
+            color: #5568d3;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding: 20px;
+        }
+        .pagination-button {
+            padding: 10px 18px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #374151;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .pagination-button:hover:not(:disabled) {
+            background: #f9fafb;
+            border-color: #667eea;
+            color: #667eea;
+        }
+        .pagination-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .pagination-button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .pagination-info {
+            margin: 0 12px;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #9ca3af;
+        }
+        .empty-state-icon {
+            font-size: 5em;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+        .empty-state-text {
+            font-size: 1.1em;
+            color: #6b7280;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: gap 0.2s;
+        }
+        .back-button:hover {
+            gap: 12px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+            .header {
+                padding: 24px;
+            }
+            .header h1 {
+                font-size: 1.6em;
+            }
+            .notification-card {
+                padding: 20px;
+            }
+            .notification-header {
+                flex-direction: column;
+            }
+            .notification-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .stats {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .pagination {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-button">← 대시보드로 돌아가기</a>
+
+        <div class="header">
+            <h1>🔔 알림 센터</h1>
+            <p>푸시 알림 내역을 확인하세요</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalCount">0</span>
+                    <span class="stat-label">개의 알림</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="notifications-list" id="notificationsList">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>알림을 불러오는 중...</p>
+            </div>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button class="pagination-button" id="prevButton" onclick="changePage(-1)">← 이전</button>
+            <span class="pagination-info" id="pageInfo">1 / 1</span>
+            <button class="pagination-button" id="nextButton" onclick="changePage(1)">다음 →</button>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+        const FUNCTION_URL = SUPABASE_URL + '/functions/v1/send-firebase-notification';
+        const ITEMS_PER_PAGE = 10;
+
+        let allNotifications = [];
+        let currentPage = 1;
+        let totalPages = 1;
+
+        const typeIcons = {
+            promotion: '🎉',
+            notice: '📢',
+            message: '💬',
+            news: '📰'
+        };
+
+        const badgeClasses = {
+            promotion: 'badge-promotion',
+            notice: 'badge-notice',
+            message: 'badge-message',
+            news: 'badge-news'
+        };
+
+        const typeNames = {
+            promotion: '프로모션',
+            notice: '공지사항',
+            message: '메시지',
+            news: '뉴스'
+        };
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (days > 7) {
+                return date.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } else if (days > 0) {
+                return `${days}일 전`;
+            } else if (hours > 0) {
+                return `${hours}시간 전`;
+            } else if (minutes > 0) {
+                return `${minutes}분 전`;
+            } else {
+                return '방금 전';
+            }
+        }
+
+        function renderNotificationCard(notification) {
+            const icon = typeIcons[notification.type] || '📬';
+            const badgeClass = badgeClasses[notification.type] || 'badge-message';
+            const typeName = typeNames[notification.type] || '알림';
+            const hasLink = notification.promotion_url && notification.promotion_url !== 'null';
+            const clickableClass = hasLink ? 'clickable' : '';
+
+            return `
+                <div class="notification-card ${clickableClass}" ${hasLink ? `onclick="handleNotificationClick('${notification.id}', '${notification.promotion_url}')"` : ''}>
+                    <div class="notification-header">
+                        <span class="notification-icon">${icon}</span>
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-body">${notification.body}</div>
+                            <div class="notification-meta">
+                                <span class="notification-badge ${badgeClass}">${typeName}</span>
+                                <span class="notification-time">🕐 ${formatTime(notification.sent_at)}</span>
+                                ${hasLink ? `
+                                    <a href="${notification.promotion_url}" class="notification-link" onclick="event.stopPropagation()">
+                                        자세히 보기 →
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPage() {
+            const listContainer = document.getElementById('notificationsList');
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const pageNotifications = allNotifications.slice(startIndex, endIndex);
+
+            if (pageNotifications.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p class="empty-state-text">알림이 없습니다</p>
+                    </div>
+                `;
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+
+            listContainer.innerHTML = pageNotifications.map(renderNotificationCard).join('');
+
+            // 페이지네이션 업데이트
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const paginationDiv = document.getElementById('pagination');
+            const prevButton = document.getElementById('prevButton');
+            const nextButton = document.getElementById('nextButton');
+            const pageInfo = document.getElementById('pageInfo');
+
+            if (totalPages <= 1) {
+                paginationDiv.style.display = 'none';
+                return;
+            }
+
+            paginationDiv.style.display = 'flex';
+            pageInfo.textContent = `${currentPage} / ${totalPages}`;
+            prevButton.disabled = currentPage === 1;
+            nextButton.disabled = currentPage === totalPages;
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderPage();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function handleNotificationClick(id, url) {
+            if (url && url !== 'null' && url !== '') {
+                window.location.href = url;
+            }
+        }
+
+        async function fetchNotifications() {
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'getNotifications',
+                        type: null,
+                        limit: 1000,
+                        offset: 0
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.notifications) {
+                    allNotifications = result.notifications;
+                    totalPages = Math.ceil(allNotifications.length / ITEMS_PER_PAGE);
+
+                    // 통계 업데이트
+                    document.getElementById('totalCount').textContent = allNotifications.length;
+
+                    console.log('알림 데이터 로드 성공:', allNotifications.length, '개');
+                } else {
+                    throw new Error('API 응답 실패');
+                }
+            } catch (error) {
+                console.error('API 호출 실패:', error);
+                allNotifications = [];
+                totalPages = 1;
+            }
+        }
+
+        async function init() {
+            await fetchNotifications();
+            renderPage();
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
