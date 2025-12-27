@@ -966,10 +966,11 @@
                     resetForm();
                     loadCampaigns();
 
-                    // 성공 메시지 3초 후 자동 제거
+                    // 캠페인 목록으로 이동
                     setTimeout(() => {
+                        showTab('list');
                         messageDiv.innerHTML = '';
-                    }, 3000);
+                    }, 1500);
                 } else {
                     messageDiv.innerHTML = `<div class="message error">❌ ${result.error || (isEdit ? '수정' : '등록') + ' 실패'}</div>`;
                 }
