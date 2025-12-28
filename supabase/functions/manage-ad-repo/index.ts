@@ -1,6 +1,13 @@
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders, getCorsHeaders } from '../_shared/cors.ts';
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import {
+  validateAdminAuth,
+  createUnauthorizedResponse,
+  checkRateLimit,
+  createRateLimitResponse,
+  getClientIp
+} from '../_shared/auth.ts';
 
 interface AdCampaign {
   id?: string;
@@ -23,9 +30,25 @@ interface AdCampaign {
 
 // 메인 서빙 함수
 serve(async (req) => {
+  const requestOrigin = req.headers.get('origin');
+  const headers = getCorsHeaders(requestOrigin);
+
   // CORS 사전 요청 처리
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers });
+  }
+
+  // 관리자 인증 검증
+  if (!validateAdminAuth(req)) {
+    return createUnauthorizedResponse(headers);
+  }
+
+  // Rate limiting (IP 기반, 분당 50회 - 관리 작업은 낮은 한도)
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(`admin:${clientIp}`, 50, 60000);
+  if (!rateLimit.allowed) {
+    console.warn(`Rate limit exceeded for admin IP: ${clientIp}`);
+    return createRateLimitResponse(headers);
   }
 
   try {
@@ -41,7 +64,7 @@ serve(async (req) => {
         actions: ['list', 'get', 'create', 'update', 'delete', 'list_partners', 'get_active']
       }), {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...headers, 'Content-Type': 'application/json' }
       });
     }
 
@@ -68,7 +91,7 @@ serve(async (req) => {
               message: error.message
             }), {
               status: 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -77,7 +100,7 @@ serve(async (req) => {
             data: data,
             count: data?.length || 0
           }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: { ...headers, 'Content-Type': 'application/json' }
           });
         }
 
@@ -91,7 +114,7 @@ serve(async (req) => {
               error: 'ID가 필요합니다.'
             }), {
               status: 400,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -109,7 +132,7 @@ serve(async (req) => {
               message: error.message
             }), {
               status: 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -117,7 +140,7 @@ serve(async (req) => {
             success: true,
             data: data
           }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: { ...headers, 'Content-Type': 'application/json' }
           });
         }
 
@@ -132,7 +155,7 @@ serve(async (req) => {
               error: '업체ID, 캠페인명, 노출 시작일, 노출 종료일은 필수입니다.'
             }), {
               status: 400,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -144,12 +167,12 @@ serve(async (req) => {
                 error: 'matched_station_id는 배열이어야 합니다.'
               }), {
                 status: 400,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                headers: { ...headers, 'Content-Type': 'application/json' }
               });
             }
 
-            // 관측소 코드 형식 검증 (DT_0001, SO_0326, IE_0060 형식)
-            const validPattern = /^(DT|SO|IE)_\d{4}$/;
+            // 관측소 코드 형식 검증 (DT_0001, SO_0326, IE_0060, AD_0001 형식)
+            const validPattern = /^(DT|SO|IE|AD)_\d{4}$/;
             const invalid = campaignData.matched_station_id.filter(code => !validPattern.test(code));
             if (invalid.length > 0) {
               return new Response(JSON.stringify({
@@ -157,7 +180,7 @@ serve(async (req) => {
                 error: `유효하지 않은 관측소 코드: ${invalid.join(', ')}`
               }), {
                 status: 400,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                headers: { ...headers, 'Content-Type': 'application/json' }
               });
             }
           }
@@ -176,7 +199,7 @@ serve(async (req) => {
               message: error.message
             }), {
               status: 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -187,7 +210,7 @@ serve(async (req) => {
             data: data,
             message: '광고 캠페인이 성공적으로 생성되었습니다.'
           }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: { ...headers, 'Content-Type': 'application/json' }
           });
         }
 
@@ -201,7 +224,7 @@ serve(async (req) => {
               error: 'ID가 필요합니다.'
             }), {
               status: 400,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -213,12 +236,12 @@ serve(async (req) => {
                 error: 'matched_station_id는 배열이어야 합니다.'
               }), {
                 status: 400,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                headers: { ...headers, 'Content-Type': 'application/json' }
               });
             }
 
             // 관측소 코드 형식 검증
-            const validPattern = /^(DT|SO|IE)_\d{4}$/;
+            const validPattern = /^(DT|SO|IE|AD)_\d{4}$/;
             const invalid = updateData.matched_station_id.filter(code => !validPattern.test(code));
             if (invalid.length > 0) {
               return new Response(JSON.stringify({
@@ -226,7 +249,7 @@ serve(async (req) => {
                 error: `유효하지 않은 관측소 코드: ${invalid.join(', ')}`
               }), {
                 status: 400,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                headers: { ...headers, 'Content-Type': 'application/json' }
               });
             }
           }
@@ -246,7 +269,7 @@ serve(async (req) => {
               message: error.message
             }), {
               status: 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -257,7 +280,7 @@ serve(async (req) => {
             data: data,
             message: '광고 캠페인이 성공적으로 업데이트되었습니다.'
           }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: { ...headers, 'Content-Type': 'application/json' }
           });
         }
 
@@ -271,7 +294,7 @@ serve(async (req) => {
               error: 'ID가 필요합니다.'
             }), {
               status: 400,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -303,7 +326,7 @@ serve(async (req) => {
               message: error.message
             }), {
               status: 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -314,7 +337,7 @@ serve(async (req) => {
             data: data,
             message: hardDelete ? '광고가 완전히 삭제되었습니다.' : '광고가 비활성화되었습니다.'
           }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: { ...headers, 'Content-Type': 'application/json' }
           });
         }
 
@@ -334,7 +357,7 @@ serve(async (req) => {
               message: error.message
             }), {
               status: 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -343,7 +366,7 @@ serve(async (req) => {
             data: data,
             count: data?.length || 0
           }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: { ...headers, 'Content-Type': 'application/json' }
           });
         }
 
@@ -365,7 +388,7 @@ serve(async (req) => {
               message: error.message
             }), {
               status: 500,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              headers: { ...headers, 'Content-Type': 'application/json' }
             });
           }
 
@@ -374,7 +397,7 @@ serve(async (req) => {
             data: data,
             hasAd: data && data.length > 0
           }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: { ...headers, 'Content-Type': 'application/json' }
           });
         }
 
@@ -385,7 +408,7 @@ serve(async (req) => {
             availableActions: ['list', 'get', 'create', 'update', 'delete', 'list_partners', 'get_active']
           }), {
             status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: { ...headers, 'Content-Type': 'application/json' }
           });
       }
     }
@@ -395,7 +418,7 @@ serve(async (req) => {
       error: '지원하지 않는 메소드입니다.'
     }), {
       status: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...headers, 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
@@ -406,7 +429,7 @@ serve(async (req) => {
       message: error.message
     }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...headers, 'Content-Type': 'application/json' }
     });
   }
 });

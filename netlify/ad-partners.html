@@ -452,9 +452,12 @@
         </div>
     </div>
 
+    <!-- Supabase 설정 파일 로드 -->
+    <script src="config.js"></script>
+
     <script>
-        const FUNCTION_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co/functions/v1/manage-ad-partners';
-        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+        const FUNCTION_URL = `${SUPABASE_CONFIG.url}/functions/v1/manage-ad-partners`;
+        const ANON_KEY = SUPABASE_CONFIG.anonKey;
         let partnersData = [];
 
         function showTab(tabName) {

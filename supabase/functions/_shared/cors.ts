@@ -23,7 +23,7 @@ const getAllowedOrigin = (requestOrigin: string | null): string => {
 
 export const getCorsHeaders = (requestOrigin: string | null = null) => ({
   'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin),
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-api-key',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-api-key, x-admin-secret',
   'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE',
   'Access-Control-Allow-Credentials': 'true',
 });
