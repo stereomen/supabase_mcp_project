@@ -289,10 +289,14 @@
                             </div>
                             <button onclick="resetFilters()" style="background: #6c757d; padding: 10px 15px; height: 40px;">초기화</button>
                         </div>
-                        <div style="margin-top: 10px;">
+                        <div style="margin-top: 10px; display: flex; gap: 20px;">
                             <label style="display: flex; align-items: center; cursor: pointer; font-size: 14px;">
                                 <input type="checkbox" id="filter_include_all" onchange="applyFilters()" style="margin-right: 5px; width: auto; cursor: pointer;">
                                 <span>전체 노출 포함 (관측소 미지정 캠페인 포함)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 14px;">
+                                <input type="checkbox" id="filter_show_deleted" onchange="applyFilters()" style="margin-right: 5px; width: auto; cursor: pointer;">
+                                <span style="color: #dc3545;">삭제된 캠페인 보기</span>
                             </label>
                         </div>
                     </div>
@@ -800,6 +804,7 @@
             document.getElementById('filter_area').value = '';
             document.getElementById('filter_partner').value = '';
             document.getElementById('filter_include_all').checked = false;
+            document.getElementById('filter_show_deleted').checked = false;
             displayCampaigns();
         }
 
@@ -817,9 +822,15 @@
             const filterArea = document.getElementById('filter_area').value.trim().toLowerCase();
             const filterPartner = document.getElementById('filter_partner').value;
             const includeAll = document.getElementById('filter_include_all').checked;
+            const showDeleted = document.getElementById('filter_show_deleted').checked;
 
             // 필터링 적용
             let filteredCampaigns = campaignsData.filter(campaign => {
+                // 삭제된 캠페인 필터 (기본적으로 숨김)
+                if (!showDeleted && !campaign.is_active) {
+                    return false;
+                }
+
                 // 노출 여부 필터
                 if (filterStatus) {
                     if (filterStatus === 'active' && !campaign.is_currently_active) return false;
@@ -872,11 +883,14 @@
             html += '</tr></thead><tbody>';
 
             filteredCampaigns.forEach(campaign => {
-                const status = campaign.is_currently_active ?
+                // 삭제된 캠페인 여부
+                const isDeleted = !campaign.is_active;
+
+                const status = isDeleted ?
+                    '<span class="badge inactive">삭제됨</span>' :
+                    campaign.is_currently_active ?
                     '<span class="badge active">노출중</span>' :
-                    campaign.is_active ?
-                    '<span class="badge">대기중</span>' :
-                    '<span class="badge inactive">비활성</span>';
+                    '<span class="badge">대기중</span>';
 
                 // 관측소 표시 로직 (배열 지원)
                 let stationDisplay = '전체';
@@ -889,17 +903,26 @@
                     }
                 }
 
-                html += '<tr>';
+                // 삭제된 캠페인은 회색으로 표시
+                const rowStyle = isDeleted ? 'style="opacity: 0.6; background-color: #f5f5f5;"' : '';
+
+                html += `<tr ${rowStyle}>`;
                 html += `<td><strong>${campaign.campaign_name}</strong></td>`;
                 html += `<td>${campaign.partner_name || campaign.partner_id}</td>`;
                 html += `<td>${stationDisplay} / ${campaign.matched_area || '전체'}</td>`;
                 html += `<td>${campaign.display_start_date} ~ ${campaign.display_end_date}</td>`;
                 html += `<td>${campaign.priority}</td>`;
                 html += `<td>${status}</td>`;
-                html += `<td class="actions">
-                    <button class="btn-small" onclick="editCampaign('${campaign.id}')" style="background: #28a745;">수정</button>
-                    <button class="btn-small" onclick="deleteCampaign('${campaign.id}')" style="background: #dc3545;">삭제</button>
-                </td>`;
+                html += `<td class="actions">`;
+
+                if (isDeleted) {
+                    html += `<button class="btn-small" onclick="restoreCampaign('${campaign.id}')" style="background: #28a745;">복원</button>`;
+                } else {
+                    html += `<button class="btn-small" onclick="editCampaign('${campaign.id}')" style="background: #28a745;">수정</button>
+                    <button class="btn-small" onclick="deleteCampaign('${campaign.id}')" style="background: #dc3545;">삭제</button>`;
+                }
+
+                html += `</td>`;
                 html += '</tr>';
             });
 
@@ -1078,7 +1101,7 @@
         }
 
         async function deleteCampaign(id) {
-            if (!confirm('이 캠페인을 완전히 삭제하시겠습니까?\n(관련된 모든 데이터가 삭제되며 복구할 수 없습니다)')) {
+            if (!confirm('이 캠페인을 삭제하시겠습니까?\n(비활성화되며 분석 데이터는 보존됩니다)')) {
                 return;
             }
 
@@ -1089,16 +1112,48 @@
                         'Content-Type': 'application/json',
                         ...getAuthHeaders()
                     },
-                    body: JSON.stringify({ action: 'delete', id: id, hardDelete: true })
+                    body: JSON.stringify({ action: 'delete', id: id, hardDelete: false })
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('캠페인이 완전히 삭제되었습니다.');
+                    alert('캠페인이 삭제되었습니다.');
                     loadCampaigns();
                 } else {
                     alert('삭제 실패: ' + (result.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                alert('네트워크 오류: ' + error.message);
+            }
+        }
+
+        async function restoreCampaign(id) {
+            if (!confirm('이 캠페인을 복원하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({
+                        action: 'update',
+                        id: id,
+                        data: { is_active: true }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('캠페인이 복원되었습니다.');
+                    loadCampaigns();
+                } else {
+                    alert('복원 실패: ' + (result.error || '알 수 없는 오류'));
                 }
             } catch (error) {
                 alert('네트워크 오류: ' + error.message);
@@ -1128,6 +1183,7 @@
         window.editCampaign = editCampaign;
         window.cancelEdit = cancelEdit;
         window.deleteCampaign = deleteCampaign;
+        window.restoreCampaign = restoreCampaign;
         window.updateEndDate = updateEndDate;
         window.applyFilters = applyFilters;
         window.resetFilters = resetFilters;
