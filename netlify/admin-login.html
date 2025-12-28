@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 로그인</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #f0f7ff;
+            color: #0066cc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🔐 관리자 로그인</h1>
+            <p>Marine Weather Platform Admin</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="password">관리자 비밀번호</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="비밀번호를 입력하세요"
+                    required
+                    autocomplete="off"
+                >
+            </div>
+
+            <button type="submit" class="login-button" id="loginButton">
+                로그인
+            </button>
+        </form>
+
+        <div class="info-box">
+            💡 관리자 비밀번호는 백엔드 담당자에게 문의하세요.
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('loginButton');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // 이미 로그인되어 있으면 메인 페이지로
+        if (sessionStorage.getItem('adminSecret')) {
+            window.location.href = 'index.html';
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const password = passwordInput.value.trim();
+
+            if (!password) {
+                showError('비밀번호를 입력하세요.');
+                return;
+            }
+
+            // 로그인 시도
+            await attemptLogin(password);
+        });
+
+        async function attemptLogin(password) {
+            loginButton.disabled = true;
+            loginButton.innerHTML = '<span class="loading"></span> 확인 중...';
+            errorMessage.classList.remove('show');
+
+            try {
+                // ADMIN_SECRET으로 간단한 API 호출 테스트
+                const response = await fetch('https://iwpgvdtfpwazzfeniusk.supabase.co/functions/v1/manage-ad-repo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE',
+                        'x-admin-secret': password
+                    },
+                    body: JSON.stringify({ action: 'list' })
+                });
+
+                if (response.status === 401) {
+                    // 인증 실패
+                    showError('잘못된 비밀번호입니다.');
+                    loginButton.disabled = false;
+                    loginButton.textContent = '로그인';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success === false && data.error === 'Unauthorized') {
+                    // 인증 실패
+                    showError('잘못된 비밀번호입니다.');
+                    loginButton.disabled = false;
+                    loginButton.textContent = '로그인';
+                    return;
+                }
+
+                // 성공! sessionStorage에 저장
+                sessionStorage.setItem('adminSecret', password);
+                sessionStorage.setItem('adminLoginTime', new Date().toISOString());
+
+                // 성공 메시지 표시
+                loginButton.innerHTML = '✓ 로그인 성공!';
+                loginButton.style.background = '#4caf50';
+
+                // 메인 페이지로 이동
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 500);
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+                loginButton.disabled = false;
+                loginButton.textContent = '로그인';
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = '❌ ' + message;
+            errorMessage.classList.add('show');
+        }
+
+        // Enter 키로 제출
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

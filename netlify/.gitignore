@@ -20,4 +20,9 @@ npm-debug.log*
 .env
 .env.local
 .env.production
+
+# 빌드 시 생성되는 설정 파일 (환경 변수 포함)
+config.js
+
+# 임시 파일
 .smbdelete*

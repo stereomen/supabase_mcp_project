@@ -442,6 +442,9 @@
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- 관리자 인증 체크 -->
+    <script src="_shared/auth-check.js"></script>
+
     <script>
         const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
         const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
@@ -516,10 +519,7 @@
             try {
                 const response = await fetch(FUNCTION_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${ANON_KEY}`
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify({ action: 'list_partners' })
                 });
 
@@ -725,7 +725,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${ANON_KEY}`
+                        ...getAuthHeaders()
                     },
                     body: JSON.stringify({ action: 'list' })
                 });
@@ -946,7 +946,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${ANON_KEY}`
+                        ...getAuthHeaders()
                     },
                     body: JSON.stringify(requestBody)
                 });
@@ -1079,7 +1079,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${ANON_KEY}`
+                        ...getAuthHeaders()
                     },
                     body: JSON.stringify({ action: 'delete', id: id, hardDelete: false })
                 });
