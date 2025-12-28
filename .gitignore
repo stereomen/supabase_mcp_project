@@ -46,6 +46,3 @@ temp/
 
 # Local Netlify folder
 .netlify
-
-# Netlify config with sensitive keys
-netlify/config.js

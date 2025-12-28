@@ -1,42 +1,17 @@
-# Netlify 배포 설정 파일
+# Netlify 배포 설정
 
 [build]
-  # Base directory (Git 루트에서 이 폴더를 기준으로 배포)
-  base = "netlify"
-  # 빌드 커맨드 (정적 HTML이므로 별도 빌드 불필요)
-  command = "echo 'No build required for static HTML'"
-  # 배포할 디렉토리
-  publish = "."
+  publish = "netlify"
 
-# 리다이렉트 규칙
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  # SPA가 아니므로 force는 false
-  force = false
-
-# 보안 헤더 설정
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    # CORS 허용 (Supabase Functions와 통신)
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-
-# HTML 파일 캐싱 설정
-[[headers]]
-  for = "*.html"
-  [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
-
-# 404 페이지 설정 (선택사항)
-# [[redirects]]
-#   from = "/404"
-#   to = "/index.html"
-#   status = 404
+# Supabase 설정을 모든 HTML 페이지에 자동 주입
+[[snippets]]
+  type = "html"
+  locations = ["head"]
+  content = """
+  <script>
+    const SUPABASE_CONFIG = {
+      url: 'https://iwpgvdtfpwazzfeniusk.supabase.co',
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE'
+    };
+  </script>
+  """
