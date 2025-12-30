@@ -352,7 +352,6 @@
             const badgeClass = badgeClasses[notification.type] || 'badge-message';
             const typeName = typeNames[notification.type] || '알림';
             const hasLink = notification.promotion_url && notification.promotion_url !== 'null' && notification.promotion_url !== '';
-            const clickableClass = hasLink ? 'clickable' : '';
 
             // 디버깅을 위한 로그
             console.log('알림 카드 렌더링:', {
@@ -361,26 +360,41 @@
                 hasLink: hasLink
             });
 
-            return `
-                <div class="notification-card ${clickableClass}" ${hasLink ? `data-url="${notification.promotion_url}" style="cursor: pointer;"` : ''}>
-                    <div class="notification-header">
-                        <span class="notification-icon">${icon}</span>
-                        <div class="notification-content">
-                            <div class="notification-title">${notification.title}</div>
-                            <div class="notification-body">${notification.body}</div>
-                            <div class="notification-meta">
-                                <span class="notification-badge ${badgeClass}">${typeName}</span>
-                                <span class="notification-time">🕐 ${formatTime(notification.sent_at)}</span>
-                                ${hasLink ? `
-                                    <a href="${notification.promotion_url}" class="notification-link" onclick="event.stopPropagation()">
-                                        자세히 보기 →
-                                    </a>
-                                ` : ''}
+            if (hasLink) {
+                return `
+                    <a href="${notification.promotion_url}" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="notification-card clickable" style="cursor: pointer;">
+                            <div class="notification-header">
+                                <span class="notification-icon">${icon}</span>
+                                <div class="notification-content">
+                                    <div class="notification-title">${notification.title}</div>
+                                    <div class="notification-body">${notification.body}</div>
+                                    <div class="notification-meta">
+                                        <span class="notification-badge ${badgeClass}">${typeName}</span>
+                                        <span class="notification-time">🕐 ${formatTime(notification.sent_at)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            } else {
+                return `
+                    <div class="notification-card">
+                        <div class="notification-header">
+                            <span class="notification-icon">${icon}</span>
+                            <div class="notification-content">
+                                <div class="notification-title">${notification.title}</div>
+                                <div class="notification-body">${notification.body}</div>
+                                <div class="notification-meta">
+                                    <span class="notification-badge ${badgeClass}">${typeName}</span>
+                                    <span class="notification-time">🕐 ${formatTime(notification.sent_at)}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         }
 
         function renderPage() {
@@ -401,22 +415,6 @@
             }
 
             listContainer.innerHTML = pageNotifications.map(renderNotificationCard).join('');
-
-            // 클릭 이벤트 리스너 추가
-            const clickableCards = document.querySelectorAll('.notification-card[data-url]');
-            console.log('클릭 가능한 카드 수:', clickableCards.length);
-
-            clickableCards.forEach(card => {
-                const url = card.getAttribute('data-url');
-                console.log('카드에 이벤트 리스너 추가:', url);
-
-                card.addEventListener('click', function(e) {
-                    console.log('카드 클릭됨! URL:', url);
-                    if (url) {
-                        window.location.href = url;
-                    }
-                });
-            });
 
             // 페이지네이션 업데이트
             updatePagination();
