@@ -354,6 +354,13 @@
             const hasLink = notification.promotion_url && notification.promotion_url !== 'null' && notification.promotion_url !== '';
             const clickableClass = hasLink ? 'clickable' : '';
 
+            // 디버깅을 위한 로그
+            console.log('알림 카드 렌더링:', {
+                title: notification.title,
+                promotion_url: notification.promotion_url,
+                hasLink: hasLink
+            });
+
             return `
                 <div class="notification-card ${clickableClass}" ${hasLink ? `data-url="${notification.promotion_url}" style="cursor: pointer;"` : ''}>
                     <div class="notification-header">
@@ -396,9 +403,15 @@
             listContainer.innerHTML = pageNotifications.map(renderNotificationCard).join('');
 
             // 클릭 이벤트 리스너 추가
-            document.querySelectorAll('.notification-card[data-url]').forEach(card => {
-                card.addEventListener('click', function() {
-                    const url = this.getAttribute('data-url');
+            const clickableCards = document.querySelectorAll('.notification-card[data-url]');
+            console.log('클릭 가능한 카드 수:', clickableCards.length);
+
+            clickableCards.forEach(card => {
+                const url = card.getAttribute('data-url');
+                console.log('카드에 이벤트 리스너 추가:', url);
+
+                card.addEventListener('click', function(e) {
+                    console.log('카드 클릭됨! URL:', url);
                     if (url) {
                         window.location.href = url;
                     }
@@ -458,6 +471,7 @@
                     totalPages = Math.ceil(allNotifications.length / ITEMS_PER_PAGE);
 
                     console.log('알림 데이터 로드 성공:', allNotifications.length, '개');
+                    console.log('첫 번째 알림 데이터:', allNotifications[0]);
                 } else {
                     throw new Error('API 응답 실패');
                 }
