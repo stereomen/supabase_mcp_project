@@ -453,9 +453,6 @@
                     allNotifications = result.notifications;
                     totalPages = Math.ceil(allNotifications.length / ITEMS_PER_PAGE);
 
-                    // 통계 업데이트
-                    document.getElementById('totalCount').textContent = allNotifications.length;
-
                     console.log('알림 데이터 로드 성공:', allNotifications.length, '개');
                 } else {
                     throw new Error('API 응답 실패');
