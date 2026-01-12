@@ -12,223 +12,396 @@
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            overflow: hidden;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 왼쪽 사이드바 */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+        .sidebar.collapsed {
+            width: 60px;
+        }
+        .sidebar-header {
+            padding: 20px 15px;
+            background: rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .sidebar-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .sidebar.collapsed .sidebar-title {
+            display: none;
+        }
+        .toggle-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            transition: background 0.2s;
+        }
+        .toggle-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .menu-section {
+            padding: 10px 0;
+        }
+        .section-label {
+            font-size: 0.75em;
+            padding: 10px 15px 5px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .sidebar.collapsed .section-label {
+            display: none;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            white-space: nowrap;
+        }
+        .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-left-color: white;
+        }
+        .menu-item.active {
+            background: rgba(255,255,255,0.2);
+            border-left-color: white;
+        }
+        .menu-icon {
+            font-size: 1.3em;
+            min-width: 30px;
+            text-align: center;
+        }
+        .menu-text {
+            margin-left: 12px;
+            font-size: 0.9em;
+            overflow: hidden;
+        }
+        .sidebar.collapsed .menu-text {
+            display: none;
+        }
+
+        /* 오른쪽 컨텐츠 영역 */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        .content-header {
+            background: white;
+            padding: 15px 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .content-title {
+            font-size: 1.5em;
+            color: #333;
+            font-weight: 600;
+        }
+        .content-body {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* 웰컴 화면 */
+        .welcome-screen {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-        .dashboard {
-            max-width: 900px;
-            width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        .header {
+            height: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 40px;
             text-align: center;
+            padding: 40px;
         }
-        .header h1 {
-            font-size: 2.5em;
+        .welcome-content h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        .welcome-content p {
+            font-size: 1.2em;
+            opacity: 0.9;
             margin-bottom: 10px;
         }
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-        .content {
-            padding: 30px 40px;
-        }
-        .section-title {
-            color: #333;
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-        }
-        .menu-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-        .menu-item {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px 20px;
-            transition: all 0.2s ease;
-            border-left: 4px solid transparent;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .menu-item:hover {
-            background: #e9ecef;
-            border-left-color: #667eea;
-            transform: translateX(5px);
-        }
-        .menu-icon {
-            font-size: 2em;
-            min-width: 40px;
-            text-align: center;
-        }
-        .menu-content {
-            flex: 1;
-        }
-        .menu-title {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 3px;
-        }
-        .menu-description {
-            color: #666;
-            font-size: 0.85em;
-            line-height: 1.4;
-        }
-        .menu-arrow {
-            color: #999;
-            font-size: 1.2em;
-        }
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #999;
-            font-size: 0.9em;
-            border-top: 1px solid #eee;
-        }
+
+        /* 모바일 반응형 */
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2em;
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+                z-index: 1000;
             }
-            .card-grid {
-                grid-template-columns: 1fr;
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+            .mobile-overlay.active {
+                display: block;
+            }
+            .mobile-menu-btn {
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 8px;
+                cursor: pointer;
+                z-index: 998;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            }
+        }
+        @media (min-width: 769px) {
+            .mobile-menu-btn,
+            .mobile-overlay {
+                display: none !important;
             }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard">
-        <div class="header">
-            <h1>🔥 Firebase 관리자 대시보드</h1>
-            <p>안전하고 효율적인 Firebase 서비스 관리</p>
-        </div>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
-        <div class="content">
-            <!-- Firebase 관리 -->
-            <div class="section-title">🔥 Firebase 관리</div>
-            <div class="menu-list">
-                <a href="firebase-remote-config.html" class="menu-item">
-                    <div class="menu-icon">🔧</div>
-                    <div class="menu-content">
-                        <div class="menu-title">Remote Config 관리</div>
-                        <div class="menu-description">Firebase Remote Config 매개변수 조회 및 업데이트</div>
-                    </div>
-                    <div class="menu-arrow">›</div>
-                </a>
-
-                <a href="firebase-notification.html" class="menu-item">
-                    <div class="menu-icon">📱</div>
-                    <div class="menu-content">
-                        <div class="menu-title">푸시 알림 발송</div>
-                        <div class="menu-description">FCM을 통한 Android 앱 푸시 알림 전송</div>
-                    </div>
-                    <div class="menu-arrow">›</div>
-                </a>
-
-                <a href="notifications.html" class="menu-item">
-                    <div class="menu-icon">📋</div>
-                    <div class="menu-content">
-                        <div class="menu-title">알림 내역 목록</div>
-                        <div class="menu-description">발송된 푸시 알림 히스토리 확인 및 필터링</div>
-                    </div>
-                    <div class="menu-arrow">›</div>
-                </a>
+    <div class="container">
+        <!-- 왼쪽 사이드바 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">🔥 관리자</div>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
             </div>
 
-            <!-- 광고 시스템 -->
-            <div class="section-title">📢 광고 시스템</div>
-            <div class="menu-list">
-                <a href="ad-partners.html" class="menu-item">
-                    <div class="menu-icon">🏢</div>
-                    <div class="menu-content">
-                        <div class="menu-title">광고 제휴사 관리</div>
-                        <div class="menu-description">제휴사 정보 등록 및 관리</div>
-                    </div>
-                    <div class="menu-arrow">›</div>
-                </a>
+            <div style="flex: 1; overflow-y: auto;">
+                <!-- Firebase 관리 -->
+                <div class="menu-section">
+                    <div class="section-label">Firebase</div>
+                    <a class="menu-item" data-page="firebase-remote-config.html" data-title="Remote Config 관리">
+                        <div class="menu-icon">🔧</div>
+                        <div class="menu-text">Remote Config</div>
+                    </a>
+                    <a class="menu-item" data-page="firebase-notification.html" data-title="푸시 알림 발송">
+                        <div class="menu-icon">📱</div>
+                        <div class="menu-text">푸시 알림 발송</div>
+                    </a>
+                    <a class="menu-item" data-page="notifications.html" data-title="알림 내역 목록">
+                        <div class="menu-icon">📋</div>
+                        <div class="menu-text">알림 내역</div>
+                    </a>
+                </div>
 
-                <a href="ad-post.html" class="menu-item">
-                    <div class="menu-icon">🎯</div>
-                    <div class="menu-content">
-                        <div class="menu-title">광고 캠페인 등록</div>
-                        <div class="menu-description">캠페인 생성, 노출 기간 및 타겟 설정</div>
-                    </div>
-                    <div class="menu-arrow">›</div>
-                </a>
+                <!-- 콘텐츠 관리 -->
+                <div class="menu-section">
+                    <div class="section-label">콘텐츠</div>
+                    <a class="menu-item" data-page="notice-board.html" data-title="공지사항 관리">
+                        <div class="menu-icon">📢</div>
+                        <div class="menu-text">공지사항</div>
+                    </a>
+                </div>
 
-                <a href="ad-analytics.html" class="menu-item">
-                    <div class="menu-icon">📊</div>
-                    <div class="menu-content">
-                        <div class="menu-title">광고 성과 분석</div>
-                        <div class="menu-description">캠페인별 노출, 클릭, CTR 분석 및 필터링</div>
-                    </div>
-                    <div class="menu-arrow">›</div>
-                </a>
+                <!-- 광고 시스템 -->
+                <div class="menu-section">
+                    <div class="section-label">광고 시스템</div>
+                    <a class="menu-item" data-page="ad-partners.html" data-title="광고 제휴사 관리">
+                        <div class="menu-icon">🏢</div>
+                        <div class="menu-text">제휴사 관리</div>
+                    </a>
+                    <a class="menu-item" data-page="ad-post.html" data-title="광고 캠페인 등록">
+                        <div class="menu-icon">🎯</div>
+                        <div class="menu-text">캠페인 등록</div>
+                    </a>
+                    <a class="menu-item" data-page="ad-analytics.html" data-title="광고 성과 분석">
+                        <div class="menu-icon">📊</div>
+                        <div class="menu-text">성과 분석</div>
+                    </a>
+                    <a class="menu-item" data-page="ad-landing.html" data-title="광고 랜딩 페이지">
+                        <div class="menu-icon">🎪</div>
+                        <div class="menu-text">랜딩 페이지</div>
+                    </a>
+                </div>
+
+                <!-- 개발 도구 -->
+                <div class="menu-section">
+                    <div class="section-label">개발 도구</div>
+                    <a class="menu-item" data-page="api-validator.html" data-title="API 데이터 검증">
+                        <div class="menu-icon">⛵</div>
+                        <div class="menu-text">API 검증</div>
+                    </a>
+                    <a class="menu-item" data-page="abs-fetch-log.html" data-title="KMA 데이터 수집 로그">
+                        <div class="menu-icon">🌊</div>
+                        <div class="menu-text">수집 로그</div>
+                    </a>
+                    <a class="menu-item" data-page="abs-fetch-log-coverage.html" data-title="KMA 데이터 커버리지">
+                        <div class="menu-icon">📈</div>
+                        <div class="menu-text">커버리지</div>
+                    </a>
+                    <a class="menu-item" data-page="run-migration.html" data-title="데이터베이스 마이그레이션">
+                        <div class="menu-icon">🚀</div>
+                        <div class="menu-text">마이그레이션</div>
+                    </a>
+                    <a class="menu-item" data-page="station-matcher.html" data-title="관측소 매칭 도구">
+                        <div class="menu-icon">🗺️</div>
+                        <div class="menu-text">관측소 매칭</div>
+                    </a>
+                </div>
             </div>
+        </aside>
 
-            <!-- 개발 도구 -->
-            <div class="section-title">🛠️ 개발 도구</div>
-            <div class="menu-list">
-                <a href="api-validator.html" class="menu-item">
-                    <div class="menu-icon">⛵</div>
-                    <div class="menu-content">
-                        <div class="menu-title">API 데이터 검증</div>
-                        <div class="menu-description">날씨/조석/광고 API 응답 확인 및 검증</div>
-                    </div>
-                    <div class="menu-arrow">›</div>
-                </a>
-
-                <a href="run-migration.html" class="menu-item">
-                    <div class="menu-icon">🚀</div>
-                    <div class="menu-content">
-                        <div class="menu-title">데이터베이스 마이그레이션</div>
-                        <div class="menu-description">광고 시스템 테이블 및 함수 생성</div>
-                    </div>
-                    <div class="menu-arrow">›</div>
-                </a>
+        <!-- 오른쪽 컨텐츠 영역 -->
+        <main class="content">
+            <div class="content-header">
+                <h1 class="content-title" id="pageTitle">Firebase 관리자 대시보드</h1>
             </div>
-        </div>
-
-        <div class="footer">
-            Powered by Supabase Edge Functions & Firebase Admin SDK
-        </div>
+            <div class="content-body" id="contentBody">
+                <div class="welcome-screen">
+                    <div class="welcome-content">
+                        <h1>🔥 환영합니다</h1>
+                        <p>Firebase 관리자 대시보드에 오신 것을 환영합니다</p>
+                        <p>왼쪽 메뉴에서 원하는 기능을 선택하세요</p>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
-        // 페이지 로드 시 애니메이션
-        window.addEventListener('load', function() {
-            const items = document.querySelectorAll('.menu-item');
-            items.forEach((item, index) => {
-                setTimeout(() => {
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateX(-20px)';
-                    requestAnimationFrame(() => {
-                        item.style.transition = 'all 0.3s ease';
-                        item.style.opacity = '1';
-                        item.style.transform = 'translateX(0)';
-                    });
-                }, index * 50);
+        // 사이드바 토글
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+
+        // 모바일 메뉴 토글
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        }
+
+        // 페이지 로드
+        function loadPage(page, title) {
+            const contentBody = document.getElementById('contentBody');
+            const pageTitle = document.getElementById('pageTitle');
+
+            // 타이틀 업데이트
+            pageTitle.textContent = title;
+            document.title = title + ' - Firebase 관리자 대시보드';
+
+            // iframe 생성 및 로드
+            contentBody.innerHTML = `<iframe src="${page}" title="${title}"></iframe>`;
+
+            // URL 업데이트 (히스토리)
+            history.pushState({ page, title }, title, `?page=${page}`);
+
+            // 모바일에서 메뉴 닫기
+            if (window.innerWidth <= 768) {
+                toggleMobileMenu();
+            }
+        }
+
+        // 메뉴 아이템 클릭 이벤트
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // 활성화 상태 변경
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                // 페이지 로드
+                const page = this.getAttribute('data-page');
+                const title = this.getAttribute('data-title');
+                loadPage(page, title);
             });
+        });
+
+        // 브라우저 뒤로가기/앞으로가기 처리
+        window.addEventListener('popstate', function(e) {
+            if (e.state && e.state.page) {
+                const contentBody = document.getElementById('contentBody');
+                const pageTitle = document.getElementById('pageTitle');
+
+                pageTitle.textContent = e.state.title;
+                document.title = e.state.title + ' - Firebase 관리자 대시보드';
+                contentBody.innerHTML = `<iframe src="${e.state.page}" title="${e.state.title}"></iframe>`;
+
+                // 메뉴 활성화 상태 업데이트
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    if (item.getAttribute('data-page') === e.state.page) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+        });
+
+        // URL 파라미터로 페이지 로드
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const page = urlParams.get('page');
+
+            if (page) {
+                const menuItem = document.querySelector(`.menu-item[data-page="${page}"]`);
+                if (menuItem) {
+                    menuItem.click();
+                }
+            }
         });
     </script>
 </body>
