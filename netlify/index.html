@@ -319,6 +319,12 @@
     </div>
 
     <script>
+        // 로그인 체크
+        const adminSecret = sessionStorage.getItem('adminSecret');
+        if (!adminSecret) {
+            window.location.href = 'admin-login.html';
+        }
+
         // 사이드바 토글
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');

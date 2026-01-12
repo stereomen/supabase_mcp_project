@@ -243,11 +243,17 @@
         // Supabase Function URL - 실제 배포 시 환경에 맞게 설정
         const FUNCTION_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co/functions/v1/manage-firebase-remote-config';
 
-        // 관리자 비밀번호 (환경변수로 관리)
-        const ADMIN_PASSWORD = 'mancooltime2025!@#';
-
         // 현재 Remote Config 데이터 저장
         let currentConfig = null;
+
+        // 로그인 체크 (iframe 안에서는 체크 안 함)
+        if (window.self === window.top) {
+            const adminSecret = sessionStorage.getItem('adminSecret');
+            if (!adminSecret) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'admin-login.html';
+            }
+        }
 
         async function showTab(tabName) {
             // 모든 탭 비활성화
@@ -269,6 +275,9 @@
 
         // 조용히 Remote Config 조회 (UI 표시 없이)
         async function loadRemoteConfigSilent(projectId) {
+            const adminPassword = sessionStorage.getItem('adminSecret');
+            if (!adminPassword) return;
+
             try {
                 const response = await fetch(FUNCTION_URL, {
                     method: 'POST',
@@ -277,7 +286,7 @@
                         'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
                     },
                     body: JSON.stringify({
-                        adminPassword: ADMIN_PASSWORD,
+                        adminPassword: adminPassword,
                         authenticated: true,
                         action: 'get',
                         projectId: projectId
@@ -297,9 +306,16 @@
 
         async function loadRemoteConfig() {
             const projectId = document.getElementById('projectId').value;
+            const adminPassword = sessionStorage.getItem('adminSecret');
 
             if (!projectId) {
                 alert('프로젝트 ID를 입력하세요.');
+                return;
+            }
+
+            if (!adminPassword) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'admin-login.html';
                 return;
             }
 
@@ -314,7 +330,7 @@
                         'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
                     },
                     body: JSON.stringify({
-                        adminPassword: ADMIN_PASSWORD,
+                        adminPassword: adminPassword,
                         authenticated: true,
                         action: 'get',
                         projectId: projectId
@@ -422,6 +438,7 @@
             const paramValue = document.getElementById('paramValue').value;
             const paramType = document.getElementById('paramType').value;
             const paramDescription = document.getElementById('paramDescription').value;
+            const adminPassword = sessionStorage.getItem('adminSecret');
 
             // 새 매개변수 추가인 경우 키 입력받기
             if (!paramKey) {
@@ -437,8 +454,14 @@
                 return;
             }
 
+            if (!adminPassword) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
             const updateData = {
-                adminPassword: ADMIN_PASSWORD,
+                adminPassword: adminPassword,
                 authenticated: true,
                 action: 'update',
                 projectId: projectId,
