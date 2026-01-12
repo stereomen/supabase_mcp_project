@@ -42,6 +42,46 @@
         .back-button:hover {
             gap: 12px;
         }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .section-header h2 {
+            margin: 0;
+        }
+        .force-update-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: #fff3cd;
+            border: 2px solid #f44336;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .force-update-wrapper:hover {
+            background-color: #ffe8a1;
+        }
+        .force-update-wrapper input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+        .force-update-wrapper label {
+            margin: 0;
+            cursor: pointer;
+            white-space: nowrap;
+            color: #f44336;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
     </style>
 
     <!-- Supabase 설정 (인라인) -->
@@ -51,15 +91,18 @@
         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE'
     };
     </script>
-
-    <!-- 관리자 인증 체크 -->
-    <script src="_shared/auth-check.js"></script>
 </head>
 <body>
     <a href="/" class="back-button">← 대시보드로 돌아가기</a>
     <h1>🔥 Firebase 푸시 알림 관리</h1>
     <div class="container">
-        <h2>📱 알림 발송</h2>
+        <div class="section-header">
+            <h2>📱 알림 발송</h2>
+            <div class="force-update-wrapper">
+                <input type="checkbox" id="forceUpdateCheckbox">
+                <label for="forceUpdateCheckbox">⚠️ 긴급업데이트</label>
+            </div>
+        </div>
         <div id="mainForm">
         <div class="form-group">
             <label>발송 대상</label>
@@ -137,6 +180,55 @@
                 }
             });
         });
+
+        // 긴급업데이트 체크박스 이벤트 리스너
+        document.getElementById('forceUpdateCheckbox').addEventListener('change', function() {
+            const titleInput = document.getElementById('title');
+            const bodyTextarea = document.getElementById('body');
+            const typeSelect = document.getElementById('type');
+            const prioritySelect = document.getElementById('priority');
+            const topicSelect = document.getElementById('topic');
+            const promotionUrlInput = document.getElementById('promotionUrl');
+
+            if (this.checked) {
+                // 긴급업데이트 체크 시 필드 자동 채우기
+                titleInput.value = '⚠️ 중요: 앱 업데이트 필요';
+                bodyTextarea.value = '더 나은 서비스 제공을 위해 최신 버전으로 업데이트가 필요합니다. 지금 업데이트하시겠습니까?';
+                typeSelect.value = 'notice';
+                prioritySelect.value = 'high';
+                topicSelect.value = 'all_users';
+                promotionUrlInput.value = '';
+
+                // 필드 비활성화
+                titleInput.readOnly = true;
+                bodyTextarea.readOnly = true;
+                typeSelect.disabled = true;
+                prioritySelect.disabled = true;
+                topicSelect.disabled = true;
+                promotionUrlInput.readOnly = true;
+
+                // 토픽 발송으로 고정
+                document.querySelector('input[value="topic"]').checked = true;
+                document.querySelectorAll('input[name="sendType"]').forEach(r => r.disabled = true);
+                document.getElementById('topicGroup').style.display = 'block';
+                document.getElementById('tokenGroup').style.display = 'none';
+
+                addLog('⚠️ 긴급업데이트 모드 활성화 - 강제 업데이트 알림 설정됨');
+            } else {
+                // 체크 해제 시 필드 활성화
+                titleInput.readOnly = false;
+                bodyTextarea.readOnly = false;
+                typeSelect.disabled = false;
+                prioritySelect.disabled = false;
+                topicSelect.disabled = false;
+                promotionUrlInput.readOnly = false;
+                document.querySelectorAll('input[name="sendType"]').forEach(r => r.disabled = false);
+
+                // 기본값으로 복원
+                clearForm();
+                addLog('✅ 긴급업데이트 모드 해제');
+            }
+        });
         function addLog(message, isError = false) {
             const logContainer = document.getElementById('logContainer');
             const timestamp = new Date().toLocaleString('ko-KR');
@@ -157,26 +249,52 @@
         async function sendNotification() {
             const sendBtn = document.getElementById('sendBtn');
             const sendType = document.querySelector('input[name="sendType"]:checked').value;
+            const isForceUpdate = document.getElementById('forceUpdateCheckbox').checked;
 
-            const payload = {
-                authenticated: true, // 클라이언트에서 인증된 상태임을 표시
-                dataOnly: true,
-                priority: document.getElementById('priority').value,
-                data: {
-                    title: document.getElementById('title').value,
-                    body: document.getElementById('body').value,
-                    type: document.getElementById('type').value
-                }
-            };
-            const promotionUrl = document.getElementById('promotionUrl').value;
-            if (promotionUrl) { payload.data.promotion_url = promotionUrl; }
-            if (sendType === 'topic') {
-                payload.topic = document.getElementById('topic').value;
+            let payload;
+
+            if (isForceUpdate) {
+                // 긴급업데이트 페이로드 구조 (data-only 메시지)
+                payload = {
+                    authenticated: true,
+                    topic: 'all_users',
+                    dataOnly: true,
+                    priority: 'high',  // 백엔드가 android.priority로 변환
+                    data: {
+                        notification_type: 'force_update',
+                        force_update_check: 'true',
+                        type: 'force_update',
+                        title: document.getElementById('title').value,
+                        body: document.getElementById('body').value,
+                        timestamp: new Date().toISOString()
+                    }
+                };
+                addLog('🚨 긴급업데이트 data-only 페이로드 생성됨');
+                addLog('📦 notification_type: force_update, force_update_check: true, priority: high');
+                addLog('⚠️ notification 필드 없음 - 백그라운드에서 onMessageReceived 호출됨');
             } else {
-                const token = document.getElementById('token').value;
-                if (!token) { showStatus('FCM 토큰을 입력해주세요.', 'error'); return; }
-                payload.token = token;
+                // 일반 알림 페이로드 구조
+                payload = {
+                    authenticated: true,
+                    dataOnly: true,
+                    priority: document.getElementById('priority').value,
+                    data: {
+                        title: document.getElementById('title').value,
+                        body: document.getElementById('body').value,
+                        type: document.getElementById('type').value
+                    }
+                };
+                const promotionUrl = document.getElementById('promotionUrl').value;
+                if (promotionUrl) { payload.data.promotion_url = promotionUrl; }
+                if (sendType === 'topic') {
+                    payload.topic = document.getElementById('topic').value;
+                } else {
+                    const token = document.getElementById('token').value;
+                    if (!token) { showStatus('FCM 토큰을 입력해주세요.', 'error'); return; }
+                    payload.token = token;
+                }
             }
+
             if (!payload.data.title || !payload.data.body) {
                 showStatus('제목과 내용을 입력해주세요.', 'error'); return;
             }
@@ -208,10 +326,26 @@
             }
         }
         function clearForm() {
+            // 긴급업데이트 체크박스 해제 및 필드 활성화
+            const forceUpdateCheckbox = document.getElementById('forceUpdateCheckbox');
+            if (forceUpdateCheckbox.checked) {
+                forceUpdateCheckbox.checked = false;
+                document.getElementById('title').readOnly = false;
+                document.getElementById('body').readOnly = false;
+                document.getElementById('type').disabled = false;
+                document.getElementById('priority').disabled = false;
+                document.getElementById('topic').disabled = false;
+                document.getElementById('promotionUrl').readOnly = false;
+                document.querySelectorAll('input[name="sendType"]').forEach(r => r.disabled = false);
+            }
+
+            // 기본값으로 복원
             document.getElementById('title').value = '🎉 특별 할인';
             document.getElementById('body').value = '50% 할인 이벤트 진행중!';
             document.getElementById('promotionUrl').value = 'https://mancool.netlify.app/notifications.html';
             document.getElementById('token').value = '';
+            document.getElementById('type').value = 'promotion';
+            document.getElementById('priority').value = 'high';
             document.querySelector('input[value="topic"]').checked = true;
             document.getElementById('topicGroup').style.display = 'block';
             document.getElementById('tokenGroup').style.display = 'none';

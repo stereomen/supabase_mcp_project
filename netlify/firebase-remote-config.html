@@ -162,17 +162,6 @@
     <div class="container">
         <h1>🔧 Firebase Remote Config 관리</h1>
 
-        <!-- 인증 섹션 -->
-        <div class="section">
-            <h2>🔐 관리자 인증</h2>
-            <div class="form-group">
-                <label for="adminPassword">관리자 비밀번호:</label>
-                <input type="password" id="adminPassword" placeholder="관리자 비밀번호를 입력하세요">
-                <button onclick="verifyPassword()">확인</button>
-            </div>
-            <div id="authStatus"></div>
-        </div>
-
         <!-- 탭 메뉴 -->
         <div class="tabs">
             <div class="tab active" onclick="showTab('view')">조회</div>
@@ -205,11 +194,16 @@
                 <h3>매개변수 추가/수정</h3>
                 <div class="form-group">
                     <label for="paramKey">매개변수 키:</label>
-                    <input type="text" id="paramKey" placeholder="예: feature_enabled">
+                    <select id="paramKey" onchange="onParameterKeyChange()">
+                        <option value="">🔄 매개변수 목록 불러오는 중...</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="paramValue">기본값:</label>
                     <input type="text" id="paramValue" placeholder="예: true">
+                    <small id="currentValueDisplay" style="color: #666; font-size: 12px; margin-top: 5px; display: block; background-color: #f0f0f0; padding: 5px 8px; border-radius: 3px; display: none;">
+                        📌 현재 값: <strong id="currentValue" style="color: #333;"></strong>
+                    </small>
                 </div>
                 <div class="form-group">
                     <label for="paramType">값 타입:</label>
@@ -240,11 +234,22 @@
     </div>
 
     <script>
-        let authenticated = false;
+        // Supabase 설정
+        const SUPABASE_CONFIG = {
+            url: 'https://iwpgvdtfpwazzfeniusk.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE'
+        };
+
         // Supabase Function URL - 실제 배포 시 환경에 맞게 설정
         const FUNCTION_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co/functions/v1/manage-firebase-remote-config';
 
-        function showTab(tabName) {
+        // 관리자 비밀번호 (환경변수로 관리)
+        const ADMIN_PASSWORD = 'mancooltime2025!@#';
+
+        // 현재 Remote Config 데이터 저장
+        let currentConfig = null;
+
+        async function showTab(tabName) {
             // 모든 탭 비활성화
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -252,52 +257,46 @@
             // 선택된 탭 활성화
             event.target.classList.add('active');
             document.getElementById(tabName + 'Tab').classList.add('active');
+
+            // 업데이트 탭으로 전환할 때 자동 조회
+            if (tabName === 'update' && !currentConfig) {
+                const projectId = document.getElementById('projectId').value || document.getElementById('updateProjectId').value;
+                if (projectId) {
+                    await loadRemoteConfigSilent(projectId);
+                }
+            }
         }
 
-        async function verifyPassword() {
-            const adminPassword = document.getElementById('adminPassword').value;
-            const authStatus = document.getElementById('authStatus');
-
-            if (!adminPassword) {
-                authStatus.innerHTML = '<div class="auth-failed">❌ 비밀번호를 입력하세요</div>';
-                return;
-            }
-
+        // 조용히 Remote Config 조회 (UI 표시 없이)
+        async function loadRemoteConfigSilent(projectId) {
             try {
                 const response = await fetch(FUNCTION_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
                     },
                     body: JSON.stringify({
-                        adminPassword: adminPassword,
-                        testAuth: true
+                        adminPassword: ADMIN_PASSWORD,
+                        authenticated: true,
+                        action: 'get',
+                        projectId: projectId
                     })
                 });
 
                 const result = await response.json();
 
                 if (response.ok && result.success) {
-                    authenticated = true;
-                    authStatus.innerHTML = '<div class="auth-success">✅ 인증 성공</div>';
-                } else {
-                    authenticated = false;
-                    authStatus.innerHTML = '<div class="auth-failed">❌ 인증 실패: ' + (result.error || result.message || '잘못된 비밀번호') + '</div>';
+                    currentConfig = result.config;
+                    updateParameterKeyOptions();
                 }
             } catch (error) {
-                authenticated = false;
-                authStatus.innerHTML = '<div class="auth-failed">❌ 인증 중 오류: ' + error.message + '</div>';
+                console.error('Silent config load failed:', error);
             }
         }
 
         async function loadRemoteConfig() {
-            if (!authenticated) {
-                alert('먼저 관리자 인증을 받아주세요.');
-                return;
-            }
-
             const projectId = document.getElementById('projectId').value;
-            const adminPassword = document.getElementById('adminPassword').value;
 
             if (!projectId) {
                 alert('프로젝트 ID를 입력하세요.');
@@ -311,10 +310,11 @@
                 const response = await fetch(FUNCTION_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
                     },
                     body: JSON.stringify({
-                        adminPassword: adminPassword,
+                        adminPassword: ADMIN_PASSWORD,
                         authenticated: true,
                         action: 'get',
                         projectId: projectId
@@ -324,11 +324,14 @@
                 const result = await response.json();
 
                 if (response.ok && result.success) {
+                    currentConfig = result.config;
                     displayRemoteConfig(result.config);
+                    updateParameterKeyOptions();
                     addLog('✅ Remote Config 조회 성공: ' + projectId);
                 } else {
-                    configDisplay.innerHTML = '<div class="error">❌ 조회 실패: ' + (result.error || result.message || '알 수 없는 오류') + '</div>';
-                    addLog('❌ Remote Config 조회 실패: ' + (result.error || result.message || '알 수 없는 오류'));
+                    const errorMsg = result.message || result.error || '알 수 없는 오류';
+                    configDisplay.innerHTML = '<div class="error">❌ 조회 실패: ' + errorMsg + '</div>';
+                    addLog('❌ Remote Config 조회 실패: ' + errorMsg);
                 }
             } catch (error) {
                 configDisplay.innerHTML = '<div class="error">❌ 네트워크 오류: ' + error.message + '</div>';
@@ -336,26 +339,106 @@
             }
         }
 
-        async function updateRemoteConfig() {
-            if (!authenticated) {
-                alert('먼저 관리자 인증을 받아주세요.');
+        // 매개변수 키 옵션 업데이트
+        function updateParameterKeyOptions() {
+            const paramKeySelect = document.getElementById('paramKey');
+            paramKeySelect.innerHTML = '<option value="">새 매개변수 추가...</option>';
+
+            if (!currentConfig) return;
+
+            const allKeys = new Set();
+
+            // parameters에서 키 수집
+            if (currentConfig.parameters) {
+                Object.keys(currentConfig.parameters).forEach(key => allKeys.add(key));
+            }
+
+            // parameterGroups에서 키 수집
+            if (currentConfig.parameterGroups) {
+                for (const group of Object.values(currentConfig.parameterGroups)) {
+                    if (group.parameters) {
+                        Object.keys(group.parameters).forEach(key => allKeys.add(key));
+                    }
+                }
+            }
+
+            // 정렬하여 옵션 추가
+            Array.from(allKeys).sort().forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = key;
+                paramKeySelect.appendChild(option);
+            });
+        }
+
+        // 매개변수 키 선택 시 현재 값 표시
+        function onParameterKeyChange() {
+            const paramKey = document.getElementById('paramKey').value;
+            const currentValueDisplay = document.getElementById('currentValueDisplay');
+            const currentValueSpan = document.getElementById('currentValue');
+            const paramValueInput = document.getElementById('paramValue');
+            const paramDescriptionTextarea = document.getElementById('paramDescription');
+
+            if (!paramKey || !currentConfig) {
+                currentValueDisplay.style.display = 'none';
+                paramValueInput.value = '';
+                paramDescriptionTextarea.value = '';
                 return;
             }
 
+            let parameter = null;
+
+            // parameters에서 찾기
+            if (currentConfig.parameters && currentConfig.parameters[paramKey]) {
+                parameter = currentConfig.parameters[paramKey];
+            }
+
+            // parameterGroups에서 찾기
+            if (!parameter && currentConfig.parameterGroups) {
+                for (const group of Object.values(currentConfig.parameterGroups)) {
+                    if (group.parameters && group.parameters[paramKey]) {
+                        parameter = group.parameters[paramKey];
+                        break;
+                    }
+                }
+            }
+
+            if (parameter) {
+                const currentValue = parameter.defaultValue?.value || '없음';
+                currentValueSpan.textContent = currentValue;
+                currentValueDisplay.style.display = 'block';
+                paramValueInput.value = currentValue;
+                paramDescriptionTextarea.value = parameter.description || '';
+            } else {
+                currentValueDisplay.style.display = 'none';
+                paramValueInput.value = '';
+                paramDescriptionTextarea.value = '';
+            }
+        }
+
+        async function updateRemoteConfig() {
             const projectId = document.getElementById('updateProjectId').value;
-            const adminPassword = document.getElementById('adminPassword').value;
-            const paramKey = document.getElementById('paramKey').value;
+            let paramKey = document.getElementById('paramKey').value;
             const paramValue = document.getElementById('paramValue').value;
             const paramType = document.getElementById('paramType').value;
             const paramDescription = document.getElementById('paramDescription').value;
 
-            if (!projectId || !paramKey || !paramValue) {
-                alert('프로젝트 ID, 매개변수 키, 기본값은 필수입니다.');
+            // 새 매개변수 추가인 경우 키 입력받기
+            if (!paramKey) {
+                paramKey = prompt('새 매개변수 키를 입력하세요:');
+                if (!paramKey) {
+                    alert('매개변수 키가 필요합니다.');
+                    return;
+                }
+            }
+
+            if (!projectId || !paramValue) {
+                alert('프로젝트 ID와 기본값은 필수입니다.');
                 return;
             }
 
             const updateData = {
-                adminPassword: adminPassword,
+                adminPassword: ADMIN_PASSWORD,
                 authenticated: true,
                 action: 'update',
                 projectId: projectId,
@@ -369,7 +452,8 @@
                 const response = await fetch(FUNCTION_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
                     },
                     body: JSON.stringify(updateData)
                 });
@@ -385,8 +469,9 @@
                     document.getElementById('paramValue').value = '';
                     document.getElementById('paramDescription').value = '';
                 } else {
-                    addLog('❌ Remote Config 업데이트 실패: ' + (result.error || result.message || '알 수 없는 오류'));
-                    alert('업데이트 실패: ' + (result.error || result.message || '알 수 없는 오류'));
+                    const errorMsg = result.message || result.error || '알 수 없는 오류';
+                    addLog('❌ Remote Config 업데이트 실패: ' + errorMsg);
+                    alert('업데이트 실패: ' + errorMsg);
                 }
             } catch (error) {
                 addLog('❌ 네트워크 오류: ' + error.message);
