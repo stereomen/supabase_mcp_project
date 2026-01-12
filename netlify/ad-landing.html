@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>광고 페이지</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(0,0,0,0.08);
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero {
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 40px 60px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+        .hero .subtitle {
+            font-size: 18px;
+            opacity: 0.95;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+        .image-section {
+            width: 100%;
+            max-height: 600px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+        .image-section img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+        .content {
+            padding: 60px 60px 80px;
+            background: white;
+        }
+        .content-text {
+            font-size: 18px;
+            line-height: 2;
+            color: #2d3748;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            letter-spacing: 0.3px;
+        }
+        .no-content-placeholder {
+            padding: 80px 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            color: #6c757d;
+            border-radius: 12px;
+            margin: 40px;
+        }
+        .no-content-placeholder p {
+            font-size: 18px;
+            font-weight: 300;
+        }
+        .loading {
+            text-align: center;
+            padding: 100px 30px;
+            color: #667eea;
+            font-size: 20px;
+            font-weight: 300;
+        }
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        .error {
+            text-align: center;
+            padding: 100px 30px;
+            color: #e74c3c;
+            font-size: 18px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            font-size: 14px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+        @media (max-width: 768px) {
+            .hero {
+                padding: 60px 30px 40px;
+            }
+            .hero h1 {
+                font-size: 32px;
+            }
+            .hero .subtitle {
+                font-size: 16px;
+            }
+            .content {
+                padding: 40px 30px 60px;
+            }
+            .content-text {
+                font-size: 16px;
+                line-height: 1.8;
+            }
+            .image-section {
+                max-height: 400px;
+            }
+        }
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px;
+            }
+            .content {
+                padding: 30px 20px 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="landingContainer">
+        <div class="loading">로딩 중</div>
+    </div>
+
+    <!-- Supabase 설정 -->
+    <script>
+    const SUPABASE_CONFIG = {
+        url: 'https://iwpgvdtfpwazzfeniusk.supabase.co',
+        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE'
+    };
+    </script>
+
+    <script>
+        async function loadLandingPage() {
+            const container = document.getElementById('landingContainer');
+
+            try {
+                // URL에서 campaign ID 추출
+                const urlParams = new URLSearchParams(window.location.search);
+                const campaignId = urlParams.get('id');
+
+                if (!campaignId) {
+                    container.innerHTML = '<div class="error">❌ 캠페인 ID가 없습니다.</div>';
+                    return;
+                }
+
+                // Supabase에서 캠페인 정보 조회 (ad_repo_view 사용하여 partner_name 포함)
+                const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/ad_repo_view?id=eq.${campaignId}&select=*`, {
+                    headers: {
+                        'apikey': SUPABASE_CONFIG.anonKey,
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('캠페인을 찾을 수 없습니다.');
+                }
+
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="error">❌ 캠페인을 찾을 수 없습니다.</div>';
+                    return;
+                }
+
+                const campaign = data[0];
+
+                // 외부 URL 타입이면 리다이렉트
+                if (campaign.landing_page_type === 'external' && campaign.landing_url) {
+                    window.location.href = campaign.landing_url;
+                    return;
+                }
+
+                // 페이지 제목 설정
+                document.title = campaign.landing_page_title || campaign.campaign_name;
+
+                // HTML 렌더링
+                const html = `
+                    <div class="hero">
+                        <div class="hero-content">
+                            <h1>${campaign.landing_page_title || campaign.campaign_name}</h1>
+                            <div class="subtitle">${campaign.campaign_name}</div>
+                            <div class="badge">${campaign.partner_name || campaign.partner_id}</div>
+                        </div>
+                    </div>
+
+                    ${campaign.landing_page_image_url ? `
+                    <div class="image-section">
+                        <img src="${campaign.landing_page_image_url}" alt="${campaign.landing_page_title || campaign.campaign_name}">
+                    </div>
+                    ` : ''}
+
+                    <div class="content">
+                        ${campaign.landing_page_content ? `
+                        <div class="content-text">${campaign.landing_page_content}</div>
+                        ` : `
+                        <div class="no-content-placeholder">
+                            <p>상세 내용이 곧 공개됩니다</p>
+                        </div>
+                        `}
+                    </div>
+                `;
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Landing page load error:', error);
+                container.innerHTML = `<div class="error">❌ 페이지 로딩 실패: ${error.message}</div>`;
+            }
+        }
+
+        // 페이지 로드 시 자동 실행
+        window.addEventListener('load', loadLandingPage);
+
+        // iframe 안에서 로드될 때 헤더 숨기기
+        if (window.self !== window.top) {
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                hero.style.display = 'none';
+            }
+            const container = document.querySelector('.container');
+            if (container) {
+                container.style.boxShadow = 'none';
+            }
+            document.body.style.background = 'white';
+        }
+    </script>
+</body>
+</html>

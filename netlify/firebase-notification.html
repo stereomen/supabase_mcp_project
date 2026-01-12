@@ -361,6 +361,34 @@
             addLog('🌟 Firebase 푸시 알림 관리 시스템이 준비되었습니다.');
             addLog('🔒 보안 강화: 2단계 인증 시스템이 적용되었습니다.');
         });
+        // iframe 안에서 로드될 때 헤더/뒤로가기 버튼 숨기기
+        if (window.self !== window.top) {
+            // 뒤로가기 버튼 숨기기
+            const backButtons = document.querySelectorAll('.back-button, a[href="/"], a[href="index.html"]');
+            backButtons.forEach(btn => btn.style.display = 'none');
+
+            // 헤더 숨기기 (다양한 선택자 시도)
+            const headers = document.querySelectorAll('.header, .hero, header');
+            headers.forEach(header => {
+                // 헤더 내용이 "대시보드로 돌아가기"만 있는 경우 전체 숨김
+                if (header.querySelector('.back-button')) {
+                    header.style.display = 'none';
+                }
+            });
+
+            // 컨테이너 스타일 정리
+            const containers = document.querySelectorAll('.container, .dashboard');
+            containers.forEach(container => {
+                container.style.borderRadius = '0';
+                container.style.boxShadow = 'none';
+            });
+
+            // body 배경 정리
+            document.body.style.background = 'white';
+            document.body.style.padding = '0';
+            document.body.style.minHeight = 'auto';
+        }
+
     </script>
 </body>
 </html>

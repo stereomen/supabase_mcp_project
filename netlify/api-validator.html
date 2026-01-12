@@ -409,6 +409,9 @@
 
     <!-- 공통 관측소 목록 데이터 -->
     <script src="shared/locations.js"></script>
+
+    <!-- 관리자 인증 체크 -->
+    <script src="_shared/auth-check.js"></script>
 </head>
 <body>
     <div class="container">
@@ -751,7 +754,7 @@
 
                         options = {
                             method: 'GET',
-                            headers: { 'Authorization': `Bearer ${ANON_KEY}` }
+                            headers: getAuthHeaders()
                         };
                         break;
 
@@ -778,10 +781,7 @@
                         url = `${BASE_URL}/manage-ad-repo`;
                         options = {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${ANON_KEY}`
-                            },
+                            headers: getAuthHeaders(),
                             body: JSON.stringify(body)
                         };
                         break;
@@ -799,10 +799,7 @@
                         url = `${BASE_URL}/partner-auth`;
                         options = {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${ANON_KEY}`
-                            },
+                            headers: getAuthHeaders(),
                             body: JSON.stringify({
                                 action: authAction,
                                 partner_id: partnerId,
@@ -824,10 +821,7 @@
                         url = `${BASE_URL}/track-ad-event`;
                         options = {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${ANON_KEY}`
-                            },
+                            headers: getAuthHeaders(),
                             body: JSON.stringify({
                                 ad_repo_id: eventAdId,
                                 event_type: eventType,
@@ -942,8 +936,10 @@
                             <tr><td>tmp</td><td>기온 (°C)</td><td>${currentData.weather_forecasts[0].tmp || '-'}</td></tr>
                             <tr><td>tmn</td><td>최저 기온 (°C)</td><td>${currentData.weather_forecasts[0].tmn || '-'}</td></tr>
                             <tr><td>tmx</td><td>최고 기온 (°C)</td><td>${currentData.weather_forecasts[0].tmx || '-'}</td></tr>
-                            <tr><td>wsd</td><td>풍속 (m/s)</td><td>${currentData.weather_forecasts[0].wsd || '-'}</td></tr>
+                            <tr><td>uuu</td><td>풍속 동서성분 (m/s)</td><td>${currentData.weather_forecasts[0].uuu || '-'}</td></tr>
+                            <tr><td>vvv</td><td>풍속 남북성분 (m/s)</td><td>${currentData.weather_forecasts[0].vvv || '-'}</td></tr>
                             <tr><td>vec</td><td>풍향 (도)</td><td>${currentData.weather_forecasts[0].vec || '-'}</td></tr>
+                            <tr><td>wsd</td><td>풍속 (m/s)</td><td>${currentData.weather_forecasts[0].wsd || '-'}</td></tr>
                             <tr><td>sky</td><td>하늘 상태 (1:맑음, 3:구름많음, 4:흐림)</td><td>${currentData.weather_forecasts[0].sky || '-'}</td></tr>
                             <tr><td>pty</td><td>강수 형태 (0:없음, 1:비, 2:비/눈, 3:눈)</td><td>${currentData.weather_forecasts[0].pty || '-'}</td></tr>
                             <tr><td>pop</td><td>강수 확률 (%)</td><td>${currentData.weather_forecasts[0].pop || '-'}</td></tr>
@@ -1045,11 +1041,12 @@
                         </thead>
                         <tbody>
                             <tr><td>tm_ef_kr</td><td>예보 유효 시각 (KST)</td><td>${currentData.marine[0].tm_ef_kr || '-'}</td></tr>
+                            <tr><td>reg_id</td><td>지역 ID</td><td>${currentData.marine[0].reg_id || '-'}</td></tr>
+                            <tr><td>reg_sp</td><td>지역 구분</td><td>${currentData.marine[0].reg_sp || '-'}</td></tr>
+                            <tr><td>reg_name</td><td>지역명</td><td>${currentData.marine[0].reg_name || '-'}</td></tr>
                             <tr><td>wh_a</td><td>파고 범위 시작 (m)</td><td>${currentData.marine[0].wh_a || '-'}</td></tr>
                             <tr><td>wh_b</td><td>파고 범위 끝 (m)</td><td>${currentData.marine[0].wh_b || '-'}</td></tr>
                             <tr><td>wf</td><td>날씨 설명</td><td>${currentData.marine[0].wf || '-'}</td></tr>
-                            <tr><td>sky</td><td>하늘 상태</td><td>${currentData.marine[0].sky || '-'}</td></tr>
-                            <tr><td>rn_st</td><td>강수 시작 확률 (%)</td><td>${currentData.marine[0].rn_st || '-'}</td></tr>
                         </tbody>
                     </table>
                 `;
@@ -1070,38 +1067,19 @@
                         </thead>
                         <tbody>
                             <tr><td>tm_ef_kr</td><td>예보 유효 시각 (KST)</td><td>${currentData.temper[0].tm_ef_kr || '-'}</td></tr>
+                            <tr><td>reg_id</td><td>지역 ID</td><td>${currentData.temper[0].reg_id || '-'}</td></tr>
+                            <tr><td>reg_sp</td><td>지역 구분</td><td>${currentData.temper[0].reg_sp || '-'}</td></tr>
+                            <tr><td>reg_name</td><td>지역명</td><td>${currentData.temper[0].reg_name || '-'}</td></tr>
                             <tr><td>min_temp</td><td>최저 기온 (°C)</td><td>${currentData.temper[0].min_temp || '-'}</td></tr>
                             <tr><td>max_temp</td><td>최고 기온 (°C)</td><td>${currentData.temper[0].max_temp || '-'}</td></tr>
+                            <tr><td>min_temp_l</td><td>최저 기온 하한 (°C)</td><td>${currentData.temper[0].min_temp_l || '-'}</td></tr>
+                            <tr><td>min_temp_h</td><td>최저 기온 상한 (°C)</td><td>${currentData.temper[0].min_temp_h || '-'}</td></tr>
+                            <tr><td>max_temp_l</td><td>최고 기온 하한 (°C)</td><td>${currentData.temper[0].max_temp_l || '-'}</td></tr>
+                            <tr><td>max_temp_h</td><td>최고 기온 상한 (°C)</td><td>${currentData.temper[0].max_temp_h || '-'}</td></tr>
                             <tr><td>sky</td><td>하늘 상태</td><td>${currentData.temper[0].sky || '-'}</td></tr>
+                            <tr><td>pre</td><td>강수 확률</td><td>${currentData.temper[0].pre || '-'}</td></tr>
                             <tr><td>wf</td><td>날씨 설명</td><td>${currentData.temper[0].wf || '-'}</td></tr>
-                            <tr><td>rn_st</td><td>강수 시작 확률 (%)</td><td>${currentData.temper[0].rn_st || '-'}</td></tr>
-                        </tbody>
-                    </table>
-                `;
-            }
-
-            // OpenWeatherMap Current
-            if (currentData.openweathermap && currentData.openweathermap.current && currentData.openweathermap.current.length > 0) {
-                html += `
-                    <div class="section-title">🌤️ openweathermap.current (OpenWeatherMap 현재 날씨)</div>
-                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.openweathermap.current.length}개 레코드</p>
-                    <table class="field-table">
-                        <thead>
-                            <tr>
-                                <th>필드명</th>
-                                <th>설명</th>
-                                <th>샘플 값</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>observation_time_local</td><td>관측 시각 (Local)</td><td>${currentData.openweathermap.current[0].observation_time_local || '-'}</td></tr>
-                            <tr><td>weather_main</td><td>날씨 주 카테고리</td><td>${currentData.openweathermap.current[0].weather_main || '-'}</td></tr>
-                            <tr><td>weather_description</td><td>날씨 상태 설명</td><td>${currentData.openweathermap.current[0].weather_description || '-'}</td></tr>
-                            <tr><td>temp</td><td>현재 기온 (°C)</td><td>${currentData.openweathermap.current[0].temp || '-'}</td></tr>
-                            <tr><td>feels_like</td><td>체감 온도 (°C)</td><td>${currentData.openweathermap.current[0].feels_like || '-'}</td></tr>
-                            <tr><td>humidity</td><td>습도 (%)</td><td>${currentData.openweathermap.current[0].humidity || '-'}</td></tr>
-                            <tr><td>wind_speed</td><td>풍속 (m/s)</td><td>${currentData.openweathermap.current[0].wind_speed || '-'}</td></tr>
-                            <tr><td>wind_deg</td><td>풍향 (도)</td><td>${currentData.openweathermap.current[0].wind_deg || '-'}</td></tr>
+                            <tr><td>rn_st</td><td>강수 상태 코드</td><td>${currentData.temper[0].rn_st || '-'}</td></tr>
                         </tbody>
                     </table>
                 `;
@@ -1125,11 +1103,14 @@
                             <tr><td>forecast_time</td><td>예보 시각 (12:00:00=일별, 그 외=3시간 간격)</td><td>${currentData.openweathermap.forecast[0].forecast_time || '-'}</td></tr>
                             <tr><td>weather_main</td><td>날씨 주 카테고리</td><td>${currentData.openweathermap.forecast[0].weather_main || '-'}</td></tr>
                             <tr><td>weather_description</td><td>날씨 상태 설명</td><td>${currentData.openweathermap.forecast[0].weather_description || '-'}</td></tr>
+                            <tr><td>weather_icon</td><td>날씨 아이콘 코드</td><td>${currentData.openweathermap.forecast[0].weather_icon || '-'}</td></tr>
                             <tr><td>temp</td><td>기온 (°C)</td><td>${currentData.openweathermap.forecast[0].temp || '-'}</td></tr>
                             <tr><td>temp_min</td><td>최저 기온 (°C)</td><td>${currentData.openweathermap.forecast[0].temp_min || '-'}</td></tr>
                             <tr><td>temp_max</td><td>최고 기온 (°C)</td><td>${currentData.openweathermap.forecast[0].temp_max || '-'}</td></tr>
-                            <tr><td>pop</td><td>강수 확률 (%)</td><td>${currentData.openweathermap.forecast[0].pop || '-'}</td></tr>
+                            <tr><td>humidity</td><td>습도 (%)</td><td>${currentData.openweathermap.forecast[0].humidity || '-'}</td></tr>
                             <tr><td>wind_speed</td><td>풍속 (m/s)</td><td>${currentData.openweathermap.forecast[0].wind_speed || '-'}</td></tr>
+                            <tr><td>wind_deg</td><td>풍향 (도)</td><td>${currentData.openweathermap.forecast[0].wind_deg || '-'}</td></tr>
+                            <tr><td>pop</td><td>강수 확률 (0~1)</td><td>${currentData.openweathermap.forecast[0].pop || '-'}</td></tr>
                         </tbody>
                     </table>
                 `;
@@ -1212,7 +1193,6 @@
             if (data.marine_observations && ((data.marine_observations.a && data.marine_observations.a.length > 0) || (data.marine_observations.b && data.marine_observations.b.length > 0))) navItems.push({id: 'json-marine-obs', label: '🌊 해상관측', count: (data.marine_observations.a?.length || 0) + (data.marine_observations.b?.length || 0)});
             if (data.marine && data.marine.length > 0) navItems.push({id: 'json-marine', label: '🌊 중기해상', count: data.marine.length});
             if (data.temper && data.temper.length > 0) navItems.push({id: 'json-temper', label: '🌡️ 중기기온', count: data.temper.length});
-            if (data.openweathermap?.current && data.openweathermap.current.length > 0) navItems.push({id: 'json-owm-current', label: '🌤️ OWM현재', count: data.openweathermap.current.length});
             if (data.openweathermap?.forecast && data.openweathermap.forecast.length > 0) navItems.push({id: 'json-owm-forecast', label: '🌤️ OWM예보', count: data.openweathermap.forecast.length});
 
             // Sticky navigation
@@ -1275,14 +1255,6 @@
                 });
             }
 
-            if (data.openweathermap?.current && data.openweathermap.current.length > 0) {
-                sections.push({
-                    id: 'json-owm-current',
-                    title: `🌤️ openweathermap.current (${data.openweathermap.current.length}개)`,
-                    data: { current: data.openweathermap.current }
-                });
-            }
-
             if (data.openweathermap?.forecast && data.openweathermap.forecast.length > 0) {
                 sections.push({
                     id: 'json-owm-forecast',
@@ -1331,7 +1303,6 @@
             if (data.marine_observations && ((data.marine_observations.a && data.marine_observations.a.length > 0) || (data.marine_observations.b && data.marine_observations.b.length > 0))) navItems.push({id: 'marine-obs', label: '🌊 해상관측', count: (data.marine_observations.a?.length || 0) + (data.marine_observations.b?.length || 0)});
             if (data.marine && data.marine.length > 0) navItems.push({id: 'marine', label: '🌊 중기해상', count: data.marine.length});
             if (data.temper && data.temper.length > 0) navItems.push({id: 'temper', label: '🌡️ 중기기온', count: data.temper.length});
-            if (data.openweathermap?.current && data.openweathermap.current.length > 0) navItems.push({id: 'owm-current', label: '🌤️ OWM현재', count: data.openweathermap.current.length});
             if (data.openweathermap?.forecast && data.openweathermap.forecast.length > 0) navItems.push({id: 'owm-forecast', label: '🌤️ OWM예보', count: data.openweathermap.forecast.length});
 
             // 스티키 네비게이션
@@ -1404,8 +1375,10 @@
                     if (forecast.tmp !== undefined && forecast.tmp !== null) text += `tmp(기온): ${forecast.tmp}°C\n`;
                     if (forecast.tmn !== undefined && forecast.tmn !== null) text += `tmn(최저기온): ${forecast.tmn}°C\n`;
                     if (forecast.tmx !== undefined && forecast.tmx !== null) text += `tmx(최고기온): ${forecast.tmx}°C\n`;
-                    if (forecast.wsd !== undefined && forecast.wsd !== null) text += `wsd(풍속): ${forecast.wsd}m/s\n`;
+                    if (forecast.uuu !== undefined && forecast.uuu !== null) text += `uuu(풍속 동서성분): ${forecast.uuu}m/s\n`;
+                    if (forecast.vvv !== undefined && forecast.vvv !== null) text += `vvv(풍속 남북성분): ${forecast.vvv}m/s\n`;
                     if (forecast.vec !== undefined && forecast.vec !== null) text += `vec(풍향): ${forecast.vec}°\n`;
+                    if (forecast.wsd !== undefined && forecast.wsd !== null) text += `wsd(풍속): ${forecast.wsd}m/s\n`;
 
                     if (forecast.sky) {
                         const skyDesc = getSkyDescription(forecast.sky);
@@ -1533,25 +1506,7 @@
 
                     if (marine.reg_id) text += `reg_id(지역코드): ${marine.reg_id}\n`;
                     if (marine.reg_sp) text += `reg_sp(지역구분): ${marine.reg_sp}\n`;
-                    const regName = marine.reg_name || 'N/A';
-                    text += `reg_name(해역): ${regName}\n`;
-
-                    const forecastType = marine.forecast_type || 'N/A';
-                    text += `forecast_type(예보 종류): ${forecastType}\n`;
-                    if (marine.mod) text += `mod(모드): ${marine.mod}\n`;
-
-                    if (marine.tm_fc) text += `tm_fc(예보시간): ${marine.tm_fc}\n`;
-                    if (marine.tm_fc_kr) text += `tm_fc_kr(예보시간_한국): ${marine.tm_fc_kr}\n`;
-                    if (marine.tm_ef) text += `tm_ef(유효시간): ${marine.tm_ef}\n`;
-                    if (marine.tm_ef_kr) text += `tm_ef_kr(유효시간_한국): ${marine.tm_ef_kr}\n`;
-
-                    if (marine.sky) {
-                        const skyDesc = getSkyDescription(marine.sky);
-                        text += `sky(하늘상태): ${marine.sky} (${skyDesc})\n`;
-                    }
-
-                    if (marine.pre) text += `pre(강수): ${marine.pre}\n`;
-                    if (marine.rn_st !== undefined && marine.rn_st !== null) text += `rn_st(강수상태): ${marine.rn_st}\n`;
+                    if (marine.reg_name) text += `reg_name(지역명): ${marine.reg_name}\n`;
 
                     const whA = (marine.wh_a !== undefined && marine.wh_a !== null) ? marine.wh_a : 'N/A';
                     const whB = (marine.wh_b !== undefined && marine.wh_b !== null) ? marine.wh_b : 'N/A';
@@ -1561,8 +1516,6 @@
 
                     const wf = marine.wf || 'N/A';
                     text += `wf(날씨예보): ${wf}\n`;
-
-                    if (marine.conf) text += `conf(신뢰도): ${marine.conf}\n`;
 
                     text += '\n';
                 });
@@ -1583,6 +1536,7 @@
                     text += `📅 ${forecastTime}\n`;
 
                     if (temp.reg_id) text += `reg_id(지역코드): ${temp.reg_id}\n`;
+                    if (temp.reg_sp) text += `reg_sp(지역구분): ${temp.reg_sp}\n`;
                     if (temp.reg_name) text += `reg_name(지역명): ${temp.reg_name}\n`;
 
                     if (temp.min_temp !== undefined && temp.min_temp !== null) text += `min_temp(최저기온): ${temp.min_temp}°C\n`;
@@ -1599,38 +1553,7 @@
 
                     if (temp.wf) text += `wf(날씨): ${temp.wf}\n`;
                     if (temp.pre) text += `pre(강수): ${temp.pre}\n`;
-                    if (temp.rn_st !== undefined && temp.rn_st !== null) text += `rn_st(강수확률): ${temp.rn_st}%\n`;
-                    if (temp.conf) text += `conf(신뢰도): ${temp.conf}\n`;
-
-                    text += '\n';
-                });
-                text += `</pre></div></div>`;
-            }
-
-            // OpenWeatherMap Current (현재 날씨)
-            if (data.openweathermap && data.openweathermap.current && Array.isArray(data.openweathermap.current) && data.openweathermap.current.length > 0) {
-                text += `<div class="data-section" id="owm-current">`;
-                text += `<div class="section-header" onclick="toggleSection('owm-current')">`;
-                text += `<h3 class="section-title">🌤️ OpenWeatherMap 현재 날씨 (${data.openweathermap.current.length}개)</h3>`;
-                text += `<span class="section-toggle">▼</span>`;
-                text += `</div>`;
-                text += `<div class="section-content"><pre>`;
-
-                data.openweathermap.current.forEach(weather => {
-                    const time = weather.observation_time_local || weather.observation_time_utc || 'N/A';
-                    text += `📅 ${time}\n`;
-
-                    if (weather.weather_main) text += `weather_main(날씨): ${weather.weather_main}\n`;
-                    if (weather.weather_description) text += `weather_description(상세): ${weather.weather_description}\n`;
-                    if (weather.temp !== undefined && weather.temp !== null) text += `temp(기온): ${weather.temp}°C\n`;
-                    if (weather.feels_like !== undefined && weather.feels_like !== null) text += `feels_like(체감온도): ${weather.feels_like}°C\n`;
-                    if (weather.humidity !== undefined && weather.humidity !== null) text += `humidity(습도): ${weather.humidity}%\n`;
-                    if (weather.pressure !== undefined && weather.pressure !== null) text += `pressure(기압): ${weather.pressure}hPa\n`;
-                    if (weather.wind_speed !== undefined && weather.wind_speed !== null) text += `wind_speed(풍속): ${weather.wind_speed}m/s\n`;
-                    if (weather.wind_deg !== undefined && weather.wind_deg !== null) text += `wind_deg(풍향): ${weather.wind_deg}°\n`;
-                    if (weather.wind_gust !== undefined && weather.wind_gust !== null) text += `wind_gust(돌풍): ${weather.wind_gust}m/s\n`;
-                    if (weather.clouds !== undefined && weather.clouds !== null) text += `clouds(구름량): ${weather.clouds}%\n`;
-                    if (weather.visibility !== undefined && weather.visibility !== null) text += `visibility(가시거리): ${weather.visibility}m\n`;
+                    if (temp.rn_st !== undefined && temp.rn_st !== null) text += `rn_st(강수상태): ${temp.rn_st}\n`;
 
                     text += '\n';
                 });
@@ -1654,17 +1577,14 @@
 
                     if (forecast.weather_main) text += `weather_main(날씨): ${forecast.weather_main}\n`;
                     if (forecast.weather_description) text += `weather_description(상세): ${forecast.weather_description}\n`;
+                    if (forecast.weather_icon) text += `weather_icon(아이콘): ${forecast.weather_icon}\n`;
                     if (forecast.temp !== undefined && forecast.temp !== null) text += `temp(기온): ${forecast.temp}°C\n`;
-                    if (forecast.feels_like !== undefined && forecast.feels_like !== null) text += `feels_like(체감온도): ${forecast.feels_like}°C\n`;
                     if (forecast.temp_min !== undefined && forecast.temp_min !== null) text += `temp_min(최저기온): ${forecast.temp_min}°C\n`;
                     if (forecast.temp_max !== undefined && forecast.temp_max !== null) text += `temp_max(최고기온): ${forecast.temp_max}°C\n`;
-                    if (forecast.pop !== undefined && forecast.pop !== null) text += `pop(강수확률): ${(forecast.pop * 100).toFixed(0)}%\n`;
                     if (forecast.humidity !== undefined && forecast.humidity !== null) text += `humidity(습도): ${forecast.humidity}%\n`;
                     if (forecast.wind_speed !== undefined && forecast.wind_speed !== null) text += `wind_speed(풍속): ${forecast.wind_speed}m/s\n`;
                     if (forecast.wind_deg !== undefined && forecast.wind_deg !== null) text += `wind_deg(풍향): ${forecast.wind_deg}°\n`;
-                    if (forecast.clouds !== undefined && forecast.clouds !== null) text += `clouds(구름량): ${forecast.clouds}%\n`;
-                    if (forecast.rain_3h !== undefined && forecast.rain_3h !== null) text += `rain_3h(3시간 강수량): ${forecast.rain_3h}mm\n`;
-                    if (forecast.snow_3h !== undefined && forecast.snow_3h !== null) text += `snow_3h(3시간 적설량): ${forecast.snow_3h}mm\n`;
+                    if (forecast.pop !== undefined && forecast.pop !== null) text += `pop(강수확률): ${(forecast.pop * 100).toFixed(0)}%\n`;
 
                     text += '\n';
                 });
@@ -1677,6 +1597,34 @@
 
             return text;
         }
+        // iframe 안에서 로드될 때 헤더/뒤로가기 버튼 숨기기
+        if (window.self !== window.top) {
+            // 뒤로가기 버튼 숨기기
+            const backButtons = document.querySelectorAll('.back-button, a[href="/"], a[href="index.html"]');
+            backButtons.forEach(btn => btn.style.display = 'none');
+
+            // 헤더 숨기기 (다양한 선택자 시도)
+            const headers = document.querySelectorAll('.header, .hero, header');
+            headers.forEach(header => {
+                // 헤더 내용이 "대시보드로 돌아가기"만 있는 경우 전체 숨김
+                if (header.querySelector('.back-button')) {
+                    header.style.display = 'none';
+                }
+            });
+
+            // 컨테이너 스타일 정리
+            const containers = document.querySelectorAll('.container, .dashboard');
+            containers.forEach(container => {
+                container.style.borderRadius = '0';
+                container.style.boxShadow = 'none';
+            });
+
+            // body 배경 정리
+            document.body.style.background = 'white';
+            document.body.style.padding = '0';
+            document.body.style.minHeight = 'auto';
+        }
+
     </script>
 </body>
 </html>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMA 데이터 수집 로그</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+        }
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .filters {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .filters h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-group label {
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .filter-group input,
+        .filter-group select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .stats {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .table-container {
+            overflow-x: auto;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            table-layout: auto;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: bold;
+            vertical-align: top;
+        }
+        th .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 8px;
+            white-space: nowrap;
+        }
+        th .header-content:hover {
+            opacity: 0.9;
+        }
+        th .sort-icon {
+            margin-left: 5px;
+            font-size: 0.8em;
+            opacity: 0.5;
+        }
+        th.sorted-asc .sort-icon::after {
+            content: '▲';
+            opacity: 1;
+        }
+        th.sorted-desc .sort-icon::after {
+            content: '▼';
+            opacity: 1;
+        }
+        th .filter-input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            font-size: 0.85em;
+            box-sizing: border-box;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+        th .filter-input:focus {
+            outline: none;
+            border-color: #fff;
+            background: #fff;
+        }
+        th .filter-input::placeholder {
+            color: #999;
+        }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .data-indicator {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .data-available {
+            background: #28a745;
+            color: white;
+        }
+        .data-missing {
+            background: #dc3545;
+            color: white;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .pagination button {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .pagination button:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+        }
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination span {
+            color: #333;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-button">← 대시보드</a>
+            <h1>🌊 KMA 데이터 수집 로그</h1>
+            <p>기상청 해양관측 데이터 수집 현황을 실시간으로 확인하세요</p>
+        </div>
+
+        <div class="content">
+            <!-- 필터 섹션 -->
+            <div class="filters">
+                <h2>🔍 필터 검색</h2>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="stationName">지점명</label>
+                        <input type="text" id="stationName" placeholder="예: 덕적도">
+                    </div>
+                    <div class="filter-group">
+                        <label for="stationId">지점 ID</label>
+                        <input type="number" id="stationId" placeholder="예: 22101">
+                    </div>
+                    <div class="filter-group">
+                        <label for="observationType">관측 타입</label>
+                        <select id="observationType">
+                            <option value="">전체</option>
+                            <option value="BUOY">BUOY (부이)</option>
+                            <option value="TW">TW (조위)</option>
+                            <option value="AWS">AWS (자동기상)</option>
+                            <option value="LIGHTHOUSE">LIGHTHOUSE (등대)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="dateFilter">날짜</label>
+                        <input type="date" id="dateFilter">
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary" onclick="loadData()">검색</button>
+                    <button class="btn btn-secondary" onclick="resetFilters()">초기화</button>
+                </div>
+            </div>
+
+            <!-- 통계 섹션 -->
+            <div class="stats" id="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalRecords">-</div>
+                    <div class="stat-label">총 레코드 수</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalStations">-</div>
+                    <div class="stat-label">관측 지점 수</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lastUpdate">-</div>
+                    <div class="stat-label">최근 수집 시간</div>
+                </div>
+            </div>
+
+            <!-- 에러 메시지 -->
+            <div id="errorMessage" class="error" style="display: none;"></div>
+
+            <!-- 로딩 표시 -->
+            <div id="loading" class="loading" style="display: none;">
+                데이터를 불러오는 중...
+            </div>
+
+            <!-- 테이블 섹션 -->
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th data-column="request_time">
+                                <div class="header-content" onclick="sortTable('request_time')">
+                                    <span>요청시간</span>
+                                    <span class="sort-icon"></span>
+                                </div>
+                                <input type="text" class="filter-input" id="filter_request_time" placeholder="필터..." onkeyup="applyFilters()" onclick="event.stopPropagation()">
+                            </th>
+                            <th data-column="observation_time_kst">
+                                <div class="header-content" onclick="sortTable('observation_time_kst')">
+                                    <span>관측시간(KST)</span>
+                                    <span class="sort-icon"></span>
+                                </div>
+                                <input type="text" class="filter-input" id="filter_observation_time_kst" placeholder="필터..." onkeyup="applyFilters()" onclick="event.stopPropagation()">
+                            </th>
+                            <th data-column="station_name">
+                                <div class="header-content" onclick="sortTable('station_name')">
+                                    <span>지점명</span>
+                                    <span class="sort-icon"></span>
+                                </div>
+                                <input type="text" class="filter-input" id="filter_station_name" placeholder="필터..." onkeyup="applyFilters()" onclick="event.stopPropagation()">
+                            </th>
+                            <th data-column="station_id">
+                                <div class="header-content" onclick="sortTable('station_id')">
+                                    <span>지점ID</span>
+                                    <span class="sort-icon"></span>
+                                </div>
+                                <input type="text" class="filter-input" id="filter_station_id" placeholder="필터..." onkeyup="applyFilters()" onclick="event.stopPropagation()">
+                            </th>
+                            <th data-column="observation_type">
+                                <div class="header-content" onclick="sortTable('observation_type')">
+                                    <span>관측타입</span>
+                                    <span class="sort-icon"></span>
+                                </div>
+                                <input type="text" class="filter-input" id="filter_observation_type" placeholder="필터..." onkeyup="applyFilters()" onclick="event.stopPropagation()">
+                            </th>
+                            <th>파고</th>
+                            <th>풍향</th>
+                            <th>풍속</th>
+                            <th>돌풍</th>
+                            <th>수온</th>
+                            <th>기온</th>
+                            <th>기압</th>
+                            <th>습도</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="13" style="text-align: center; padding: 40px;">
+                                검색 버튼을 클릭하여 데이터를 불러오세요
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 페이징 -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <button id="prevPage" onclick="prevPage()">이전</button>
+                <span id="pageInfo">1 / 1</span>
+                <button id="nextPage" onclick="nextPage()">다음</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase 설정 (다른 페이지들과 동일한 프로젝트 사용)
+        const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 페이징 변수
+        let currentPage = 1;
+        const itemsPerPage = 50;
+        let totalPages = 1;
+        let currentData = [];
+        let filteredData = [];
+        let allData = []; // 전체 데이터 저장
+
+        // 정렬 상태
+        let currentSort = {
+            column: 'request_time',
+            direction: 'desc'
+        };
+
+        // 날짜 필터 초기값 설정 (오늘)
+        document.getElementById('dateFilter').valueAsDate = new Date();
+
+        // 데이터 로드
+        async function loadData(page = 1) {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+
+                currentPage = page;
+
+                // 필터 값 가져오기
+                const stationName = document.getElementById('stationName').value.trim();
+                const stationId = document.getElementById('stationId').value.trim();
+                const observationType = document.getElementById('observationType').value;
+                const dateFilter = document.getElementById('dateFilter').value;
+
+                // 쿼리 생성 - 전체 데이터 가져오기
+                let query = supabaseClient
+                    .from('abs_fetch_log')
+                    .select('*')
+                    .order('request_time', { ascending: false });
+
+                // 서버 사이드 필터 적용
+                if (stationName) {
+                    query = query.ilike('station_name', `%${stationName}%`);
+                }
+                if (stationId) {
+                    query = query.eq('station_id', parseInt(stationId));
+                }
+                if (observationType) {
+                    query = query.eq('observation_type', observationType);
+                }
+                if (dateFilter) {
+                    const startOfDay = new Date(dateFilter);
+                    startOfDay.setHours(0, 0, 0, 0);
+                    const endOfDay = new Date(dateFilter);
+                    endOfDay.setHours(23, 59, 59, 999);
+
+                    query = query
+                        .gte('request_time', startOfDay.toISOString())
+                        .lte('request_time', endOfDay.toISOString());
+                }
+
+                const { data, error } = await query;
+
+                if (error) throw error;
+
+                allData = data || [];
+
+                // 통계 업데이트
+                await updateStats();
+
+                // 클라이언트 사이드 필터 및 정렬 적용
+                applyFilters();
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('errorMessage').textContent = `데이터 로드 실패: ${error.message}`;
+                document.getElementById('errorMessage').style.display = 'block';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // 테이블 정렬
+        function sortTable(column) {
+            // 정렬 방향 토글
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+
+            // 정렬 아이콘 업데이트
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            const th = document.querySelector(`th[data-column="${column}"]`);
+            if (th) {
+                th.classList.add(`sorted-${currentSort.direction}`);
+            }
+
+            // 데이터 정렬 및 렌더링
+            applyFilters();
+        }
+
+        // 필터 적용
+        function applyFilters() {
+            // 테이블 헤더 필터 값 가져오기
+            const filters = {
+                request_time: document.getElementById('filter_request_time')?.value.toLowerCase() || '',
+                observation_time_kst: document.getElementById('filter_observation_time_kst')?.value.toLowerCase() || '',
+                station_name: document.getElementById('filter_station_name')?.value.toLowerCase() || '',
+                station_id: document.getElementById('filter_station_id')?.value.toLowerCase() || '',
+                observation_type: document.getElementById('filter_observation_type')?.value.toLowerCase() || ''
+            };
+
+            // 필터링
+            filteredData = allData.filter(row => {
+                const requestTimeStr = new Date(row.request_time).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }).toLowerCase();
+
+                return (
+                    (!filters.request_time || requestTimeStr.includes(filters.request_time)) &&
+                    (!filters.observation_time_kst || (row.observation_time_kst || '').toLowerCase().includes(filters.observation_time_kst)) &&
+                    (!filters.station_name || (row.station_name || '').toLowerCase().includes(filters.station_name)) &&
+                    (!filters.station_id || String(row.station_id).includes(filters.station_id)) &&
+                    (!filters.observation_type || (row.observation_type || '').toLowerCase().includes(filters.observation_type))
+                );
+            });
+
+            // 정렬
+            filteredData.sort((a, b) => {
+                let aVal = a[currentSort.column];
+                let bVal = b[currentSort.column];
+
+                // null/undefined 처리
+                if (aVal == null) aVal = '';
+                if (bVal == null) bVal = '';
+
+                // 숫자형 비교
+                if (currentSort.column === 'station_id') {
+                    aVal = Number(aVal) || 0;
+                    bVal = Number(bVal) || 0;
+                }
+
+                // 비교
+                if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // 페이징 계산
+            totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = 1;
+
+            // 현재 페이지 데이터 추출
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            currentData = filteredData.slice(start, end);
+
+            // 테이블 렌더링
+            renderTable(currentData);
+
+            // 페이징 업데이트
+            updatePagination(filteredData.length);
+        }
+
+        // 통계 업데이트
+        async function updateStats() {
+            try {
+                // 총 레코드 수
+                const { count: totalCount } = await supabaseClient
+                    .from('abs_fetch_log')
+                    .select('*', { count: 'exact', head: true });
+
+                document.getElementById('totalRecords').textContent = totalCount || 0;
+
+                // 관측 지점 수
+                const { data: stationData } = await supabaseClient
+                    .from('abs_fetch_log')
+                    .select('station_id');
+
+                const uniqueStations = new Set(stationData?.map(d => d.station_id) || []);
+                document.getElementById('totalStations').textContent = uniqueStations.size;
+
+                // 최근 수집 시간
+                const { data: latestData } = await supabaseClient
+                    .from('abs_fetch_log')
+                    .select('request_time')
+                    .order('request_time', { ascending: false })
+                    .limit(1)
+                    .single();
+
+                if (latestData) {
+                    const date = new Date(latestData.request_time);
+                    document.getElementById('lastUpdate').textContent =
+                        date.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+                }
+
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        // 테이블 렌더링
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="13" style="text-align: center; padding: 40px;">검색 결과가 없습니다</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(row => {
+                const requestTime = new Date(row.request_time);
+                const requestTimeStr = requestTime.toLocaleString('ko-KR', {
+                    timeZone: 'Asia/Seoul',
+                    year: '2-digit',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                    <tr>
+                        <td>${requestTimeStr}</td>
+                        <td>${row.observation_time_kst || '-'}</td>
+                        <td>${row.station_name || '-'}</td>
+                        <td>${row.station_id}</td>
+                        <td>${row.observation_type || '-'}</td>
+                        <td>${renderIndicator(row.significant_wave_height_available)}</td>
+                        <td>${renderIndicator(row.wind_direction_available)}</td>
+                        <td>${renderIndicator(row.wind_speed_available)}</td>
+                        <td>${renderIndicator(row.gust_wind_speed_available)}</td>
+                        <td>${renderIndicator(row.water_temperature_available)}</td>
+                        <td>${renderIndicator(row.air_temperature_available)}</td>
+                        <td>${renderIndicator(row.pressure_available)}</td>
+                        <td>${renderIndicator(row.humidity_available)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 데이터 존재 여부 표시
+        function renderIndicator(available) {
+            if (available) {
+                return '<span class="data-indicator data-available">O</span>';
+            } else {
+                return '<span class="data-indicator data-missing">X</span>';
+            }
+        }
+
+        // 페이징 업데이트
+        function updatePagination(totalCount) {
+            const pagination = document.getElementById('pagination');
+            const pageInfo = document.getElementById('pageInfo');
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+
+            if (totalCount > 0) {
+                pagination.style.display = 'flex';
+                pageInfo.textContent = `${currentPage} / ${totalPages}`;
+                prevBtn.disabled = currentPage === 1;
+                nextBtn.disabled = currentPage === totalPages;
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+
+        // 이전 페이지
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                applyFilters();
+            }
+        }
+
+        // 다음 페이지
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                applyFilters();
+            }
+        }
+
+        // 필터 초기화
+        function resetFilters() {
+            document.getElementById('stationName').value = '';
+            document.getElementById('stationId').value = '';
+            document.getElementById('observationType').value = '';
+            document.getElementById('dateFilter').valueAsDate = new Date();
+
+            // 테이블 헤더 필터 초기화
+            document.getElementById('filter_request_time').value = '';
+            document.getElementById('filter_observation_time_kst').value = '';
+            document.getElementById('filter_station_name').value = '';
+            document.getElementById('filter_station_id').value = '';
+            document.getElementById('filter_observation_type').value = '';
+
+            loadData(1);
+        }
+
+        // 엔터키로 검색
+        document.querySelectorAll('.filter-group input, .filter-group select').forEach(element => {
+            element.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    loadData(1);
+                }
+            });
+        });
+
+        // 페이지 로드 시 통계만 업데이트
+        window.addEventListener('load', () => {
+            updateStats();
+        });
+        // iframe 안에서 로드될 때 헤더/뒤로가기 버튼 숨기기
+        if (window.self !== window.top) {
+            // 뒤로가기 버튼 숨기기
+            const backButtons = document.querySelectorAll('.back-button, a[href="/"], a[href="index.html"]');
+            backButtons.forEach(btn => btn.style.display = 'none');
+
+            // 헤더 숨기기 (다양한 선택자 시도)
+            const headers = document.querySelectorAll('.header, .hero, header');
+            headers.forEach(header => {
+                // 헤더 내용이 "대시보드로 돌아가기"만 있는 경우 전체 숨김
+                if (header.querySelector('.back-button')) {
+                    header.style.display = 'none';
+                }
+            });
+
+            // 컨테이너 스타일 정리
+            const containers = document.querySelectorAll('.container, .dashboard');
+            containers.forEach(container => {
+                container.style.borderRadius = '0';
+                container.style.boxShadow = 'none';
+            });
+
+            // body 배경 정리
+            document.body.style.background = 'white';
+            document.body.style.padding = '0';
+            document.body.style.minHeight = 'auto';
+        }
+
+    </script>
+</body>
+</html>

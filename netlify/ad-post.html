@@ -332,7 +332,7 @@
 
                         <div class="form-group">
                             <label for="campaign_name">캠페인명 *</label>
-                            <input type="text" id="campaign_name" required placeholder="예: 여름 시즌 특가 프로모션">
+                            <input type="text" id="campaign_name" required placeholder="예: 여름 시즌 특가 프로모션" oninput="onCampaignNameChange()">
                         </div>
 
                         <div class="form-row">
@@ -398,8 +398,64 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="landing_url">랜딩 페이지 URL</label>
-                            <input type="text" id="landing_url" placeholder="랜딩 URL 입력 (http:// 생략 가능)">
+                            <label>랜딩 페이지 설정</label>
+                            <div style="margin-bottom: 15px; display: flex; gap: 20px; flex-wrap: wrap;">
+                                <label style="display: inline-flex; align-items: center; cursor: pointer; white-space: nowrap;">
+                                    <input type="radio" name="landing_type" value="external" onchange="toggleLandingFields()">
+                                    <span style="margin-left: 5px;">외부 URL 입력</span>
+                                </label>
+                                <label style="display: inline-flex; align-items: center; cursor: pointer; white-space: nowrap;">
+                                    <input type="radio" name="landing_type" value="auto" checked onchange="toggleLandingFields()">
+                                    <span style="margin-left: 5px;">자동 생성 랜딩 페이지</span>
+                                </label>
+                            </div>
+
+                            <!-- 외부 URL 입력 -->
+                            <div id="external_url_section" style="display: none;">
+                                <input type="text" id="landing_url" placeholder="랜딩 URL 입력 (http:// 생략 가능)">
+                            </div>
+
+                            <!-- 자동 생성 랜딩 페이지 -->
+                            <div id="auto_landing_section">
+                                <div class="form-group" style="margin-bottom: 10px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                        <label for="landing_page_title">페이지 제목</label>
+                                        <label style="display: inline-flex; align-items: center; cursor: pointer; font-weight: normal; white-space: nowrap;">
+                                            <input type="checkbox" id="use_campaign_name" onchange="syncCampaignName()" style="width: auto; margin: 0;">
+                                            <span style="margin-left: 5px;">캠페인명 가져오기</span>
+                                        </label>
+                                    </div>
+                                    <input type="text" id="landing_page_title" placeholder="랜딩 페이지 제목 입력">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 10px;">
+                                    <label for="landing_page_content">페이지 내용</label>
+                                    <textarea id="landing_page_content" rows="5" placeholder="랜딩 페이지 내용을 입력하세요" oninput="syncToDescription()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit;"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="landing_page_image">페이지 이미지</label>
+                                    <input type="file" id="landing_page_image" accept="image/*" onchange="handleLandingImageUpload(event)">
+                                    <input type="text" id="landing_page_image_url" placeholder="또는 이미지 URL 직접 입력" style="margin-top: 5px;">
+                                    <div id="landing_preview" class="image-preview" style="margin-top: 10px;"></div>
+                                </div>
+                                <div style="padding: 10px; background: #e3f2fd; border-radius: 5px; margin-top: 10px;">
+                                    <small style="color: #1976d2;">
+                                        ✓ 자동 생성 랜딩 페이지 URL은 저장 후 자동으로 생성됩니다.
+                                    </small>
+                                </div>
+                                <!-- 생성된 랜딩 페이지 URL 표시 (수정 시에만) -->
+                                <div id="generated_landing_url_section" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #667eea;">
+                                    <label style="font-size: 13px; font-weight: bold; color: #667eea; display: block; margin-bottom: 8px;">생성된 랜딩 페이지 URL</label>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <input type="text" id="generated_landing_url" readonly style="flex: 1; background: white; cursor: pointer;" onclick="this.select()">
+                                        <button type="button" onclick="openLandingPage()" style="padding: 8px 16px; font-size: 14px; white-space: nowrap;">
+                                            🔗 열기
+                                        </button>
+                                        <button type="button" onclick="copyLandingUrl()" style="padding: 8px 16px; font-size: 14px; white-space: nowrap;">
+                                            📋 복사
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-row">
@@ -948,6 +1004,15 @@
                 .map(opt => opt.value);
             console.log('선택된 관측소:', selectedStations);
 
+            // 랜딩 페이지 타입 확인
+            const landingType = document.querySelector('input[name="landing_type"]:checked').value;
+            let landingPageImageUrl = null;
+
+            // 자동 생성 랜딩 페이지의 이미지 처리
+            if (landingType === 'auto') {
+                landingPageImageUrl = document.getElementById('landing_page_image_url').value || null;
+            }
+
             const campaignData = {
                 partner_id: document.getElementById('partner_id').value,
                 campaign_name: document.getElementById('campaign_name').value,
@@ -957,7 +1022,13 @@
                 ad_type_b: document.getElementById('ad_type_b').value || null,
                 image_a_url: imageAUrl,
                 image_b_url: imageBUrl,
-                landing_url: document.getElementById('landing_url').value && document.getElementById('landing_url').value.trim() !== '' ? document.getElementById('landing_url').value : null,
+                landing_page_type: landingType,
+                landing_url: landingType === 'external'
+                    ? (document.getElementById('landing_url').value && document.getElementById('landing_url').value.trim() !== '' ? document.getElementById('landing_url').value : null)
+                    : null, // 자동 생성은 서버에서 URL 생성
+                landing_page_title: landingType === 'auto' ? (document.getElementById('landing_page_title').value || null) : null,
+                landing_page_content: landingType === 'auto' ? (document.getElementById('landing_page_content').value || null) : null,
+                landing_page_image_url: landingPageImageUrl,
                 display_start_date: document.getElementById('display_start_date').value,
                 display_end_date: document.getElementById('display_end_date').value,
                 is_active: document.getElementById('is_active').value === 'true',
@@ -1015,12 +1086,19 @@
             document.getElementById('edit_campaign_id').value = '';
             document.getElementById('preview_a').innerHTML = '';
             document.getElementById('preview_b').innerHTML = '';
+            document.getElementById('landing_preview').innerHTML = '';
             uploadedImages = { a: null, b: null };
 
             // UI 초기화
             document.getElementById('formTitle').textContent = '➕ 새 캠페인 등록';
             document.getElementById('submitBtn').textContent = '캠페인 등록';
             document.getElementById('cancelBtn').style.display = 'none';
+
+            // 생성된 URL 섹션 숨기기
+            document.getElementById('generated_landing_url_section').style.display = 'none';
+
+            // 랜딩 페이지 필드 초기화
+            toggleLandingFields();
 
             // 새 캠페인 등록 시 날짜 자동 설정 (오늘 + 2주 후)
             const today = formatDate(new Date());
@@ -1082,6 +1160,30 @@
             if (campaign.image_b_url) {
                 const filePathB = extractFilePathFromUrl(campaign.image_b_url);
                 showImagePreview('b', campaign.image_b_url, filePathB);
+            }
+
+            // 랜딩 페이지 설정 복원
+            const landingType = campaign.landing_page_type || 'external';
+            document.querySelector(`input[name="landing_type"][value="${landingType}"]`).checked = true;
+            toggleLandingFields();
+
+            // 랜딩 페이지 필드 복원
+            if (landingType === 'auto') {
+                document.getElementById('landing_page_title').value = campaign.landing_page_title || '';
+                document.getElementById('landing_page_content').value = campaign.landing_page_content || '';
+                document.getElementById('landing_page_image_url').value = campaign.landing_page_image_url || '';
+
+                // 랜딩 페이지 이미지 미리보기
+                if (campaign.landing_page_image_url) {
+                    const previewDiv = document.getElementById('landing_preview');
+                    previewDiv.innerHTML = `<img src="${campaign.landing_page_image_url}" alt="Landing page preview">`;
+                }
+
+                // 생성된 랜딩 URL 표시
+                if (campaign.landing_url) {
+                    document.getElementById('generated_landing_url').value = campaign.landing_url;
+                    document.getElementById('generated_landing_url_section').style.display = 'block';
+                }
             }
 
             // UI 변경
@@ -1160,6 +1262,128 @@
             }
         }
 
+        // 랜딩 페이지 타입 전환 함수
+        function toggleLandingFields() {
+            const landingType = document.querySelector('input[name="landing_type"]:checked').value;
+            const externalSection = document.getElementById('external_url_section');
+            const autoSection = document.getElementById('auto_landing_section');
+
+            if (landingType === 'external') {
+                externalSection.style.display = 'block';
+                autoSection.style.display = 'none';
+            } else {
+                externalSection.style.display = 'none';
+                autoSection.style.display = 'block';
+            }
+        }
+
+        // 캠페인명을 페이지 제목으로 동기화
+        function syncCampaignName() {
+            const checkbox = document.getElementById('use_campaign_name');
+            const campaignName = document.getElementById('campaign_name').value;
+            const pageTitle = document.getElementById('landing_page_title');
+
+            if (checkbox.checked) {
+                pageTitle.value = campaignName;
+            }
+        }
+
+        // 페이지 내용을 설명으로 동기화
+        function syncToDescription() {
+            const pageContent = document.getElementById('landing_page_content').value;
+            const description = document.getElementById('description');
+            description.value = pageContent;
+        }
+
+        // 캠페인명 변경 시 자동 동기화
+        function onCampaignNameChange() {
+            const checkbox = document.getElementById('use_campaign_name');
+            if (checkbox && checkbox.checked) {
+                syncCampaignName();
+            }
+        }
+
+        // 랜딩 페이지 URL 열기
+        function openLandingPage() {
+            const url = document.getElementById('generated_landing_url').value;
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+
+        // 랜딩 페이지 URL 복사
+        function copyLandingUrl() {
+            const urlInput = document.getElementById('generated_landing_url');
+            urlInput.select();
+            document.execCommand('copy');
+            alert('URL이 클립보드에 복사되었습니다!');
+        }
+
+        // 랜딩 페이지 이미지 업로드
+        async function handleLandingImageUpload(event) {
+            const file = event.target.files[0];
+            const urlInput = document.getElementById('landing_page_image_url');
+            const previewDiv = document.getElementById('landing_preview');
+
+            if (!file) return;
+
+            // 파일 크기 체크 (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('파일 크기는 5MB를 초과할 수 없습니다.');
+                event.target.value = '';
+                return;
+            }
+
+            // 파일 타입 체크
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('JPG, PNG, GIF, WEBP 파일만 업로드 가능합니다.');
+                event.target.value = '';
+                return;
+            }
+
+            // 업로드 진행 표시
+            previewDiv.innerHTML = '<div class="upload-progress">⏳ 업로드 중...</div>';
+
+            try {
+                // 파일명 생성 (타임스탬프 + 랜덤 문자열)
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                const filePath = `${fileName}`;
+
+                // Supabase Storage에 업로드
+                const { data, error } = await supabaseClient.storage
+                    .from('ad-images')
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                // Public URL 가져오기
+                const { data: { publicUrl } } = supabaseClient.storage
+                    .from('ad-images')
+                    .getPublicUrl(filePath);
+
+                // URL input에 자동 입력
+                urlInput.value = publicUrl;
+
+                // 미리보기 표시
+                previewDiv.innerHTML = `
+                    <img src="${publicUrl}" alt="Landing page preview" style="max-width: 300px; border-radius: 5px;">
+                `;
+
+                console.log('Landing page image uploaded:', publicUrl);
+            } catch (error) {
+                console.error('Upload error:', error);
+                previewDiv.innerHTML = `<div class="message error">❌ 업로드 실패: ${error.message}</div>`;
+                event.target.value = '';
+            }
+        }
+
         // 페이지 로드 시 캠페인 목록 로드 및 날짜 초기화
         window.addEventListener('load', function() {
             loadCampaigns();
@@ -1181,12 +1405,47 @@
         window.extractFilePathFromUrl = extractFilePathFromUrl;
         window.saveCampaign = saveCampaign;
         window.editCampaign = editCampaign;
+        window.toggleLandingFields = toggleLandingFields;
+        window.handleLandingImageUpload = handleLandingImageUpload;
+        window.openLandingPage = openLandingPage;
+        window.copyLandingUrl = copyLandingUrl;
+        window.syncCampaignName = syncCampaignName;
+        window.syncToDescription = syncToDescription;
+        window.onCampaignNameChange = onCampaignNameChange;
         window.cancelEdit = cancelEdit;
         window.deleteCampaign = deleteCampaign;
         window.restoreCampaign = restoreCampaign;
         window.updateEndDate = updateEndDate;
         window.applyFilters = applyFilters;
         window.resetFilters = resetFilters;
+        // iframe 안에서 로드될 때 헤더/뒤로가기 버튼 숨기기
+        if (window.self !== window.top) {
+            // 뒤로가기 버튼 숨기기
+            const backButtons = document.querySelectorAll('.back-button, a[href="/"], a[href="index.html"]');
+            backButtons.forEach(btn => btn.style.display = 'none');
+
+            // 헤더 숨기기 (다양한 선택자 시도)
+            const headers = document.querySelectorAll('.header, .hero, header');
+            headers.forEach(header => {
+                // 헤더 내용이 "대시보드로 돌아가기"만 있는 경우 전체 숨김
+                if (header.querySelector('.back-button')) {
+                    header.style.display = 'none';
+                }
+            });
+
+            // 컨테이너 스타일 정리
+            const containers = document.querySelectorAll('.container, .dashboard');
+            containers.forEach(container => {
+                container.style.borderRadius = '0';
+                container.style.boxShadow = 'none';
+            });
+
+            // body 배경 정리
+            document.body.style.background = 'white';
+            document.body.style.padding = '0';
+            document.body.style.minHeight = 'auto';
+        }
+
     </script>
 </body>
 </html>

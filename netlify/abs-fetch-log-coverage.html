@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMA 데이터 커버리지 분석</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+        }
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .filters {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .filters h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-group label {
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .filter-group input,
+        .filter-group select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .checkbox-item:hover {
+            background: #f8f9fa;
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .checkbox-item span {
+            font-weight: 500;
+            color: #333;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .stats {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .table-container {
+            overflow-x: auto;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .coverage-bar {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .coverage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            transition: width 0.3s;
+        }
+        .coverage-fill.medium {
+            background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+        }
+        .coverage-fill.low {
+            background: linear-gradient(90deg, #dc3545 0%, #c82333 100%);
+        }
+        .coverage-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #333;
+        }
+        .quality-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .quality-perfect {
+            background: #d4edda;
+            color: #155724;
+        }
+        .quality-high {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .quality-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .quality-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-button">← 대시보드</a>
+            <h1>📊 KMA 데이터 커버리지 분석</h1>
+            <p>지점별 수온 및 파고 데이터 수집 현황 분석</p>
+        </div>
+
+        <div class="content">
+            <!-- 필터 섹션 -->
+            <div class="filters">
+                <h2>🔍 기간 선택</h2>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="dateFrom">시작일</label>
+                        <input type="date" id="dateFrom">
+                    </div>
+                    <div class="filter-group">
+                        <label for="dateTo">종료일</label>
+                        <input type="date" id="dateTo">
+                    </div>
+                    <div class="filter-group">
+                        <label for="observationType">관측 타입</label>
+                        <select id="observationType">
+                            <option value="">전체</option>
+                            <option value="BUOY">BUOY (부이)</option>
+                            <option value="TW">TW (조위)</option>
+                            <option value="AWS">AWS (자동기상)</option>
+                            <option value="LIGHTHOUSE">LIGHTHOUSE (등대)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="minCoverage">최소 커버리지 (%)</label>
+                        <input type="number" id="minCoverage" value="0" min="0" max="100">
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 20px;">📋 수집 항목 선택</h2>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check_wave_height" value="significant_wave_height_available" checked>
+                        <span>파고</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check_wind_direction" value="wind_direction_available">
+                        <span>풍향</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check_wind_speed" value="wind_speed_available">
+                        <span>풍속</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check_gust" value="gust_wind_speed_available">
+                        <span>돌풍</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check_water_temp" value="water_temperature_available" checked>
+                        <span>수온</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check_air_temp" value="air_temperature_available">
+                        <span>기온</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check_pressure" value="pressure_available">
+                        <span>기압</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="check_humidity" value="humidity_available">
+                        <span>습도</span>
+                    </label>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="btn btn-primary" onclick="loadData()">분석 실행</button>
+                    <button class="btn btn-secondary" onclick="resetFilters()">초기화</button>
+                </div>
+            </div>
+
+            <!-- 통계 섹션 -->
+            <div class="stats" id="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalStations">-</div>
+                    <div class="stat-label">분석 지점 수</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="perfectStations">-</div>
+                    <div class="stat-label">완벽한 지점 (100%)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgCoverage">-</div>
+                    <div class="stat-label">평균 커버리지</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalRequests">-</div>
+                    <div class="stat-label">총 요청 횟수</div>
+                </div>
+            </div>
+
+            <!-- 에러 메시지 -->
+            <div id="errorMessage" class="error" style="display: none;"></div>
+
+            <!-- 로딩 표시 -->
+            <div id="loading" class="loading" style="display: none;">
+                데이터를 분석하는 중...
+            </div>
+
+            <!-- 테이블 섹션 -->
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>지점명</th>
+                            <th>지점 ID</th>
+                            <th>관측 타입</th>
+                            <th>위도</th>
+                            <th>경도</th>
+                            <th>기간 내 총 요청 (횟수)</th>
+                            <th>커버리지 (%)</th>
+                            <th>품질 등급</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 40px;">
+                                기간을 선택하고 "분석 실행" 버튼을 클릭하세요
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase 설정
+        const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 날짜 필터 초기값 설정
+        const today = new Date();
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 7);
+
+        document.getElementById('dateFrom').valueAsDate = sevenDaysAgo;
+        document.getElementById('dateTo').valueAsDate = today;
+
+        // 데이터 로드
+        async function loadData() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+
+                const dateFrom = document.getElementById('dateFrom').value;
+                const dateTo = document.getElementById('dateTo').value;
+                const observationType = document.getElementById('observationType').value;
+                const minCoverage = parseFloat(document.getElementById('minCoverage').value) || 0;
+
+                if (!dateFrom || !dateTo) {
+                    throw new Error('시작일과 종료일을 모두 선택해주세요.');
+                }
+
+                // 날짜 범위 설정
+                const startDate = new Date(dateFrom);
+                startDate.setHours(0, 0, 0, 0);
+                const endDate = new Date(dateTo);
+                endDate.setHours(23, 59, 59, 999);
+
+                // 기간 내 전체 데이터 가져오기
+                let query = supabaseClient
+                    .from('abs_fetch_log')
+                    .select('*')
+                    .gte('request_time', startDate.toISOString())
+                    .lte('request_time', endDate.toISOString());
+
+                if (observationType) {
+                    query = query.eq('observation_type', observationType);
+                }
+
+                const { data, error } = await query;
+
+                if (error) throw error;
+
+                // 데이터 분석
+                const analysis = analyzeData(data, minCoverage);
+
+                // 통계 업데이트
+                updateStats(analysis);
+
+                // 테이블 렌더링
+                renderTable(analysis.stations);
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('errorMessage').textContent = `데이터 로드 실패: ${error.message}`;
+                document.getElementById('errorMessage').style.display = 'block';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // 선택된 수집 항목 가져오기
+        function getSelectedFields() {
+            const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        // 데이터 분석
+        function analyzeData(data, minCoverage) {
+            // 선택된 필드 가져오기
+            const selectedFields = getSelectedFields();
+
+            if (selectedFields.length === 0) {
+                throw new Error('최소 1개 이상의 수집 항목을 선택해주세요.');
+            }
+
+            // 전체 요청 횟수
+            const uniqueRequests = new Set(data.map(d => d.request_time));
+            const totalRequests = uniqueRequests.size;
+
+            // 지점별 분석
+            const stationMap = {};
+
+            data.forEach(row => {
+                const key = `${row.station_id}_${row.observation_type}`;
+
+                if (!stationMap[key]) {
+                    stationMap[key] = {
+                        station_id: row.station_id,
+                        station_name: row.station_name,
+                        observation_type: row.observation_type,
+                        latitude: row.latitude,
+                        longitude: row.longitude,
+                        completeCount: 0,
+                        totalCount: 0
+                    };
+                }
+
+                stationMap[key].totalCount++;
+
+                // 선택된 모든 필드가 있으면 완전한 데이터
+                const allFieldsAvailable = selectedFields.every(field => row[field] === true);
+                if (allFieldsAvailable) {
+                    stationMap[key].completeCount++;
+                }
+            });
+
+            // 지점별 커버리지 계산
+            const stations = Object.values(stationMap).map(station => {
+                const coverage = totalRequests > 0 ? (station.completeCount / totalRequests * 100) : 0;
+
+                return {
+                    ...station,
+                    totalRequests,
+                    coverage: coverage,
+                    quality: getQuality(coverage)
+                };
+            }).filter(station => station.coverage >= minCoverage)
+              .sort((a, b) => b.coverage - a.coverage);
+
+            // 통계 계산
+            const perfectStations = stations.filter(s => s.coverage === 100).length;
+            const avgCoverage = stations.length > 0
+                ? stations.reduce((sum, s) => sum + s.coverage, 0) / stations.length
+                : 0;
+
+            return {
+                stations,
+                totalRequests,
+                perfectStations,
+                avgCoverage: avgCoverage.toFixed(2)
+            };
+        }
+
+        // 품질 등급 결정
+        function getQuality(coverage) {
+            if (coverage === 100) return 'perfect';
+            if (coverage >= 90) return 'high';
+            if (coverage >= 70) return 'medium';
+            return 'low';
+        }
+
+        // 통계 업데이트
+        function updateStats(analysis) {
+            document.getElementById('totalStations').textContent = analysis.stations.length;
+            document.getElementById('perfectStations').textContent = analysis.perfectStations;
+            document.getElementById('avgCoverage').textContent = analysis.avgCoverage + '%';
+            document.getElementById('totalRequests').textContent = analysis.totalRequests;
+        }
+
+        // 테이블 렌더링
+        function renderTable(stations) {
+            const tbody = document.getElementById('tableBody');
+
+            if (!stations || stations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">조건에 맞는 데이터가 없습니다</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = stations.map(station => {
+                const coverageClass = station.quality === 'perfect' ? '' :
+                                     station.quality === 'high' ? 'medium' : 'low';
+
+                const qualityLabel = station.quality === 'perfect' ? '✓ 완벽' :
+                                    station.quality === 'high' ? '◐ 높음' :
+                                    station.quality === 'medium' ? '◑ 중간' : '◯ 낮음';
+
+                const qualityClass = `quality-${station.quality}`;
+
+                return `
+                    <tr>
+                        <td>${station.station_name || '-'}</td>
+                        <td>${station.station_id}</td>
+                        <td>${station.observation_type || '-'}</td>
+                        <td>${station.latitude != null ? station.latitude.toFixed(4) : '-'}</td>
+                        <td>${station.longitude != null ? station.longitude.toFixed(4) : '-'}</td>
+                        <td>${station.totalRequests}</td>
+                        <td>
+                            <div class="coverage-bar">
+                                <div class="coverage-fill ${coverageClass}" style="width: ${station.coverage}%"></div>
+                                <div class="coverage-text">${station.coverage.toFixed(2)}%</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="quality-badge ${qualityClass}">${qualityLabel}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 필터 초기화
+        function resetFilters() {
+            const today = new Date();
+            const sevenDaysAgo = new Date(today);
+            sevenDaysAgo.setDate(today.getDate() - 7);
+
+            document.getElementById('dateFrom').valueAsDate = sevenDaysAgo;
+            document.getElementById('dateTo').valueAsDate = today;
+            document.getElementById('observationType').value = '';
+            document.getElementById('minCoverage').value = '0';
+
+            // 체크박스 초기화 (파고, 수온만 체크)
+            document.getElementById('check_wave_height').checked = true;
+            document.getElementById('check_wind_direction').checked = false;
+            document.getElementById('check_wind_speed').checked = false;
+            document.getElementById('check_gust').checked = false;
+            document.getElementById('check_water_temp').checked = true;
+            document.getElementById('check_air_temp').checked = false;
+            document.getElementById('check_pressure').checked = false;
+            document.getElementById('check_humidity').checked = false;
+
+            // 테이블 초기화
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">기간을 선택하고 "분석 실행" 버튼을 클릭하세요</td></tr>';
+
+            // 통계 초기화
+            document.getElementById('totalStations').textContent = '-';
+            document.getElementById('perfectStations').textContent = '-';
+            document.getElementById('avgCoverage').textContent = '-';
+            document.getElementById('totalRequests').textContent = '-';
+        }
+
+        // 엔터키로 검색
+        document.querySelectorAll('.filter-group input, .filter-group select').forEach(element => {
+            element.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    loadData();
+                }
+            });
+        });
+        // iframe 안에서 로드될 때 헤더/뒤로가기 버튼 숨기기
+        if (window.self !== window.top) {
+            // 뒤로가기 버튼 숨기기
+            const backButtons = document.querySelectorAll('.back-button, a[href="/"], a[href="index.html"]');
+            backButtons.forEach(btn => btn.style.display = 'none');
+
+            // 헤더 숨기기 (다양한 선택자 시도)
+            const headers = document.querySelectorAll('.header, .hero, header');
+            headers.forEach(header => {
+                // 헤더 내용이 "대시보드로 돌아가기"만 있는 경우 전체 숨김
+                if (header.querySelector('.back-button')) {
+                    header.style.display = 'none';
+                }
+            });
+
+            // 컨테이너 스타일 정리
+            const containers = document.querySelectorAll('.container, .dashboard');
+            containers.forEach(container => {
+                container.style.borderRadius = '0';
+                container.style.boxShadow = 'none';
+            });
+
+            // body 배경 정리
+            document.body.style.background = 'white';
+            document.body.style.padding = '0';
+            document.body.style.minHeight = 'auto';
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 관리</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab:hover {
+            background: #f5f5f5;
+        }
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #667eea;
+            color: white;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .badge.pinned {
+            background: #ffc107;
+            color: #000;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+        }
+        .notice-content {
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            color: #333;
+        }
+        .close-btn {
+            background: none;
+            color: #999;
+            font-size: 24px;
+            padding: 0;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: #333;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .image-upload-area {
+            margin-top: 10px;
+        }
+        .image-preview {
+            margin-top: 10px;
+            position: relative;
+        }
+        .image-preview img {
+            max-width: 300px;
+            max-height: 200px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        .remove-image-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+        .remove-image-btn:hover {
+            background: rgba(220, 53, 69, 1);
+        }
+        .notice-image-thumb {
+            max-width: 80px;
+            max-height: 60px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-button">← 홈으로</a>
+            <h1>📢 공지사항 관리</h1>
+            <p>앱 사용자를 위한 공지사항을 작성하고 관리합니다</p>
+        </div>
+
+        <div class="content">
+            <!-- 탭 메뉴 -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('list')">공지사항 목록</div>
+                <div class="tab" onclick="switchTab('create')">새 공지사항 작성</div>
+            </div>
+
+            <!-- 공지사항 목록 탭 -->
+            <div id="listTab" class="tab-content active">
+                <div class="section">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2>공지사항 목록</h2>
+                        <button onclick="loadNoticeList()">🔄 새로고침</button>
+                    </div>
+                    <div id="noticeListContainer">
+                        <div class="loading">공지사항을 불러오는 중...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 새 공지사항 작성 탭 -->
+            <div id="createTab" class="tab-content">
+                <div class="section">
+                    <h2>새 공지사항 작성</h2>
+                    <div id="createMessage"></div>
+                    <form id="createForm" onsubmit="createNotice(event)">
+                        <div class="form-group">
+                            <label for="title">제목 *</label>
+                            <input type="text" id="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="content">내용</label>
+                            <textarea id="content"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="author">작성자</label>
+                            <input type="text" id="author" value="Admin">
+                        </div>
+                        <div class="form-group">
+                            <label for="imageFile">이미지 (선택사항)</label>
+                            <input type="file" id="imageFile" accept="image/*" onchange="previewImage(event, 'create')">
+                            <div id="imagePreviewCreate" class="image-preview"></div>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="isPinned">
+                            <label for="isPinned" style="margin: 0;">📌 상단 고정</label>
+                        </div>
+                        <button type="submit">공지사항 등록</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 수정 모달 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>공지사항 수정</h2>
+                <button class="close-btn" onclick="closeEditModal()">×</button>
+            </div>
+            <div id="editMessage"></div>
+            <form id="editForm" onsubmit="updateNotice(event)">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label for="editTitle">제목 *</label>
+                    <input type="text" id="editTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="editContent">내용</label>
+                    <textarea id="editContent"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editAuthor">작성자</label>
+                    <input type="text" id="editAuthor">
+                </div>
+                <div class="form-group">
+                    <label for="editImageFile">이미지 (선택사항)</label>
+                    <input type="file" id="editImageFile" accept="image/*" onchange="previewImage(event, 'edit')">
+                    <input type="hidden" id="editImageUrl">
+                    <div id="imagePreviewEdit" class="image-preview"></div>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="editIsPinned">
+                    <label for="editIsPinned" style="margin: 0;">📌 상단 고정</label>
+                </div>
+                <div class="button-group">
+                    <button type="submit">수정 완료</button>
+                    <button type="button" class="btn-secondary" onclick="closeEditModal()">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Supabase 설정 (인라인) -->
+    <script>
+    const SUPABASE_CONFIG = {
+        url: 'https://iwpgvdtfpwazzfeniusk.supabase.co',
+        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE'
+    };
+    </script>
+
+    <!-- 관리자 인증 체크 -->
+    <script src="_shared/auth-check.js"></script>
+
+    <script>
+        const SUPABASE_URL = SUPABASE_CONFIG.url;
+        const ANON_KEY = SUPABASE_CONFIG.anonKey;
+
+        // Supabase 클라이언트 초기화
+        let supabaseClient;
+        try {
+            if (window.supabase && window.supabase.createClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, ANON_KEY);
+            } else {
+                console.error('Supabase library not loaded');
+            }
+        } catch (error) {
+            console.error('Failed to initialize Supabase client:', error);
+        }
+
+        let uploadedImageUrl = null; // 업로드된 이미지 URL
+        let editUploadedImageUrl = null; // 수정 시 업로드된 이미지 URL
+
+        // 이미지 미리보기
+        function previewImage(event, mode) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const previewDiv = mode === 'create' ?
+                document.getElementById('imagePreviewCreate') :
+                document.getElementById('imagePreviewEdit');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewDiv.innerHTML = `
+                    <div style="position: relative; display: inline-block;">
+                        <img src="${e.target.result}" style="max-width: 300px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;">
+                        <button type="button" class="remove-image-btn" onclick="removeImagePreview('${mode}')">×</button>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 이미지 미리보기 제거
+        function removeImagePreview(mode) {
+            if (mode === 'create') {
+                document.getElementById('imageFile').value = '';
+                document.getElementById('imagePreviewCreate').innerHTML = '';
+                uploadedImageUrl = null;
+            } else {
+                document.getElementById('editImageFile').value = '';
+                document.getElementById('imagePreviewEdit').innerHTML = '';
+                editUploadedImageUrl = null;
+            }
+        }
+
+        // Storage에 이미지 업로드
+        async function uploadImageToStorage(file) {
+            if (!file) return null;
+
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `notice_${Date.now()}.${fileExt}`;
+                const filePath = `notices/${fileName}`;
+
+                console.log('Uploading image:', filePath);
+
+                const { data, error } = await supabaseClient.storage
+                    .from('ad-images')
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (error) {
+                    console.error('Upload error:', error);
+                    throw error;
+                }
+
+                // Public URL 생성
+                const { data: urlData } = supabaseClient.storage
+                    .from('ad-images')
+                    .getPublicUrl(filePath);
+
+                console.log('Upload success:', urlData.publicUrl);
+                return urlData.publicUrl;
+            } catch (error) {
+                console.error('Image upload failed:', error);
+                alert('이미지 업로드 실패: ' + error.message);
+                return null;
+            }
+        }
+
+        // 탭 전환
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tabName === 'list') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('listTab').classList.add('active');
+                loadNoticeList();
+            } else if (tabName === 'create') {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('createTab').classList.add('active');
+            }
+        }
+
+        // 공지사항 목록 로드
+        async function loadNoticeList() {
+            const container = document.getElementById('noticeListContainer');
+            container.innerHTML = '<div class="loading">공지사항을 불러오는 중...</div>';
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/manage-notice-posts`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'list' })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    if (result.data.length === 0) {
+                        container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">등록된 공지사항이 없습니다.</p>';
+                        return;
+                    }
+
+                    let tableHtml = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">ID</th>
+                                    <th>제목</th>
+                                    <th style="width: 250px;">내용</th>
+                                    <th style="width: 100px;">이미지</th>
+                                    <th style="width: 100px;">작성자</th>
+                                    <th style="width: 150px;">작성일</th>
+                                    <th style="width: 150px;">작업</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    result.data.forEach(notice => {
+                        const createdAt = new Date(notice.created_at).toLocaleString('ko-KR');
+                        const pinnedBadge = notice.is_pinned ? '<span class="badge pinned">📌 고정</span> ' : '';
+                        const imageThumb = notice.image_url ?
+                            `<img src="${notice.image_url}" class="notice-image-thumb" onclick="window.open('${notice.image_url}', '_blank')" title="클릭하여 크게 보기">` :
+                            '-';
+
+                        tableHtml += `
+                            <tr>
+                                <td>${notice.id}</td>
+                                <td>${pinnedBadge}${escapeHtml(notice.title)}</td>
+                                <td class="notice-content">${escapeHtml(notice.content)}</td>
+                                <td>${imageThumb}</td>
+                                <td>${escapeHtml(notice.author || 'Admin')}</td>
+                                <td>${createdAt}</td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="btn-small" onclick="openEditModal(${notice.id})">수정</button>
+                                        <button class="btn-small btn-danger" onclick="deleteNotice(${notice.id})">삭제</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    tableHtml += `
+                            </tbody>
+                        </table>
+                    `;
+
+                    container.innerHTML = tableHtml;
+                } else {
+                    container.innerHTML = `<div class="message error">${result.error || '공지사항을 불러올 수 없습니다.'}</div>`;
+                }
+            } catch (error) {
+                console.error('공지사항 목록 로드 오류:', error);
+                container.innerHTML = `<div class="message error">서버 연결 오류: ${error.message}</div>`;
+            }
+        }
+
+        // 새 공지사항 작성
+        async function createNotice(event) {
+            event.preventDefault();
+
+            const messageDiv = document.getElementById('createMessage');
+            messageDiv.innerHTML = '<div class="loading">등록 중...</div>';
+
+            try {
+                // 이미지 업로드 (있는 경우)
+                const imageFile = document.getElementById('imageFile').files[0];
+                let imageUrl = null;
+
+                if (imageFile) {
+                    messageDiv.innerHTML = '<div class="loading">이미지 업로드 중...</div>';
+                    imageUrl = await uploadImageToStorage(imageFile);
+                    if (!imageUrl) {
+                        messageDiv.innerHTML = '<div class="message error">이미지 업로드에 실패했습니다.</div>';
+                        return;
+                    }
+                }
+
+                const data = {
+                    title: document.getElementById('title').value,
+                    content: document.getElementById('content').value,
+                    author: document.getElementById('author').value || 'Admin',
+                    is_pinned: document.getElementById('isPinned').checked,
+                    image_url: imageUrl
+                };
+
+                messageDiv.innerHTML = '<div class="loading">등록 중...</div>';
+
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/manage-notice-posts`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'create', data })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageDiv.innerHTML = '<div class="message success">공지사항이 성공적으로 등록되었습니다!</div>';
+                    document.getElementById('createForm').reset();
+                    document.getElementById('imagePreviewCreate').innerHTML = '';
+                    uploadedImageUrl = null;
+                    setTimeout(() => {
+                        messageDiv.innerHTML = '';
+                        switchTab('list');
+                    }, 2000);
+                } else {
+                    messageDiv.innerHTML = `<div class="message error">${result.error || '등록 실패'}</div>`;
+                }
+            } catch (error) {
+                console.error('공지사항 등록 오류:', error);
+                messageDiv.innerHTML = `<div class="message error">서버 연결 오류: ${error.message}</div>`;
+            }
+        }
+
+        // 수정 모달 열기
+        async function openEditModal(id) {
+            const modal = document.getElementById('editModal');
+            modal.classList.add('active');
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/manage-notice-posts`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'get', id })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('editId').value = result.data.id;
+                    document.getElementById('editTitle').value = result.data.title;
+                    document.getElementById('editContent').value = result.data.content;
+                    document.getElementById('editAuthor').value = result.data.author || 'Admin';
+                    document.getElementById('editIsPinned').checked = result.data.is_pinned || false;
+                    document.getElementById('editImageUrl').value = result.data.image_url || '';
+
+                    // 기존 이미지 표시
+                    const previewDiv = document.getElementById('imagePreviewEdit');
+                    if (result.data.image_url) {
+                        previewDiv.innerHTML = `
+                            <div style="position: relative; display: inline-block;">
+                                <img src="${result.data.image_url}" style="max-width: 300px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;">
+                                <button type="button" class="remove-image-btn" onclick="removeImagePreview('edit')">×</button>
+                            </div>
+                        `;
+                    } else {
+                        previewDiv.innerHTML = '';
+                    }
+                } else {
+                    alert('공지사항을 불러올 수 없습니다.');
+                    closeEditModal();
+                }
+            } catch (error) {
+                console.error('공지사항 조회 오류:', error);
+                alert('서버 연결 오류: ' + error.message);
+                closeEditModal();
+            }
+        }
+
+        // 수정 모달 닫기
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            document.getElementById('editMessage').innerHTML = '';
+        }
+
+        // 공지사항 수정
+        async function updateNotice(event) {
+            event.preventDefault();
+
+            const messageDiv = document.getElementById('editMessage');
+            messageDiv.innerHTML = '<div class="loading">수정 중...</div>';
+
+            try {
+                const id = parseInt(document.getElementById('editId').value);
+
+                // 새 이미지 업로드 (파일이 선택된 경우)
+                const imageFile = document.getElementById('editImageFile').files[0];
+                let imageUrl = document.getElementById('editImageUrl').value; // 기존 이미지 URL
+
+                if (imageFile) {
+                    messageDiv.innerHTML = '<div class="loading">이미지 업로드 중...</div>';
+                    const newImageUrl = await uploadImageToStorage(imageFile);
+                    if (!newImageUrl) {
+                        messageDiv.innerHTML = '<div class="message error">이미지 업로드에 실패했습니다.</div>';
+                        return;
+                    }
+                    imageUrl = newImageUrl;
+                }
+
+                const data = {
+                    title: document.getElementById('editTitle').value,
+                    content: document.getElementById('editContent').value,
+                    author: document.getElementById('editAuthor').value,
+                    is_pinned: document.getElementById('editIsPinned').checked,
+                    image_url: imageUrl
+                };
+
+                messageDiv.innerHTML = '<div class="loading">수정 중...</div>';
+
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/manage-notice-posts`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'update', id, data })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageDiv.innerHTML = '<div class="message success">공지사항이 성공적으로 수정되었습니다!</div>';
+                    setTimeout(() => {
+                        closeEditModal();
+                        loadNoticeList();
+                    }, 1500);
+                } else {
+                    messageDiv.innerHTML = `<div class="message error">${result.error || '수정 실패'}</div>`;
+                }
+            } catch (error) {
+                console.error('공지사항 수정 오류:', error);
+                messageDiv.innerHTML = `<div class="message error">서버 연결 오류: ${error.message}</div>`;
+            }
+        }
+
+        // 공지사항 삭제
+        async function deleteNotice(id) {
+            if (!confirm('정말 이 공지사항을 삭제하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/manage-notice-posts`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ action: 'delete', id })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('공지사항이 삭제되었습니다.');
+                    loadNoticeList();
+                } else {
+                    alert('삭제 실패: ' + (result.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                console.error('공지사항 삭제 오류:', error);
+                alert('서버 연결 오류: ' + error.message);
+            }
+        }
+
+        // HTML 이스케이프
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // 페이지 로드 시 목록 표시
+        window.addEventListener('load', () => {
+            loadNoticeList();
+        });
+
+        // iframe 안에서 로드될 때 헤더 숨기기
+        if (window.self !== window.top) {
+            const header = document.querySelector('.header');
+            if (header) {
+                header.style.display = 'none';
+            }
+            const container = document.querySelector('.container');
+            if (container) {
+                container.style.borderRadius = '0';
+                container.style.boxShadow = 'none';
+            }
+            document.body.style.background = 'white';
+            document.body.style.padding = '0';
+        }
+    </script>
+</body>
+</html>
