@@ -167,6 +167,14 @@
     <script>
         const FUNCTION_URL = SUPABASE_CONFIG.url + '/functions/v1/send-firebase-notification';
 
+        // API 호출 시 사용할 헤더 가져오기
+        function getAuthHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+            };
+        }
+
         document.querySelectorAll('input[name="sendType"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 const topicGroup = document.getElementById('topicGroup');
