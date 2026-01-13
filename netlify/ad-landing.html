@@ -352,7 +352,7 @@
                     }
 
                     return `
-                        <div class="campaign-card" onclick="viewCampaign(${campaign.id})">
+                        <div class="campaign-card" data-campaign-id="${campaign.id}">
                             <div class="campaign-card-image">
                                 ${imageHTML}
                             </div>
@@ -379,6 +379,16 @@
                         </div>
                     </div>
                 `;
+
+                // 캠페인 카드 클릭 이벤트 리스너 추가
+                document.querySelectorAll('.campaign-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const campaignId = this.getAttribute('data-campaign-id');
+                        if (campaignId) {
+                            viewCampaign(campaignId);
+                        }
+                    });
+                });
 
             } catch (error) {
                 console.error('Campaign list load error:', error);
