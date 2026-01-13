@@ -160,6 +160,131 @@
                 padding: 30px 20px 50px;
             }
         }
+
+        /* 캠페인 목록 스타일 */
+        .campaign-list-container {
+            padding: 40px;
+            background: white;
+        }
+        .campaign-list-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .campaign-list-header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .campaign-list-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        .campaign-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 30px;
+        }
+        .campaign-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .campaign-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+        }
+        .campaign-card-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+        .campaign-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .campaign-card-body {
+            padding: 20px;
+        }
+        .campaign-card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .campaign-card-partner {
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+        .campaign-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .campaign-card-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .no-campaigns {
+            text-align: center;
+            padding: 80px 40px;
+            color: #999;
+        }
+        .no-campaigns-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .no-campaigns h3 {
+            font-size: 24px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .no-campaigns p {
+            font-size: 16px;
+            color: #999;
+        }
+        @media (max-width: 768px) {
+            .campaign-grid {
+                grid-template-columns: 1fr;
+            }
+            .campaign-list-container {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -176,6 +301,82 @@
     </script>
 
     <script>
+        async function loadCampaignList() {
+            const container = document.getElementById('landingContainer');
+
+            try {
+                // 모든 캠페인 목록 조회
+                const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/ad_repo_view?select=*&order=created_at.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_CONFIG.anonKey,
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('캠페인 목록을 불러올 수 없습니다.');
+                }
+
+                const campaigns = await response.json();
+
+                if (!campaigns || campaigns.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-campaigns">
+                            <div class="no-campaigns-icon">📢</div>
+                            <h3>등록된 캠페인이 없습니다</h3>
+                            <p>광고 캠페인을 먼저 등록해주세요.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 캠페인 목록 렌더링
+                const cardsHTML = campaigns.map(campaign => {
+                    const isActive = campaign.is_currently_active;
+                    const statusClass = isActive ? 'status-active' : 'status-inactive';
+                    const statusText = isActive ? '진행중' : '종료';
+
+                    return `
+                        <div class="campaign-card" onclick="viewCampaign(${campaign.id})">
+                            <div class="campaign-card-image">
+                                ${campaign.landing_page_image_url
+                                    ? `<img src="${campaign.landing_page_image_url}" alt="${campaign.campaign_name}">`
+                                    : '🎯'}
+                            </div>
+                            <div class="campaign-card-body">
+                                <div class="campaign-card-title">${campaign.landing_page_title || campaign.campaign_name}</div>
+                                <div class="campaign-card-partner">🏢 ${campaign.partner_name || campaign.partner_id}</div>
+                                <div class="campaign-card-meta">
+                                    <span>${campaign.start_date || '시작일 미정'} ~ ${campaign.end_date || '종료일 미정'}</span>
+                                    <span class="campaign-card-status ${statusClass}">${statusText}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = `
+                    <div class="campaign-list-container">
+                        <div class="campaign-list-header">
+                            <h1>🎯 광고 캠페인 목록</h1>
+                            <p>캠페인을 클릭하면 랜딩 페이지 미리보기를 확인할 수 있습니다</p>
+                        </div>
+                        <div class="campaign-grid">
+                            ${cardsHTML}
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Campaign list load error:', error);
+                container.innerHTML = `<div class="error">❌ 캠페인 목록 로딩 실패: ${error.message}</div>`;
+            }
+        }
+
+        function viewCampaign(campaignId) {
+            window.location.href = `?id=${campaignId}`;
+        }
+
         async function loadLandingPage() {
             const container = document.getElementById('landingContainer');
 
@@ -185,7 +386,8 @@
                 const campaignId = urlParams.get('id');
 
                 if (!campaignId) {
-                    container.innerHTML = '<div class="error">❌ 캠페인 ID가 없습니다.</div>';
+                    // 캠페인 ID가 없으면 목록 표시
+                    await loadCampaignList();
                     return;
                 }
 
