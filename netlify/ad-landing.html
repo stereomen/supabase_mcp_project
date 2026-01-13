@@ -285,6 +285,43 @@
                 padding: 20px;
             }
         }
+
+        /* 목록으로 돌아가기 버튼 */
+        .back-to-list-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.95);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-to-list-btn:hover {
+            background: rgba(102, 126, 234, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        .back-to-list-btn:active {
+            transform: translateY(0);
+        }
+        @media (max-width: 768px) {
+            .back-to-list-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                top: 15px;
+                left: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -411,6 +448,21 @@
             }
         }
 
+        function goBackToList() {
+            // iframe 안에서 실행되는지 확인
+            if (window.self !== window.top) {
+                // iframe 안에서 실행 - history API 사용하여 URL 변경
+                const newUrl = `/?page=ad-landing.html`;
+                window.top.history.pushState({page: 'ad-landing.html'}, '', newUrl);
+
+                // 현재 iframe에서 직접 목록을 로드
+                loadCampaignList();
+            } else {
+                // 직접 접근 - 페이지 이동
+                window.location.href = `ad-landing.html`;
+            }
+        }
+
         async function loadCampaignDetail(campaignId) {
             const container = document.getElementById('landingContainer');
             container.innerHTML = '<div class="loading">로딩 중</div>';
@@ -448,6 +500,10 @@
 
                 // HTML 렌더링
                 const html = `
+                    <button class="back-to-list-btn" id="backToListBtn">
+                        <span>←</span>
+                        <span>목록으로</span>
+                    </button>
                     <div class="hero">
                         <div class="hero-content">
                             <h1>${campaign.landing_page_title || campaign.campaign_name}</h1>
@@ -474,6 +530,12 @@
                 `;
 
                 container.innerHTML = html;
+
+                // 목록으로 돌아가기 버튼 이벤트 리스너
+                const backBtn = document.getElementById('backToListBtn');
+                if (backBtn) {
+                    backBtn.addEventListener('click', goBackToList);
+                }
 
             } catch (error) {
                 console.error('Campaign detail load error:', error);
