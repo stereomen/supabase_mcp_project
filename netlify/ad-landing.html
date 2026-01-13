@@ -387,15 +387,36 @@
         }
 
         function viewCampaign(campaignId) {
-            window.location.href = `?id=${campaignId}`;
+            // iframe 안에서 실행되는지 확인
+            if (window.self !== window.top) {
+                // iframe 안에서 실행 - 부모 윈도우의 URL을 업데이트
+                window.parent.location.href = `?page=ad-landing.html&id=${campaignId}`;
+            } else {
+                // 직접 접근 - 현재 페이지만 업데이트
+                const baseUrl = window.location.pathname;
+                window.location.href = `${baseUrl}?id=${campaignId}`;
+            }
         }
 
         async function loadLandingPage() {
             const container = document.getElementById('landingContainer');
 
             try {
-                // URL에서 campaign ID 추출
-                const urlParams = new URLSearchParams(window.location.search);
+                // URL에서 campaign ID 추출 (iframe 안에서는 부모 윈도우의 URL 확인)
+                let urlParams;
+                if (window.self !== window.top) {
+                    // iframe 안에서 실행 - 부모 윈도우의 URL 파라미터 읽기
+                    try {
+                        urlParams = new URLSearchParams(window.parent.location.search);
+                    } catch (e) {
+                        // CORS 오류 시 현재 윈도우의 URL 사용
+                        urlParams = new URLSearchParams(window.location.search);
+                    }
+                } else {
+                    // 직접 접근
+                    urlParams = new URLSearchParams(window.location.search);
+                }
+
                 const campaignId = urlParams.get('id');
 
                 if (!campaignId) {
