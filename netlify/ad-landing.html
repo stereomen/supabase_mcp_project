@@ -489,9 +489,13 @@
 
                 const campaign = data[0];
 
-                // 외부 URL 타입이면 리다이렉트
+                // 외부 URL 타입이면 새 탭에서 열고 목록으로 돌아가기
                 if (campaign.landing_page_type === 'external' && campaign.landing_url) {
-                    window.top.location.href = campaign.landing_url;
+                    // 새 탭에서 외부 URL 열기
+                    window.open(campaign.landing_url, '_blank');
+
+                    // 목록으로 돌아가기
+                    goBackToList();
                     return;
                 }
 
