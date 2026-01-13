@@ -330,24 +330,37 @@
                     return;
                 }
 
+                // HTML 이스케이프 함수
+                function escapeHtml(text) {
+                    const div = document.createElement('div');
+                    div.textContent = text || '';
+                    return div.innerHTML;
+                }
+
                 // 캠페인 목록 렌더링
                 const cardsHTML = campaigns.map(campaign => {
                     const isActive = campaign.is_currently_active;
                     const statusClass = isActive ? 'status-active' : 'status-inactive';
                     const statusText = isActive ? '진행중' : '종료';
+                    const title = escapeHtml(campaign.landing_page_title || campaign.campaign_name);
+                    const partner = escapeHtml(campaign.partner_name || campaign.partner_id);
+                    const imageUrl = campaign.landing_page_image_url ? escapeHtml(campaign.landing_page_image_url) : null;
+
+                    let imageHTML = '🎯';
+                    if (imageUrl) {
+                        imageHTML = `<img src="${imageUrl}" alt="${title}">`;
+                    }
 
                     return `
                         <div class="campaign-card" onclick="viewCampaign(${campaign.id})">
                             <div class="campaign-card-image">
-                                ${campaign.landing_page_image_url
-                                    ? `<img src="${campaign.landing_page_image_url}" alt="${campaign.campaign_name}">`
-                                    : '🎯'}
+                                ${imageHTML}
                             </div>
                             <div class="campaign-card-body">
-                                <div class="campaign-card-title">${campaign.landing_page_title || campaign.campaign_name}</div>
-                                <div class="campaign-card-partner">🏢 ${campaign.partner_name || campaign.partner_id}</div>
+                                <div class="campaign-card-title">${title}</div>
+                                <div class="campaign-card-partner">🏢 ${partner}</div>
                                 <div class="campaign-card-meta">
-                                    <span>${campaign.start_date || '시작일 미정'} ~ ${campaign.end_date || '종료일 미정'}</span>
+                                    <span>${escapeHtml(campaign.start_date || '시작일 미정')} ~ ${escapeHtml(campaign.end_date || '종료일 미정')}</span>
                                     <span class="campaign-card-status ${statusClass}">${statusText}</span>
                                 </div>
                             </div>
