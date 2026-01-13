@@ -399,42 +399,24 @@
         function viewCampaign(campaignId) {
             // iframe 안에서 실행되는지 확인
             if (window.self !== window.top) {
-                // iframe 안에서 실행 - 최상위 윈도우의 URL을 업데이트
-                window.top.location.href = `/?page=ad-landing.html&id=${campaignId}`;
+                // iframe 안에서 실행 - history API 사용하여 URL 변경 후 다시 로드
+                const newUrl = `/?page=ad-landing.html&id=${campaignId}`;
+                window.top.history.pushState({page: 'ad-landing.html', id: campaignId}, '', newUrl);
+
+                // 현재 iframe에서 직접 캠페인 상세를 로드
+                loadCampaignDetail(campaignId);
             } else {
                 // 직접 접근 - 현재 페이지만 업데이트
                 window.location.href = `ad-landing.html?id=${campaignId}`;
             }
         }
 
-        async function loadLandingPage() {
+        async function loadCampaignDetail(campaignId) {
             const container = document.getElementById('landingContainer');
+            container.innerHTML = '<div class="loading">로딩 중</div>';
 
             try {
-                // URL에서 campaign ID 추출 (iframe 안에서는 최상위 윈도우의 URL 확인)
-                let urlParams;
-                if (window.self !== window.top) {
-                    // iframe 안에서 실행 - 최상위 윈도우의 URL 파라미터 읽기
-                    try {
-                        urlParams = new URLSearchParams(window.top.location.search);
-                    } catch (e) {
-                        // CORS 오류 시 현재 윈도우의 URL 사용
-                        urlParams = new URLSearchParams(window.location.search);
-                    }
-                } else {
-                    // 직접 접근
-                    urlParams = new URLSearchParams(window.location.search);
-                }
-
-                const campaignId = urlParams.get('id');
-
-                if (!campaignId) {
-                    // 캠페인 ID가 없으면 목록 표시
-                    await loadCampaignList();
-                    return;
-                }
-
-                // Supabase에서 캠페인 정보 조회 (ad_repo_view 사용하여 partner_name 포함)
+                // Supabase에서 캠페인 정보 조회
                 const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/ad_repo_view?id=eq.${campaignId}&select=*`, {
                     headers: {
                         'apikey': SUPABASE_CONFIG.anonKey,
@@ -457,7 +439,7 @@
 
                 // 외부 URL 타입이면 리다이렉트
                 if (campaign.landing_page_type === 'external' && campaign.landing_url) {
-                    window.location.href = campaign.landing_url;
+                    window.top.location.href = campaign.landing_url;
                     return;
                 }
 
@@ -494,7 +476,42 @@
                 container.innerHTML = html;
 
             } catch (error) {
+                console.error('Campaign detail load error:', error);
+                container.innerHTML = `<div class="error">❌ 페이지 로딩 실패: ${error.message}</div>`;
+            }
+        }
+
+        async function loadLandingPage() {
+            try {
+                // URL에서 campaign ID 추출 (iframe 안에서는 최상위 윈도우의 URL 확인)
+                let urlParams;
+                if (window.self !== window.top) {
+                    // iframe 안에서 실행 - 최상위 윈도우의 URL 파라미터 읽기
+                    try {
+                        urlParams = new URLSearchParams(window.top.location.search);
+                    } catch (e) {
+                        // CORS 오류 시 현재 윈도우의 URL 사용
+                        urlParams = new URLSearchParams(window.location.search);
+                    }
+                } else {
+                    // 직접 접근
+                    urlParams = new URLSearchParams(window.location.search);
+                }
+
+                const campaignId = urlParams.get('id');
+
+                if (!campaignId) {
+                    // 캠페인 ID가 없으면 목록 표시
+                    await loadCampaignList();
+                    return;
+                }
+
+                // 캠페인 상세 로드
+                await loadCampaignDetail(campaignId);
+
+            } catch (error) {
                 console.error('Landing page load error:', error);
+                const container = document.getElementById('landingContainer');
                 container.innerHTML = `<div class="error">❌ 페이지 로딩 실패: ${error.message}</div>`;
             }
         }
