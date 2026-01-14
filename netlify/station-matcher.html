@@ -1016,18 +1016,28 @@
                     return;
                 }
 
-                // Supabase Storage에서 파일 다운로드
-                const { data, error } = await supabaseClient.storage
+                // Public 버킷에서 파일 URL 가져오기
+                const { data } = supabaseClient.storage
                     .from('region')
-                    .download('tide_abs_region_rows.csv');
+                    .getPublicUrl('tide_abs_region_rows.csv');
 
-                if (error) {
-                    console.warn('기본 파일 로드 실패 (Storage에 파일이 없을 수 있음):', error);
+                if (!data?.publicUrl) {
+                    console.warn('기본 파일 URL을 가져올 수 없습니다');
                     return;
                 }
 
-                // Blob을 텍스트로 변환
-                const text = await data.text();
+                console.log('Storage URL:', data.publicUrl);
+
+                // fetch로 파일 다운로드
+                const response = await fetch(data.publicUrl);
+
+                if (!response.ok) {
+                    console.warn('기본 파일 로드 실패 (Storage에 파일이 없을 수 있음):', response.status);
+                    return;
+                }
+
+                // 텍스트로 변환
+                const text = await response.text();
 
                 // CSV 파싱
                 tideStations = parseCSV(text);
