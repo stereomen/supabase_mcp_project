@@ -1016,20 +1016,25 @@
                     return;
                 }
 
-                // Public 버킷에서 파일 URL 가져오기
-                const { data } = supabaseClient.storage
+                // Private 버킷에서 signed URL 생성 (1시간 유효)
+                const { data, error } = await supabaseClient.storage
                     .from('region')
-                    .getPublicUrl('tide_abs_region_rows.csv');
+                    .createSignedUrl('tide_abs_region_rows.csv', 3600);
 
-                if (!data?.publicUrl) {
+                if (error) {
+                    console.warn('기본 파일 signed URL 생성 실패:', error);
+                    return;
+                }
+
+                if (!data?.signedUrl) {
                     console.warn('기본 파일 URL을 가져올 수 없습니다');
                     return;
                 }
 
-                console.log('Storage URL:', data.publicUrl);
+                console.log('Storage signed URL:', data.signedUrl);
 
                 // fetch로 파일 다운로드
-                const response = await fetch(data.publicUrl);
+                const response = await fetch(data.signedUrl);
 
                 if (!response.ok) {
                     console.warn('기본 파일 로드 실패 (Storage에 파일이 없을 수 있음):', response.status);
