@@ -391,10 +391,23 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // Supabase 설정
         const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+
+        // Supabase 클라이언트 초기화
+        let supabaseClient;
+        try {
+            if (window.supabase && window.supabase.createClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                console.error('Supabase library not loaded');
+            }
+        } catch (error) {
+            console.error('Failed to initialize Supabase client:', error);
+        }
 
         let tideStations = [];
         let absStationsA = [];
@@ -998,20 +1011,23 @@
             try {
                 console.log('기본 조석 관측소 파일 로드 시작...');
 
-                // Supabase Storage에서 파일 다운로드
-                const response = await fetch(`${SUPABASE_URL}/storage/v1/object/public/region/tide_abs_region_rows.csv`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY
-                    }
-                });
-
-                if (!response.ok) {
-                    console.warn('기본 파일 로드 실패 (Storage에 파일이 없을 수 있음):', response.status);
+                if (!supabaseClient) {
+                    console.warn('Supabase client not initialized');
                     return;
                 }
 
-                // 텍스트로 변환
-                const text = await response.text();
+                // Supabase Storage에서 파일 다운로드
+                const { data, error } = await supabaseClient.storage
+                    .from('region')
+                    .download('tide_abs_region_rows.csv');
+
+                if (error) {
+                    console.warn('기본 파일 로드 실패 (Storage에 파일이 없을 수 있음):', error);
+                    return;
+                }
+
+                // Blob을 텍스트로 변환
+                const text = await data.text();
 
                 // CSV 파싱
                 tideStations = parseCSV(text);
