@@ -1016,33 +1016,25 @@
                     return;
                 }
 
-                // Private 버킷에서 signed URL 생성 (1시간 유효)
+                // Private 버킷에서 파일 다운로드 (경로: region/tide_abs_region_rows.csv)
                 const { data, error } = await supabaseClient.storage
                     .from('region')
-                    .createSignedUrl('tide_abs_region_rows.csv', 3600);
+                    .download('tide_abs_region_rows.csv');
 
                 if (error) {
-                    console.warn('기본 파일 signed URL 생성 실패:', error);
+                    console.warn('기본 파일 다운로드 실패:', error.message || error);
                     return;
                 }
 
-                if (!data?.signedUrl) {
-                    console.warn('기본 파일 URL을 가져올 수 없습니다');
+                if (!data) {
+                    console.warn('다운로드된 데이터가 없습니다');
                     return;
                 }
 
-                console.log('Storage signed URL:', data.signedUrl);
+                console.log('Storage 파일 다운로드 성공');
 
-                // fetch로 파일 다운로드
-                const response = await fetch(data.signedUrl);
-
-                if (!response.ok) {
-                    console.warn('기본 파일 로드 실패 (Storage에 파일이 없을 수 있음):', response.status);
-                    return;
-                }
-
-                // 텍스트로 변환
-                const text = await response.text();
+                // Blob을 텍스트로 변환
+                const text = await data.text();
 
                 // CSV 파싱
                 tideStations = parseCSV(text);
