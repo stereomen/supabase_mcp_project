@@ -326,7 +326,10 @@
                         매칭 실행
                     </button>
                     <button class="btn btn-success" onclick="downloadCSV()" id="downloadBtn" disabled>
-                        결과 CSV 다운로드
+                        📄 CSV 다운로드
+                    </button>
+                    <button class="btn btn-success" onclick="downloadExcel()" id="downloadExcelBtn" disabled>
+                        📊 Excel 다운로드
                     </button>
                     <button class="btn btn-primary" onclick="uploadToSupabase()" id="uploadBtn" disabled style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
                         📤 Supabase 업로드
@@ -392,6 +395,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script>
         // Supabase 설정
         const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
@@ -774,6 +778,7 @@
 
                     renderResults();
                     document.getElementById('downloadBtn').disabled = false;
+                    document.getElementById('downloadExcelBtn').disabled = false;
                     document.getElementById('uploadBtn').disabled = false;
                     hideError();
                 } catch (error) {
@@ -882,6 +887,76 @@
             link.click();
 
             URL.revokeObjectURL(url);
+        }
+
+        // Excel 다운로드
+        function downloadExcel() {
+            if (matchingResults.length === 0) {
+                showError('다운로드할 결과가 없습니다.');
+                return;
+            }
+
+            // 엑셀 데이터 준비
+            const excelData = matchingResults.map(result => {
+                const tide = result.tide;
+                const a = result.closestA;
+                const b = result.closestB;
+
+                return {
+                    'code': tide.code || '',
+                    'obsPostName': tide.obsPostName || '',
+                    '위도': tide.lat || '',
+                    '경도': tide.lon || '',
+                    'marine_reg_name': tide.marine_reg_name || '',
+                    'AddressA': tide.AddressA || '',
+                    'AddressB': tide.AddressB || '',
+                    'AddressC': tide.AddressC || '',
+                    'a_지역명(한글)': a ? a['지역명(한글)'] : '',
+                    'a_STN ID': a ? a['STN ID'] : '',
+                    'a_위도(LAT)': a ? a['위도(LAT)'] : '',
+                    'a_경도(LON)': a ? a['경도(LON)'] : '',
+                    'a_거리': result.distanceA !== Infinity ? result.distanceA : '',
+                    'b_지역명(한글)': b ? b['지역명(한글)'] : '',
+                    'b_STN ID': b ? b['STN ID'] : '',
+                    'b_위도(LAT)': b ? b['위도(LAT)'] : '',
+                    'b_경도(LON)': b ? b['경도(LON)'] : '',
+                    'b_거리': result.distanceB !== Infinity ? result.distanceB : ''
+                };
+            });
+
+            // 워크시트 생성
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+            // 컬럼 너비 설정
+            const columnWidths = [
+                { wch: 10 },  // code
+                { wch: 20 },  // obsPostName
+                { wch: 12 },  // 위도
+                { wch: 12 },  // 경도
+                { wch: 15 },  // marine_reg_name
+                { wch: 15 },  // AddressA
+                { wch: 15 },  // AddressB
+                { wch: 20 },  // AddressC
+                { wch: 20 },  // a_지역명
+                { wch: 12 },  // a_STN ID
+                { wch: 12 },  // a_위도
+                { wch: 12 },  // a_경도
+                { wch: 12 },  // a_거리
+                { wch: 20 },  // b_지역명
+                { wch: 12 },  // b_STN ID
+                { wch: 12 },  // b_위도
+                { wch: 12 },  // b_경도
+                { wch: 12 }   // b_거리
+            ];
+            worksheet['!cols'] = columnWidths;
+
+            // 워크북 생성
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, '매칭 결과');
+
+            // 파일 다운로드
+            const fileName = 'tide_abs_matched_' + new Date().toISOString().split('T')[0] + '.xlsx';
+            XLSX.writeFile(workbook, fileName);
         }
 
         // Supabase 업로드
