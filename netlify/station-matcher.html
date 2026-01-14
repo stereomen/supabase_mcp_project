@@ -371,14 +371,10 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // Supabase 설정
         const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
-
-        const { createClient } = supabase;
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let tideStations = [];
         let absStationsA = [];
@@ -506,27 +502,32 @@
 
                 // abs_fetch_log 테이블에서 모든 데이터 가져오기 (페이지네이션)
                 let allData = [];
-                let from = 0;
-                const batchSize = 1000;
+                let offset = 0;
+                const limit = 1000;
                 let hasMore = true;
 
                 console.log('abs_fetch_log 테이블 데이터 로드 시작...');
 
                 while (hasMore) {
-                    const { data, error, count } = await supabaseClient
-                        .from('abs_fetch_log')
-                        .select('*', { count: 'exact' })
-                        .range(from, from + batchSize - 1);
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/abs_fetch_log?select=*&limit=${limit}&offset=${offset}`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
 
-                    if (error) throw error;
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
 
+                    const data = await response.json();
                     allData = allData.concat(data);
-                    console.log(`- 배치 ${Math.floor(from / batchSize) + 1}: ${data.length}개, 누적: ${allData.length}개`);
+                    console.log(`- 배치 ${Math.floor(offset / limit) + 1}: ${data.length}개, 누적: ${allData.length}개`);
 
-                    if (data.length < batchSize) {
+                    if (data.length < limit) {
                         hasMore = false;
                     } else {
-                        from += batchSize;
+                        offset += limit;
                     }
                 }
 
@@ -810,17 +811,18 @@
                 document.getElementById('loading').classList.add('show');
 
                 // 먼저 테이블에서 한 개 데이터를 조회해서 실제 컬럼명 확인
-                const { data: sampleData, error: sampleError } = await supabaseClient
-                    .from('tide_abs_region')
-                    .select('*')
-                    .limit(1);
+                const sampleResponse = await fetch(`${SUPABASE_URL}/rest/v1/tide_abs_region?select=*&limit=1`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
 
-                if (sampleError) {
-                    console.warn('테이블 샘플 조회 실패 (빈 테이블일 수 있음):', sampleError);
-                }
-
-                if (sampleData && sampleData.length > 0) {
-                    console.log('실제 테이블 컬럼:', Object.keys(sampleData[0]));
+                if (sampleResponse.ok) {
+                    const sampleData = await sampleResponse.json();
+                    if (sampleData && sampleData.length > 0) {
+                        console.log('실제 테이블 컬럼:', Object.keys(sampleData[0]));
+                    }
                 }
 
                 // 데이터 준비 (실제 테이블 스키마에 맞게)
@@ -858,11 +860,21 @@
                 });
 
                 // Supabase에 upsert
-                const { data, error } = await supabaseClient
-                    .from('tide_abs_region')
-                    .upsert(dataToUpload, { onConflict: 'Code' });
+                const upsertResponse = await fetch(`${SUPABASE_URL}/rest/v1/tide_abs_region`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify(dataToUpload)
+                });
 
-                if (error) throw error;
+                if (!upsertResponse.ok) {
+                    const errorText = await upsertResponse.text();
+                    throw new Error(`Upload failed: ${upsertResponse.status} - ${errorText}`);
+                }
 
                 showSuccess(`✅ ${matchingResults.length}개의 데이터가 tide_abs_region 테이블에 성공적으로 업로드되었습니다!`);
                 hideError();
@@ -910,18 +922,19 @@
                 console.log('기본 조석 관측소 파일 로드 시작...');
 
                 // Supabase Storage에서 파일 다운로드
-                const { data, error } = await supabaseClient
-                    .storage
-                    .from('region')
-                    .download('tide_abs_region_rows.csv');
+                const response = await fetch(`${SUPABASE_URL}/storage/v1/object/public/region/tide_abs_region_rows.csv`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY
+                    }
+                });
 
-                if (error) {
-                    console.warn('기본 파일 로드 실패 (Storage에 파일이 없을 수 있음):', error);
+                if (!response.ok) {
+                    console.warn('기본 파일 로드 실패 (Storage에 파일이 없을 수 있음):', response.status);
                     return;
                 }
 
-                // Blob을 텍스트로 변환
-                const text = await data.text();
+                // 텍스트로 변환
+                const text = await response.text();
 
                 // CSV 파싱
                 tideStations = parseCSV(text);
