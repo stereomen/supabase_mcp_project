@@ -264,6 +264,9 @@
                     <div style="font-size: 0.9em; color: #999; margin-top: 10px;">
                         필수 컬럼: code, obsPostName, 위도, 경도
                     </div>
+                    <div style="font-size: 0.85em; color: #667eea; margin-top: 8px; font-weight: 500;">
+                        💡 supabase에 Files>Buckets>region 경로에 tide_abs_region_rows.csv 파일을 이용합니다.
+                    </div>
                     <input type="file" id="fileInput" accept=".csv">
                 </div>
                 <div class="file-info" id="fileInfo">
@@ -501,12 +504,34 @@
                 document.getElementById('loadBtn').disabled = true;
                 document.getElementById('loading').classList.add('show');
 
-                // abs_fetch_log 테이블에서 모든 데이터 가져오기
-                const { data, error } = await supabaseClient
-                    .from('abs_fetch_log')
-                    .select('*');
+                // abs_fetch_log 테이블에서 모든 데이터 가져오기 (페이지네이션)
+                let allData = [];
+                let from = 0;
+                const batchSize = 1000;
+                let hasMore = true;
 
-                if (error) throw error;
+                console.log('abs_fetch_log 테이블 데이터 로드 시작...');
+
+                while (hasMore) {
+                    const { data, error, count } = await supabaseClient
+                        .from('abs_fetch_log')
+                        .select('*', { count: 'exact' })
+                        .range(from, from + batchSize - 1);
+
+                    if (error) throw error;
+
+                    allData = allData.concat(data);
+                    console.log(`- 배치 ${Math.floor(from / batchSize) + 1}: ${data.length}개, 누적: ${allData.length}개`);
+
+                    if (data.length < batchSize) {
+                        hasMore = false;
+                    } else {
+                        from += batchSize;
+                    }
+                }
+
+                console.log(`총 ${allData.length}개 레코드 로드 완료`);
+                const data = allData;
 
                 // 지점별로 커버리지 분석
                 const stationMap = {};
@@ -878,6 +903,67 @@
         function hideSuccess() {
             document.getElementById('successMessage').classList.remove('show');
         }
+
+        // Supabase Storage에서 기본 조석 관측소 파일 로드
+        async function loadDefaultTideStationFile() {
+            try {
+                console.log('기본 조석 관측소 파일 로드 시작...');
+
+                // Supabase Storage에서 파일 다운로드
+                const { data, error } = await supabaseClient
+                    .storage
+                    .from('region')
+                    .download('tide_abs_region_rows.csv');
+
+                if (error) {
+                    console.warn('기본 파일 로드 실패 (Storage에 파일이 없을 수 있음):', error);
+                    return;
+                }
+
+                // Blob을 텍스트로 변환
+                const text = await data.text();
+
+                // CSV 파싱
+                tideStations = parseCSV(text);
+
+                // 필수 컬럼 확인
+                if (tideStations.length === 0) {
+                    console.warn('기본 CSV 파일이 비어있거나 형식이 올바르지 않습니다.');
+                    return;
+                }
+
+                const requiredColumns = ['code', 'obsPostName', '위도', '경도'];
+                const firstRow = tideStations[0];
+                const missingColumns = requiredColumns.filter(col => !(col in firstRow));
+
+                if (missingColumns.length > 0) {
+                    console.warn(`기본 파일에서 필수 컬럼 누락: ${missingColumns.join(', ')}`);
+                    tideStations = [];
+                    return;
+                }
+
+                // 위도/경도를 숫자로 변환
+                tideStations.forEach(station => {
+                    station.lat = parseFloat(station['위도']);
+                    station.lon = parseFloat(station['경도']);
+                });
+
+                // UI 업데이트
+                document.getElementById('fileName').textContent = 'tide_abs_region_rows.csv (기본 파일)';
+                document.getElementById('recordCount').textContent = tideStations.length;
+                document.getElementById('fileInfo').classList.add('show');
+
+                console.log(`기본 파일 로드 완료: ${tideStations.length}개 레코드`);
+            } catch (error) {
+                console.warn('기본 파일 로드 중 오류:', error.message);
+            }
+        }
+
+        // 페이지 로드 시 기본 파일 자동 로드
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDefaultTideStationFile();
+        });
+
         // iframe 안에서 로드될 때 헤더/뒤로가기 버튼 숨기기
         if (window.self !== window.top) {
             // 뒤로가기 버튼 숨기기
