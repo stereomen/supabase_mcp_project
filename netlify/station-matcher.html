@@ -539,17 +539,21 @@
                 document.getElementById('loading').classList.add('show');
 
                 // 날짜 범위 가져오기
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
+                const startDateStr = document.getElementById('startDate').value;
+                const endDateStr = document.getElementById('endDate').value;
 
-                if (!startDate || !endDate) {
+                if (!startDateStr || !endDateStr) {
                     showError('시작 날짜와 종료 날짜를 선택하세요.');
                     document.getElementById('loadBtn').disabled = false;
                     document.getElementById('loading').classList.remove('show');
                     return;
                 }
 
-                console.log(`분석 기간: ${startDate} ~ ${endDate}`);
+                // ISO 8601 형식으로 변환
+                const startDate = new Date(startDateStr + 'T00:00:00');
+                const endDate = new Date(endDateStr + 'T23:59:59');
+
+                console.log(`분석 기간: ${startDate.toISOString()} ~ ${endDate.toISOString()}`);
 
                 // abs_fetch_log 테이블에서 날짜 범위 필터링하여 데이터 가져오기 (페이지네이션)
                 let allData = [];
@@ -560,8 +564,8 @@
                 console.log('abs_fetch_log 테이블 데이터 로드 시작...');
 
                 while (hasMore) {
-                    // 날짜 필터링 추가 (and 연산자 사용)
-                    const url = `${SUPABASE_URL}/rest/v1/abs_fetch_log?select=*&and=(observation_date.gte.${startDate},observation_date.lte.${endDate})&limit=${limit}&offset=${offset}`;
+                    // request_time 컬럼 사용, and 연산자 없이 별도 파라미터로 필터링
+                    const url = `${SUPABASE_URL}/rest/v1/abs_fetch_log?select=*&request_time=gte.${startDate.toISOString()}&request_time=lte.${endDate.toISOString()}&limit=${limit}&offset=${offset}`;
 
                     const response = await fetch(url, {
                         headers: {
@@ -585,7 +589,7 @@
                     }
                 }
 
-                console.log(`총 ${allData.length}개 레코드 로드 완료 (${startDate} ~ ${endDate})`);
+                console.log(`총 ${allData.length}개 레코드 로드 완료 (${startDateStr} ~ ${endDateStr})`);
                 const data = allData;
 
                 // 지점별로 커버리지 분석
