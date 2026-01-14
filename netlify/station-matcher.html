@@ -560,8 +560,8 @@
                 console.log('abs_fetch_log 테이블 데이터 로드 시작...');
 
                 while (hasMore) {
-                    // 날짜 필터링 추가
-                    const url = `${SUPABASE_URL}/rest/v1/abs_fetch_log?select=*&observation_date=gte.${startDate}&observation_date=lte.${endDate}&limit=${limit}&offset=${offset}`;
+                    // 날짜 필터링 추가 (and 연산자 사용)
+                    const url = `${SUPABASE_URL}/rest/v1/abs_fetch_log?select=*&and=(observation_date.gte.${startDate},observation_date.lte.${endDate})&limit=${limit}&offset=${offset}`;
 
                     const response = await fetch(url, {
                         headers: {
