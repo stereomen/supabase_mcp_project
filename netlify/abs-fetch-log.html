@@ -458,11 +458,9 @@
                 const observationType = document.getElementById('observationType').value;
                 const dateFilter = document.getElementById('dateFilter').value;
 
-                // 필터 값 가져오기
-                const startOfDay = dateFilter ? new Date(dateFilter) : null;
-                const endOfDay = dateFilter ? new Date(dateFilter) : null;
-                if (startOfDay) startOfDay.setHours(0, 0, 0, 0);
-                if (endOfDay) endOfDay.setHours(23, 59, 59, 999);
+                // 필터 값 가져오기 (UTC 기준으로 명시적 처리)
+                const startOfDay = dateFilter ? new Date(dateFilter + 'T00:00:00Z') : null;
+                const endOfDay = dateFilter ? new Date(dateFilter + 'T23:59:59.999Z') : null;
 
                 // 페이지네이션으로 전체 데이터 가져오기
                 allData = [];
