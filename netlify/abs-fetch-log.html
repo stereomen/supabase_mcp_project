@@ -458,38 +458,57 @@
                 const observationType = document.getElementById('observationType').value;
                 const dateFilter = document.getElementById('dateFilter').value;
 
-                // 쿼리 생성 - 전체 데이터 가져오기
-                let query = supabaseClient
-                    .from('abs_fetch_log')
-                    .select('*')
-                    .order('request_time', { ascending: false });
+                // 필터 값 가져오기
+                const startOfDay = dateFilter ? new Date(dateFilter) : null;
+                const endOfDay = dateFilter ? new Date(dateFilter) : null;
+                if (startOfDay) startOfDay.setHours(0, 0, 0, 0);
+                if (endOfDay) endOfDay.setHours(23, 59, 59, 999);
 
-                // 서버 사이드 필터 적용
-                if (stationName) {
-                    query = query.ilike('station_name', `%${stationName}%`);
+                // 페이지네이션으로 전체 데이터 가져오기
+                allData = [];
+                let offset = 0;
+                const limit = 1000;
+                let hasMore = true;
+
+                while (hasMore) {
+                    // 쿼리 생성
+                    let query = supabaseClient
+                        .from('abs_fetch_log')
+                        .select('*')
+                        .order('request_time', { ascending: false })
+                        .range(offset, offset + limit - 1);
+
+                    // 서버 사이드 필터 적용
+                    if (stationName) {
+                        query = query.ilike('station_name', `%${stationName}%`);
+                    }
+                    if (stationId) {
+                        query = query.eq('station_id', parseInt(stationId));
+                    }
+                    if (observationType) {
+                        query = query.eq('observation_type', observationType);
+                    }
+                    if (dateFilter) {
+                        query = query
+                            .gte('request_time', startOfDay.toISOString())
+                            .lte('request_time', endOfDay.toISOString());
+                    }
+
+                    const { data, error } = await query;
+
+                    if (error) throw error;
+
+                    const pageData = data || [];
+                    allData = allData.concat(pageData);
+
+                    console.log(`페이지 ${Math.floor(offset / limit) + 1}: ${pageData.length}개 조회, 누적: ${allData.length}개`);
+
+                    if (pageData.length < limit) {
+                        hasMore = false;
+                    } else {
+                        offset += limit;
+                    }
                 }
-                if (stationId) {
-                    query = query.eq('station_id', parseInt(stationId));
-                }
-                if (observationType) {
-                    query = query.eq('observation_type', observationType);
-                }
-                if (dateFilter) {
-                    const startOfDay = new Date(dateFilter);
-                    startOfDay.setHours(0, 0, 0, 0);
-                    const endOfDay = new Date(dateFilter);
-                    endOfDay.setHours(23, 59, 59, 999);
-
-                    query = query
-                        .gte('request_time', startOfDay.toISOString())
-                        .lte('request_time', endOfDay.toISOString());
-                }
-
-                const { data, error } = await query;
-
-                if (error) throw error;
-
-                allData = data || [];
 
                 // 통계 업데이트
                 await updateStats();
