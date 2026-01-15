@@ -464,8 +464,8 @@
 
                 // 페이지네이션으로 전체 데이터 가져오기
                 allData = [];
-                let offset = 0;
-                const limit = 1000;
+                let fetchOffset = 0;
+                const fetchLimit = 1000;
                 let hasMore = true;
 
                 while (hasMore) {
@@ -474,7 +474,7 @@
                         .from('abs_fetch_log')
                         .select('*')
                         .order('request_time', { ascending: false })
-                        .range(offset, offset + limit - 1);
+                        .range(fetchOffset, fetchOffset + fetchLimit - 1);
 
                     // 서버 사이드 필터 적용
                     if (stationName) {
@@ -499,12 +499,12 @@
                     const pageData = data || [];
                     allData = allData.concat(pageData);
 
-                    console.log(`페이지 ${Math.floor(offset / limit) + 1}: ${pageData.length}개 조회, 누적: ${allData.length}개`);
+                    console.log(`페이지 ${Math.floor(fetchOffset / fetchLimit) + 1}: ${pageData.length}개 조회, 누적: ${allData.length}개`);
 
-                    if (pageData.length < limit) {
+                    if (pageData.length < fetchLimit) {
                         hasMore = false;
                     } else {
-                        offset += limit;
+                        fetchOffset += fetchLimit;
                     }
                 }
 
@@ -617,12 +617,30 @@
 
                 document.getElementById('totalRecords').textContent = totalCount || 0;
 
-                // 관측 지점 수
-                const { data: stationData } = await supabaseClient
-                    .from('abs_fetch_log')
-                    .select('station_id');
+                // 관측 지점 수 (페이지네이션으로 전체 데이터 가져오기)
+                let allStationIds = [];
+                let statsOffset = 0;
+                const statsLimit = 1000;
+                let hasMoreStats = true;
 
-                const uniqueStations = new Set(stationData?.map(d => d.station_id) || []);
+                while (hasMoreStats) {
+                    const { data: stationData } = await supabaseClient
+                        .from('abs_fetch_log')
+                        .select('station_id')
+                        .range(statsOffset, statsOffset + statsLimit - 1);
+
+                    if (stationData && stationData.length > 0) {
+                        allStationIds = allStationIds.concat(stationData.map(d => d.station_id));
+                    }
+
+                    if (!stationData || stationData.length < statsLimit) {
+                        hasMoreStats = false;
+                    } else {
+                        statsOffset += statsLimit;
+                    }
+                }
+
+                const uniqueStations = new Set(allStationIds);
                 document.getElementById('totalStations').textContent = uniqueStations.size;
 
                 // 최근 수집 시간
