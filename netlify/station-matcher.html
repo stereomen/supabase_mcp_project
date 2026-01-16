@@ -315,6 +315,12 @@
                     <button class="btn btn-primary" onclick="loadStationData()" id="loadBtn">
                         테이블 분석 및 데이터 로드
                     </button>
+                    <button class="btn btn-secondary" onclick="downloadAStations()" id="downloadABtn" disabled style="background: #28a745;">
+                        📥 a지점 목록 다운
+                    </button>
+                    <button class="btn btn-secondary" onclick="downloadBStations()" id="downloadBBtn" disabled style="background: #17a2b8;">
+                        📥 b지점 목록 다운
+                    </button>
                 </div>
             </div>
 
@@ -414,8 +420,10 @@
         }
 
         let tideStations = [];
-        let absStationsA = [];
-        let absStationsB = [];
+        let absStationsA = []; // 100% 커버리지 지점 (매칭용)
+        let absStationsB = []; // 100% 커버리지 지점 (매칭용)
+        let allStationsA = []; // 파고 또는 수온 제공 이력이 있는 모든 지점 (다운로드용)
+        let allStationsB = []; // 기온, 풍향, 풍속 제공 이력이 있는 모든 지점 (다운로드용)
         let matchingResults = [];
 
         // 날짜 설정 헬퍼 함수
@@ -644,18 +652,32 @@
                     if (row.wind_speed_available) station.windSpeedCount++;
                 });
 
-                // A 지점: 파고 + 수온 커버리지 100%인 지점
+                // A 지점: 파고 + 수온 커버리지 100%인 지점 (매칭용)
                 absStationsA = [];
-                // B 지점: 기온 + 풍향 + 풍속 커버리지 100%인 지점
+                // B 지점: 기온 + 풍향 + 풍속 커버리지 100%인 지점 (매칭용)
                 absStationsB = [];
+                // 제공 이력이 있는 모든 지점 (다운로드용)
+                allStationsA = [];
+                allStationsB = [];
 
                 Object.values(stationMap).forEach(station => {
                     if (station.totalCount === 0) return;
 
-                    // A 지점: 파고와 수온이 모두 100%
+                    // A 지점 분석: 파고 또는 수온 제공 여부
                     const waveHeightCoverage = (station.waveHeightCount / station.totalCount) * 100;
                     const waterTempCoverage = (station.waterTempCount / station.totalCount) * 100;
 
+                    // 파고 또는 수온을 한 번이라도 제공한 경우 allStationsA에 추가
+                    if (station.waveHeightCount > 0 || station.waterTempCount > 0) {
+                        allStationsA.push({
+                            'a_지역명(한글)': station.station_name,
+                            'a_STN ID': station.station_id,
+                            'a_위도(LAT)': station.latitude,
+                            'a_경도(LON)': station.longitude
+                        });
+                    }
+
+                    // 파고와 수온이 모두 100%인 경우 absStationsA에 추가 (매칭용)
                     if (waveHeightCoverage === 100 && waterTempCoverage === 100) {
                         absStationsA.push({
                             '지역명(한글)': station.station_name,
@@ -668,11 +690,22 @@
                         });
                     }
 
-                    // B 지점: 기온, 풍향, 풍속이 모두 100%
+                    // B 지점 분석: 기온, 풍향, 풍속 제공 여부
                     const airTempCoverage = (station.airTempCount / station.totalCount) * 100;
                     const windDirectionCoverage = (station.windDirectionCount / station.totalCount) * 100;
                     const windSpeedCoverage = (station.windSpeedCount / station.totalCount) * 100;
 
+                    // 기온, 풍향, 풍속 중 하나라도 제공한 경우 allStationsB에 추가
+                    if (station.airTempCount > 0 || station.windDirectionCount > 0 || station.windSpeedCount > 0) {
+                        allStationsB.push({
+                            'b_지역명(한글)': station.station_name,
+                            'b_STN ID': station.station_id,
+                            'b_위도(LAT)': station.latitude,
+                            'b_경도(LON)': station.longitude
+                        });
+                    }
+
+                    // 기온, 풍향, 풍속이 모두 100%인 경우 absStationsB에 추가 (매칭용)
                     if (airTempCoverage === 100 && windDirectionCoverage === 100 && windSpeedCoverage === 100) {
                         absStationsB.push({
                             '지역명(한글)': station.station_name,
@@ -689,8 +722,13 @@
                 document.getElementById('stationsACount').textContent = absStationsA.length;
                 document.getElementById('stationsBCount').textContent = absStationsB.length;
 
-                console.log(`A 지점: ${absStationsA.length}개, B 지점: ${absStationsB.length}개`);
+                console.log(`A 지점 (100%): ${absStationsA.length}개, B 지점 (100%): ${absStationsB.length}개`);
+                console.log(`A 지점 (전체): ${allStationsA.length}개, B 지점 (전체): ${allStationsB.length}개`);
                 console.log(`조석 데이터: ${tideStations.length}개`);
+
+                // 다운로드 버튼 활성화
+                document.getElementById('downloadABtn').disabled = allStationsA.length === 0;
+                document.getElementById('downloadBBtn').disabled = allStationsB.length === 0;
 
                 // 매칭 버튼 활성화 조건 개선
                 if (tideStations.length > 0 && (absStationsA.length > 0 || absStationsB.length > 0)) {
@@ -1155,6 +1193,90 @@
             // 기본 조석 파일 자동 로드
             loadDefaultTideStationFile();
         });
+
+        // A 지점 목록 다운로드 (파고 또는 수온 제공 이력이 있는 모든 관측소)
+        function downloadAStations() {
+            if (allStationsA.length === 0) {
+                showError('다운로드할 A 지점 데이터가 없습니다.');
+                return;
+            }
+
+            // CSV 헤더 (한글 컬럼명 그대로 사용)
+            const headers = ['a_지역명(한글)', 'a_STN ID', 'a_위도(LAT)', 'a_경도(LON)'];
+
+            // CSV 데이터
+            const rows = allStationsA.map(station => {
+                return [
+                    station['a_지역명(한글)'] || '',
+                    station['a_STN ID'] || '',
+                    station['a_위도(LAT)'] || '',
+                    station['a_경도(LON)'] || ''
+                ].map(field => `"${field}"`).join(',');
+            });
+
+            const csvContent = [headers.join(','), ...rows].join('\n');
+
+            // UTF-8 BOM 추가 (엑셀에서 한글 깨짐 방지)
+            const bom = '\uFEFF';
+            const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            // 날짜 범위 정보 가져오기
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const dateRange = startDate && endDate ? `_${startDate}_${endDate}` : '';
+
+            // 다운로드 링크 생성
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `a지점_파고수온제공${dateRange}.csv`;
+            link.click();
+
+            URL.revokeObjectURL(url);
+            console.log(`✅ A 지점 목록 다운로드 완료: ${allStationsA.length}개 관측소`);
+        }
+
+        // B 지점 목록 다운로드 (기온, 풍향, 풍속 제공 이력이 있는 모든 관측소)
+        function downloadBStations() {
+            if (allStationsB.length === 0) {
+                showError('다운로드할 B 지점 데이터가 없습니다.');
+                return;
+            }
+
+            // CSV 헤더 (한글 컬럼명 그대로 사용)
+            const headers = ['b_지역명(한글)', 'b_STN ID', 'b_위도(LAT)', 'b_경도(LON)'];
+
+            // CSV 데이터
+            const rows = allStationsB.map(station => {
+                return [
+                    station['b_지역명(한글)'] || '',
+                    station['b_STN ID'] || '',
+                    station['b_위도(LAT)'] || '',
+                    station['b_경도(LON)'] || ''
+                ].map(field => `"${field}"`).join(',');
+            });
+
+            const csvContent = [headers.join(','), ...rows].join('\n');
+
+            // UTF-8 BOM 추가 (엑셀에서 한글 깨짐 방지)
+            const bom = '\uFEFF';
+            const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            // 날짜 범위 정보 가져오기
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const dateRange = startDate && endDate ? `_${startDate}_${endDate}` : '';
+
+            // 다운로드 링크 생성
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `b지점_기온풍향풍속제공${dateRange}.csv`;
+            link.click();
+
+            URL.revokeObjectURL(url);
+            console.log(`✅ B 지점 목록 다운로드 완료: ${allStationsB.length}개 관측소`);
+        }
 
         // iframe 안에서 로드될 때 헤더/뒤로가기 버튼 숨기기
         if (window.self !== window.top) {
