@@ -1023,18 +1023,16 @@
                     minute: '2-digit'
                 });
 
-                // 데이터 상태 표시
-                let statusHtml = '';
-                if (row.isComplete) {
-                    statusHtml = '<span class="complete-tag">✓ 완전</span>';
-                } else {
-                    // 누락된 항목 찾기
-                    const missingItems = selectedFields.filter(field => !row[field]);
-                    const missingLabels = missingItems.map(field =>
-                        `<span class="missing-tag">${fieldLabels[field]}</span>`
-                    ).join(' ');
-                    statusHtml = missingLabels;
-                }
+                // 데이터 상태 표시 - 모든 항목을 ✅/❌로 표시
+                const statusParts = selectedFields.map(field => {
+                    const label = fieldLabels[field];
+                    if (row[field]) {
+                        return `<span style="color: #28a745; font-weight: 500;">${label} ✅</span>`;
+                    } else {
+                        return `<span style="color: #dc3545; font-weight: 500;">${label} ❌</span>`;
+                    }
+                });
+                const statusHtml = statusParts.join('  ');
 
                 // 출처 표시
                 const isMissing = row.raw_line && row.raw_line.includes('[MISSING]');
