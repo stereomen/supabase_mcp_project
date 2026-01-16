@@ -370,6 +370,10 @@
                     <div class="stat-value" id="totalRequests">-</div>
                     <div class="stat-label">총 요청 횟수</div>
                 </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="missingRate" style="color: #ff9800;">-</div>
+                    <div class="stat-label">평균 API 누락률</div>
+                </div>
             </div>
 
             <!-- 에러 메시지 -->
@@ -437,31 +441,55 @@
                     throw new Error('시작일과 종료일을 모두 선택해주세요.');
                 }
 
-                // 날짜 범위 설정
-                const startDate = new Date(dateFrom);
-                startDate.setHours(0, 0, 0, 0);
-                const endDate = new Date(dateTo);
-                endDate.setHours(23, 59, 59, 999);
+                // 날짜 범위 설정 (UTC 기준으로 정확하게)
+                const startDate = new Date(dateFrom + 'T00:00:00Z');
+                const endDate = new Date(dateTo + 'T23:59:59.999Z');
 
-                // 기간 내 전체 데이터 가져오기
-                let url = `${SUPABASE_CONFIG.url}/rest/v1/abs_fetch_log?select=*&request_time=gte.${startDate.toISOString()}&request_time=lte.${endDate.toISOString()}`;
+                // 기간 내 전체 데이터 가져오기 (페이지네이션으로 모든 데이터 로드)
+                let allData = [];
+                let offset = 0;
+                const limit = 1000;
+                let hasMore = true;
 
-                if (observationType) {
-                    url += `&observation_type=eq.${observationType}`;
-                }
+                while (hasMore) {
+                    let url = `${SUPABASE_CONFIG.url}/rest/v1/abs_fetch_log?select=*&request_time=gte.${startDate.toISOString()}&request_time=lte.${endDate.toISOString()}&limit=${limit}&offset=${offset}`;
 
-                const response = await fetch(url, {
-                    headers: {
-                        'apikey': SUPABASE_CONFIG.anonKey,
-                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                    if (observationType) {
+                        url += `&observation_type=eq.${observationType}`;
                     }
-                });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    console.log(`페이지 ${Math.floor(offset / limit) + 1} 조회 중... (offset: ${offset})`);
+
+                    const response = await fetch(url, {
+                        headers: {
+                            'apikey': SUPABASE_CONFIG.anonKey,
+                            'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const pageData = await response.json();
+                    allData = allData.concat(pageData);
+
+                    console.log(`- 이번 페이지: ${pageData.length}개, 누적: ${allData.length}개`);
+
+                    if (pageData.length < limit) {
+                        hasMore = false;
+                    } else {
+                        offset += limit;
+                    }
                 }
 
-                const data = await response.json();
+                const data = allData;
+                console.log('조회 기간:', `${dateFrom} 00:00:00 ~ ${dateTo} 23:59:59 (UTC)`);
+                console.log('조회된 전체 레코드 수:', data.length);
+
+                const uniqueTimes = new Set(data.map(d => d.request_time));
+                console.log('유니크한 request_time 수:', uniqueTimes.size);
+                console.log('request_time 목록:', Array.from(uniqueTimes).sort());
 
                 // 데이터 분석
                 const analysis = analyzeData(data, minCoverage);
@@ -499,6 +527,10 @@
             // 전체 요청 횟수
             const uniqueRequests = new Set(data.map(d => d.request_time));
             const totalRequests = uniqueRequests.size;
+
+            // API 누락 건수 계산 (raw_line에 [MISSING] 포함된 레코드)
+            const missingCount = data.filter(row => row.raw_line && row.raw_line.includes('[MISSING]')).length;
+            const missingRate = data.length > 0 ? (missingCount / data.length * 100) : 0;
 
             // 지점별 분석
             const stationMap = {};
@@ -550,7 +582,10 @@
                 stations,
                 totalRequests,
                 perfectStations,
-                avgCoverage: avgCoverage.toFixed(2)
+                avgCoverage: avgCoverage.toFixed(2),
+                missingRate: missingRate.toFixed(2),
+                missingCount,
+                totalRecords: data.length
             };
         }
 
@@ -568,6 +603,24 @@
             document.getElementById('perfectStations').textContent = analysis.perfectStations;
             document.getElementById('avgCoverage').textContent = analysis.avgCoverage + '%';
             document.getElementById('totalRequests').textContent = analysis.totalRequests;
+
+            // 누락률 표시 (색상 동적 변경)
+            const missingRateElem = document.getElementById('missingRate');
+            missingRateElem.textContent = analysis.missingRate + '%';
+
+            // 누락률에 따라 색상 변경
+            const rate = parseFloat(analysis.missingRate);
+            if (rate === 0) {
+                missingRateElem.style.color = '#28a745'; // 녹색 (완벽)
+            } else if (rate < 5) {
+                missingRateElem.style.color = '#ffc107'; // 노란색 (양호)
+            } else if (rate < 20) {
+                missingRateElem.style.color = '#ff9800'; // 주황색 (주의)
+            } else {
+                missingRateElem.style.color = '#dc3545'; // 빨간색 (심각)
+            }
+
+            console.log(`[STATS] 총 ${analysis.totalRecords}개 레코드 중 ${analysis.missingCount}개 누락 (${analysis.missingRate}%)`);
         }
 
         // 테이블 렌더링
@@ -596,12 +649,10 @@
                         <td>${station.observation_type || '-'}</td>
                         <td>${station.latitude != null ? station.latitude.toFixed(4) : '-'}</td>
                         <td>${station.longitude != null ? station.longitude.toFixed(4) : '-'}</td>
-                        <td>${station.totalRequests}</td>
+                        <td>${station.totalCount}</td>
                         <td>
-                            <div class="coverage-bar">
-                                <div class="coverage-fill ${coverageClass}" style="width: ${station.coverage}%"></div>
-                                <div class="coverage-text">${station.coverage.toFixed(2)}%</div>
-                            </div>
+                            <strong>${station.completeCount} / ${station.totalCount}</strong>
+                            <span style="color: #666; margin-left: 10px;">(${station.coverage.toFixed(2)}%)</span>
                         </td>
                         <td>
                             <span class="quality-badge ${qualityClass}">${qualityLabel}</span>
@@ -640,6 +691,8 @@
             document.getElementById('perfectStations').textContent = '-';
             document.getElementById('avgCoverage').textContent = '-';
             document.getElementById('totalRequests').textContent = '-';
+            document.getElementById('missingRate').textContent = '-';
+            document.getElementById('missingRate').style.color = '#ff9800';
         }
 
         // 엔터키로 검색

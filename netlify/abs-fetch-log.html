@@ -397,11 +397,12 @@
                             <th>기온</th>
                             <th>기압</th>
                             <th>습도</th>
+                            <th>데이터 출처</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="13" style="text-align: center; padding: 40px;">
+                            <td colspan="14" style="text-align: center; padding: 40px;">
                                 검색 버튼을 클릭하여 데이터를 불러오세요
                             </td>
                         </tr>
@@ -667,7 +668,7 @@
             const tbody = document.getElementById('tableBody');
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="13" style="text-align: center; padding: 40px;">검색 결과가 없습니다</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 40px;">검색 결과가 없습니다</td></tr>';
                 return;
             }
 
@@ -681,6 +682,12 @@
                     hour: '2-digit',
                     minute: '2-digit'
                 });
+
+                // 데이터 출처 판별 (raw_line에서 [MISSING] 체크)
+                const isMissing = row.raw_line && row.raw_line.includes('[MISSING]');
+                const sourceIndicator = isMissing
+                    ? '<span style="color: #ff9800; font-weight: bold;">⚠️ API 누락</span>'
+                    : '<span style="color: #28a745; font-weight: bold;">✓ API 정상</span>';
 
                 return `
                     <tr>
@@ -697,6 +704,7 @@
                         <td>${renderIndicator(row.air_temperature_available)}</td>
                         <td>${renderIndicator(row.pressure_available)}</td>
                         <td>${renderIndicator(row.humidity_available)}</td>
+                        <td>${sourceIndicator}</td>
                     </tr>
                 `;
             }).join('');
