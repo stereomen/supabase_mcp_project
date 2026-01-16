@@ -355,6 +355,47 @@
             color: white;
             font-weight: 500;
         }
+        .complete-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            margin: 2px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            background: #28a745;
+            color: white;
+            font-weight: 500;
+        }
+        .btn-filter {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-filter:hover {
+            border-color: #667eea;
+            background: #f0f0ff;
+        }
+        .btn-filter.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .detail-row-complete {
+            background: #f0fff4;
+        }
+        .detail-row-missing {
+            background: #fff3e0;
+        }
+        .detail-row-complete:hover {
+            background: #e6f9ed;
+        }
+        .detail-row-missing:hover {
+            background: #ffe8cc;
+        }
     </style>
 </head>
 <body>
@@ -513,16 +554,29 @@
                 <div id="modalSummary" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
                 </div>
 
-                <!-- 누락된 시간대 목록 -->
+                <!-- 필터 버튼 -->
+                <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+                    <strong>필터:</strong>
+                    <button class="btn-filter active" onclick="filterDetailData('all')" id="filterAll">
+                        전체 (<span id="countAll">0</span>)
+                    </button>
+                    <button class="btn-filter" onclick="filterDetailData('missing')" id="filterMissing">
+                        누락만 (<span id="countMissing">0</span>)
+                    </button>
+                    <button class="btn-filter" onclick="filterDetailData('complete')" id="filterComplete">
+                        완전한 데이터만 (<span id="countComplete">0</span>)
+                    </button>
+                </div>
+
+                <!-- 데이터 목록 -->
                 <div id="missingDataSection">
-                    <h3 style="margin-bottom: 15px;">🚫 누락된 시간대</h3>
                     <div class="table-container" style="max-height: 400px; overflow-y: auto;">
                         <table id="detailTable" style="font-size: 0.9em;">
                             <thead>
                                 <tr>
                                     <th>요청 시간</th>
                                     <th>관측 시간 (KST)</th>
-                                    <th>누락 항목</th>
+                                    <th>데이터 상태</th>
                                     <th>출처</th>
                                 </tr>
                             </thead>
@@ -554,6 +608,8 @@
         let currentAllData = [];
         let currentDateFrom = '';
         let currentDateTo = '';
+        let currentDetailData = []; // 현재 모달에 표시 중인 지점의 전체 데이터
+        let currentDetailFilter = 'all'; // 현재 필터 상태
 
         // 데이터 로드
         async function loadData() {
@@ -870,16 +926,22 @@
                     row.station_id === stationId && row.observation_type === observationType
                 );
 
-                // 누락된 데이터 찾기 (선택된 필드가 모두 true가 아닌 경우)
-                const missingData = stationData.filter(row => {
-                    return !selectedFields.every(field => row[field] === true);
+                // 시간순 정렬
+                stationData.sort((a, b) => new Date(b.request_time) - new Date(a.request_time));
+
+                // 전역 변수에 저장
+                currentDetailData = stationData.map(row => {
+                    const isComplete = selectedFields.every(field => row[field] === true);
+                    return { ...row, isComplete };
                 });
 
-                // 요약 정보 표시
+                // 통계 계산
                 const totalRecords = stationData.length;
-                const completeRecords = totalRecords - missingData.length;
+                const completeRecords = currentDetailData.filter(d => d.isComplete).length;
+                const missingRecords = totalRecords - completeRecords;
                 const coverage = totalRecords > 0 ? (completeRecords / totalRecords * 100).toFixed(2) : 0;
 
+                // 요약 정보 표시
                 modalSummary.innerHTML = `
                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
                         <div>
@@ -892,58 +954,27 @@
                         </div>
                         <div>
                             <strong>완전한 데이터</strong><br>
-                            ${completeRecords}개
+                            <span style="color: #28a745; font-weight: bold;">${completeRecords}개</span>
                         </div>
                         <div>
-                            <strong>커버리지</strong><br>
-                            <span style="color: #667eea; font-weight: bold;">${coverage}%</span>
+                            <strong>누락된 데이터</strong><br>
+                            <span style="color: #ff9800; font-weight: bold;">${missingRecords}개</span>
                         </div>
                     </div>
                     <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
                         <strong>분석 항목:</strong> ${selectedFields.map(f => fieldLabels[f]).join(', ')}
+                        <span style="margin-left: 20px; color: #667eea; font-weight: bold;">커버리지: ${coverage}%</span>
                     </div>
                 `;
 
-                // 누락된 시간대 테이블 렌더링
-                if (missingData.length === 0) {
-                    detailTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #28a745;">🎉 선택한 항목에 대해 모든 시간대에 데이터가 있습니다!</td></tr>';
-                } else {
-                    // 시간순 정렬
-                    missingData.sort((a, b) => new Date(b.request_time) - new Date(a.request_time));
+                // 카운트 업데이트
+                document.getElementById('countAll').textContent = totalRecords;
+                document.getElementById('countMissing').textContent = missingRecords;
+                document.getElementById('countComplete').textContent = completeRecords;
 
-                    detailTableBody.innerHTML = missingData.map(row => {
-                        const requestTime = new Date(row.request_time);
-                        const requestTimeStr = requestTime.toLocaleString('ko-KR', {
-                            timeZone: 'Asia/Seoul',
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        });
-
-                        // 누락된 항목 찾기
-                        const missingItems = selectedFields.filter(field => !row[field]);
-                        const missingLabels = missingItems.map(field =>
-                            `<span class="missing-tag">${fieldLabels[field]}</span>`
-                        ).join(' ');
-
-                        // 출처 표시
-                        const isMissing = row.raw_line && row.raw_line.includes('[MISSING]');
-                        const source = isMissing
-                            ? '<span style="color: #ff9800; font-weight: bold;">⚠️ API 누락</span>'
-                            : '<span style="color: #667eea;">API 정상</span>';
-
-                        return `
-                            <tr>
-                                <td>${requestTimeStr}</td>
-                                <td>${row.observation_time_kst || '-'}</td>
-                                <td>${missingLabels || '<span style="color: #28a745;">완전</span>'}</td>
-                                <td>${source}</td>
-                            </tr>
-                        `;
-                    }).join('');
-                }
+                // 현재 필터로 테이블 렌더링
+                currentDetailFilter = 'all';
+                renderDetailTable(selectedFields, fieldLabels);
 
             } catch (error) {
                 console.error('Error loading station detail:', error);
@@ -952,6 +983,97 @@
             } finally {
                 modalLoading.style.display = 'none';
             }
+        }
+
+        // 상세 데이터 테이블 렌더링
+        function renderDetailTable(selectedFields, fieldLabels) {
+            const detailTableBody = document.getElementById('detailTableBody');
+
+            // 필터 적용
+            let filteredData = currentDetailData;
+            if (currentDetailFilter === 'missing') {
+                filteredData = currentDetailData.filter(d => !d.isComplete);
+            } else if (currentDetailFilter === 'complete') {
+                filteredData = currentDetailData.filter(d => d.isComplete);
+            }
+
+            // 필터 버튼 활성화 상태 업데이트
+            document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`filter${currentDetailFilter.charAt(0).toUpperCase() + currentDetailFilter.slice(1)}`).classList.add('active');
+
+            if (filteredData.length === 0) {
+                let message = '데이터가 없습니다.';
+                if (currentDetailFilter === 'missing') {
+                    message = '🎉 누락된 데이터가 없습니다. 모든 시간대에 완전한 데이터가 있습니다!';
+                } else if (currentDetailFilter === 'complete') {
+                    message = '완전한 데이터가 없습니다. 모든 시간대에 누락된 항목이 있습니다.';
+                }
+                detailTableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 30px; color: #28a745;">${message}</td></tr>`;
+                return;
+            }
+
+            detailTableBody.innerHTML = filteredData.map(row => {
+                const requestTime = new Date(row.request_time);
+                const requestTimeStr = requestTime.toLocaleString('ko-KR', {
+                    timeZone: 'Asia/Seoul',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // 데이터 상태 표시
+                let statusHtml = '';
+                if (row.isComplete) {
+                    statusHtml = '<span class="complete-tag">✓ 완전</span>';
+                } else {
+                    // 누락된 항목 찾기
+                    const missingItems = selectedFields.filter(field => !row[field]);
+                    const missingLabels = missingItems.map(field =>
+                        `<span class="missing-tag">${fieldLabels[field]}</span>`
+                    ).join(' ');
+                    statusHtml = missingLabels;
+                }
+
+                // 출처 표시
+                const isMissing = row.raw_line && row.raw_line.includes('[MISSING]');
+                const source = isMissing
+                    ? '<span style="color: #ff9800; font-weight: bold;">⚠️ API 누락</span>'
+                    : '<span style="color: #667eea;">API 정상</span>';
+
+                // 행 클래스 (배경색)
+                const rowClass = row.isComplete ? 'detail-row-complete' : 'detail-row-missing';
+
+                return `
+                    <tr class="${rowClass}">
+                        <td>${requestTimeStr}</td>
+                        <td>${row.observation_time_kst || '-'}</td>
+                        <td>${statusHtml}</td>
+                        <td>${source}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 필터 변경
+        function filterDetailData(filterType) {
+            currentDetailFilter = filterType;
+
+            // 선택된 필드 가져오기
+            const selectedFields = getSelectedFields();
+            const fieldLabels = {
+                'significant_wave_height_available': '파고',
+                'wind_direction_available': '풍향',
+                'wind_speed_available': '풍속',
+                'gust_wind_speed_available': '돌풍',
+                'water_temperature_available': '수온',
+                'air_temperature_available': '기온',
+                'pressure_available': '기압',
+                'humidity_available': '습도'
+            };
+
+            renderDetailTable(selectedFields, fieldLabels);
         }
 
         // 모달 닫기
