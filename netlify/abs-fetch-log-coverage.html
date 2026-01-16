@@ -271,6 +271,90 @@
             border-radius: 10px;
             margin-bottom: 20px;
         }
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 3% auto;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1200px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s;
+        }
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-header {
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .modal-close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .modal-close:hover {
+            color: #f1f1f1;
+        }
+        .modal-body {
+            padding: 30px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .btn-detail {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-detail:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+        .missing-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            margin: 2px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            background: #ff9800;
+            color: white;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -397,16 +481,56 @@
                             <th>기간 내 총 요청 (횟수)</th>
                             <th>커버리지 (%)</th>
                             <th>품질 등급</th>
+                            <th>상세보기</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="8" style="text-align: center; padding: 40px;">
+                            <td colspan="9" style="text-align: center; padding: 40px;">
                                 기간을 선택하고 "분석 실행" 버튼을 클릭하세요
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상세 정보 모달 -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">상세 정보</h2>
+                <span class="modal-close" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="modalLoading" class="loading" style="display: none;">
+                    데이터를 불러오는 중...
+                </div>
+                <div id="modalError" class="error" style="display: none;"></div>
+
+                <!-- 요약 정보 -->
+                <div id="modalSummary" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                </div>
+
+                <!-- 누락된 시간대 목록 -->
+                <div id="missingDataSection">
+                    <h3 style="margin-bottom: 15px;">🚫 누락된 시간대</h3>
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table id="detailTable" style="font-size: 0.9em;">
+                            <thead>
+                                <tr>
+                                    <th>요청 시간</th>
+                                    <th>관측 시간 (KST)</th>
+                                    <th>누락 항목</th>
+                                    <th>출처</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -425,6 +549,11 @@
 
         document.getElementById('dateFrom').valueAsDate = sevenDaysAgo;
         document.getElementById('dateTo').valueAsDate = today;
+
+        // 전역 변수: 상세 정보 조회용
+        let currentAllData = [];
+        let currentDateFrom = '';
+        let currentDateTo = '';
 
         // 데이터 로드
         async function loadData() {
@@ -490,6 +619,11 @@
                 const uniqueTimes = new Set(data.map(d => d.request_time));
                 console.log('유니크한 request_time 수:', uniqueTimes.size);
                 console.log('request_time 목록:', Array.from(uniqueTimes).sort());
+
+                // 전역 변수에 저장 (상세 정보 조회용)
+                currentAllData = data;
+                currentDateFrom = dateFrom;
+                currentDateTo = dateTo;
 
                 // 데이터 분석
                 const analysis = analyzeData(data, minCoverage);
@@ -628,11 +762,11 @@
             const tbody = document.getElementById('tableBody');
 
             if (!stations || stations.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">조건에 맞는 데이터가 없습니다</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px;">조건에 맞는 데이터가 없습니다</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = stations.map(station => {
+            tbody.innerHTML = stations.map((station, index) => {
                 const coverageClass = station.quality === 'perfect' ? '' :
                                      station.quality === 'high' ? 'medium' : 'low';
 
@@ -651,11 +785,16 @@
                         <td>${station.longitude != null ? station.longitude.toFixed(4) : '-'}</td>
                         <td>${station.totalCount}</td>
                         <td>
-                            <strong>${station.completeCount} / ${station.totalCount}</strong>
+                            <strong>${station.completeCount} / ${station.totalRequests}</strong>
                             <span style="color: #666; margin-left: 10px;">(${station.coverage.toFixed(2)}%)</span>
                         </td>
                         <td>
                             <span class="quality-badge ${qualityClass}">${qualityLabel}</span>
+                        </td>
+                        <td>
+                            <button class="btn-detail" onclick="showStationDetail(${station.station_id}, '${station.observation_type}', '${station.station_name}')">
+                                📊 상세보기
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -684,7 +823,7 @@
             document.getElementById('check_humidity').checked = false;
 
             // 테이블 초기화
-            document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">기간을 선택하고 "분석 실행" 버튼을 클릭하세요</td></tr>';
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px;">기간을 선택하고 "분석 실행" 버튼을 클릭하세요</td></tr>';
 
             // 통계 초기화
             document.getElementById('totalStations').textContent = '-';
@@ -694,6 +833,139 @@
             document.getElementById('missingRate').textContent = '-';
             document.getElementById('missingRate').style.color = '#ff9800';
         }
+
+        // 상세 정보 모달 표시
+        async function showStationDetail(stationId, observationType, stationName) {
+            const modal = document.getElementById('detailModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSummary = document.getElementById('modalSummary');
+            const modalLoading = document.getElementById('modalLoading');
+            const modalError = document.getElementById('modalError');
+            const detailTableBody = document.getElementById('detailTableBody');
+
+            // 모달 표시
+            modal.style.display = 'block';
+            modalTitle.textContent = `${stationName} (${stationId}) - ${observationType}`;
+            modalLoading.style.display = 'block';
+            modalError.style.display = 'none';
+            modalSummary.innerHTML = '';
+            detailTableBody.innerHTML = '';
+
+            try {
+                // 선택된 필드 가져오기
+                const selectedFields = getSelectedFields();
+                const fieldLabels = {
+                    'significant_wave_height_available': '파고',
+                    'wind_direction_available': '풍향',
+                    'wind_speed_available': '풍속',
+                    'gust_wind_speed_available': '돌풍',
+                    'water_temperature_available': '수온',
+                    'air_temperature_available': '기온',
+                    'pressure_available': '기압',
+                    'humidity_available': '습도'
+                };
+
+                // 해당 지점의 데이터 필터링
+                const stationData = currentAllData.filter(row =>
+                    row.station_id === stationId && row.observation_type === observationType
+                );
+
+                // 누락된 데이터 찾기 (선택된 필드가 모두 true가 아닌 경우)
+                const missingData = stationData.filter(row => {
+                    return !selectedFields.every(field => row[field] === true);
+                });
+
+                // 요약 정보 표시
+                const totalRecords = stationData.length;
+                const completeRecords = totalRecords - missingData.length;
+                const coverage = totalRecords > 0 ? (completeRecords / totalRecords * 100).toFixed(2) : 0;
+
+                modalSummary.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                        <div>
+                            <strong>분석 기간</strong><br>
+                            ${currentDateFrom} ~ ${currentDateTo}
+                        </div>
+                        <div>
+                            <strong>총 레코드</strong><br>
+                            ${totalRecords}개
+                        </div>
+                        <div>
+                            <strong>완전한 데이터</strong><br>
+                            ${completeRecords}개
+                        </div>
+                        <div>
+                            <strong>커버리지</strong><br>
+                            <span style="color: #667eea; font-weight: bold;">${coverage}%</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                        <strong>분석 항목:</strong> ${selectedFields.map(f => fieldLabels[f]).join(', ')}
+                    </div>
+                `;
+
+                // 누락된 시간대 테이블 렌더링
+                if (missingData.length === 0) {
+                    detailTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px; color: #28a745;">🎉 선택한 항목에 대해 모든 시간대에 데이터가 있습니다!</td></tr>';
+                } else {
+                    // 시간순 정렬
+                    missingData.sort((a, b) => new Date(b.request_time) - new Date(a.request_time));
+
+                    detailTableBody.innerHTML = missingData.map(row => {
+                        const requestTime = new Date(row.request_time);
+                        const requestTimeStr = requestTime.toLocaleString('ko-KR', {
+                            timeZone: 'Asia/Seoul',
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        // 누락된 항목 찾기
+                        const missingItems = selectedFields.filter(field => !row[field]);
+                        const missingLabels = missingItems.map(field =>
+                            `<span class="missing-tag">${fieldLabels[field]}</span>`
+                        ).join(' ');
+
+                        // 출처 표시
+                        const isMissing = row.raw_line && row.raw_line.includes('[MISSING]');
+                        const source = isMissing
+                            ? '<span style="color: #ff9800; font-weight: bold;">⚠️ API 누락</span>'
+                            : '<span style="color: #667eea;">API 정상</span>';
+
+                        return `
+                            <tr>
+                                <td>${requestTimeStr}</td>
+                                <td>${row.observation_time_kst || '-'}</td>
+                                <td>${missingLabels || '<span style="color: #28a745;">완전</span>'}</td>
+                                <td>${source}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+
+            } catch (error) {
+                console.error('Error loading station detail:', error);
+                modalError.textContent = `상세 정보 로드 실패: ${error.message}`;
+                modalError.style.display = 'block';
+            } finally {
+                modalLoading.style.display = 'none';
+            }
+        }
+
+        // 모달 닫기
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeDetailModal();
+            }
+        };
 
         // 엔터키로 검색
         document.querySelectorAll('.filter-group input, .filter-group select').forEach(element => {
