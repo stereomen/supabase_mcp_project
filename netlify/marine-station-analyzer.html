@@ -734,8 +734,13 @@
         // 데이터 분석
         function analyzeData(data, startDate, endDate, station) {
             // 예상 시간 수 계산 (매시간 크론 실행 가정)
-            const totalHours = Math.ceil((endDate - startDate) / (1000 * 60 * 60));
-            const providedHours = data.length;
+            // 날짜 범위의 전체 일수를 계산 (종료일 포함)
+            const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            const totalHours = daysDiff * 24;
+
+            // 실제 제공된 고유 시간 수 계산 (중복 제거)
+            const uniqueTimes = new Set(data.map(row => row.request_time));
+            const providedHours = uniqueTimes.size;
             const missingHours = totalHours - providedHours;
             const coverageRate = totalHours > 0 ? (providedHours / totalHours * 100) : 0;
 
@@ -757,22 +762,32 @@
                 });
             });
 
-            // 일별 커버리지 계산
+            // 일별 커버리지 계산 (시간별 중복 제거)
             const dailyCoverage = {};
+            const dailyTimeSet = {}; // 날짜별 고유 시간 추적
+
             data.forEach(row => {
                 const date = row.request_time.substring(0, 10);
+                const dateTime = row.request_time; // 전체 타임스탬프
+
                 if (!dailyCoverage[date]) {
                     dailyCoverage[date] = { total: 0, complete: 0 };
+                    dailyTimeSet[date] = new Set();
                 }
-                dailyCoverage[date].total++;
 
-                // 완전한 데이터 판단 (주요 항목이 있으면)
-                const hasData = row.significant_wave_height_available ||
-                               row.water_temperature_available ||
-                               row.air_temperature_available ||
-                               row.wind_speed_available;
-                if (hasData) {
-                    dailyCoverage[date].complete++;
+                // 중복되지 않은 시간만 카운트
+                if (!dailyTimeSet[date].has(dateTime)) {
+                    dailyTimeSet[date].add(dateTime);
+                    dailyCoverage[date].total++;
+
+                    // 완전한 데이터 판단 (주요 항목이 있으면)
+                    const hasData = row.significant_wave_height_available ||
+                                   row.water_temperature_available ||
+                                   row.air_temperature_available ||
+                                   row.wind_speed_available;
+                    if (hasData) {
+                        dailyCoverage[date].complete++;
+                    }
                 }
             });
 
