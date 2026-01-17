@@ -285,10 +285,13 @@
         }
         .modal-content {
             background-color: white;
-            margin: 3% auto;
+            margin: 1% auto;
             border-radius: 15px;
-            width: 90%;
-            max-width: 1200px;
+            width: 95%;
+            max-width: 1400px;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             animation: slideDown 0.3s;
         }
@@ -303,17 +306,18 @@
             }
         }
         .modal-header {
-            padding: 20px 30px;
+            padding: 15px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 15px 15px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
         .modal-header h2 {
             margin: 0;
-            font-size: 1.5em;
+            font-size: 1.3em;
         }
         .modal-close {
             color: white;
@@ -326,9 +330,10 @@
             color: #f1f1f1;
         }
         .modal-body {
-            padding: 30px;
-            max-height: 70vh;
+            padding: 15px 20px 20px 20px;
             overflow-y: auto;
+            flex: 1;
+            min-height: 0;
         }
         .btn-detail {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -366,12 +371,12 @@
             font-weight: 500;
         }
         .btn-filter {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border: 2px solid #ddd;
             background: white;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: 500;
             transition: all 0.3s;
         }
@@ -551,12 +556,12 @@
                 <div id="modalError" class="error" style="display: none;"></div>
 
                 <!-- 요약 정보 -->
-                <div id="modalSummary" style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <div id="modalSummary" style="background: #f8f9fa; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9em;">
                 </div>
 
                 <!-- 필터 버튼 -->
-                <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
-                    <strong>필터:</strong>
+                <div style="margin-bottom: 10px; display: flex; gap: 8px; align-items: center;">
+                    <strong style="font-size: 0.9em;">필터:</strong>
                     <button class="btn-filter active" onclick="filterDetailData('all')" id="filterAll">
                         전체 (<span id="countAll">0</span>)
                     </button>
@@ -569,15 +574,15 @@
                 </div>
 
                 <!-- 데이터 목록 -->
-                <div id="missingDataSection">
-                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
-                        <table id="detailTable" style="font-size: 0.9em;">
-                            <thead>
+                <div id="missingDataSection" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+                    <div style="flex: 1; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        <table id="detailTable" style="font-size: 0.85em; width: 100%;">
+                            <thead style="position: sticky; top: 0; z-index: 10;">
                                 <tr>
-                                    <th>요청 시간</th>
-                                    <th>관측 시간 (KST)</th>
-                                    <th>데이터 상태</th>
-                                    <th>출처</th>
+                                    <th style="padding: 8px;">요청 시간</th>
+                                    <th style="padding: 8px;">관측 시간 (KST)</th>
+                                    <th style="padding: 8px;">데이터 상태</th>
+                                    <th style="padding: 8px;">출처</th>
                                 </tr>
                             </thead>
                             <tbody id="detailTableBody">
@@ -611,6 +616,18 @@
         let currentDetailData = []; // 현재 모달에 표시 중인 지점의 전체 데이터
         let currentDetailFilter = 'all'; // 현재 필터 상태
 
+        // 디버깅용: window 객체에 노출
+        window.debugData = {
+            getCurrentAllData: () => currentAllData,
+            getCurrentDetailData: () => currentDetailData,
+            filterStation: (stationId) => {
+                const filtered = currentAllData.filter(row => row.station_id == stationId);
+                console.log(`Station ${stationId}: ${filtered.length}개`);
+                console.log('날짜별 분포:', [...new Set(filtered.map(r => r.request_time.substring(0, 10)))]);
+                return filtered;
+            }
+        };
+
         // 데이터 로드
         async function loadData() {
             try {
@@ -635,6 +652,10 @@
                 let offset = 0;
                 const limit = 1000;
                 let hasMore = true;
+                let pageNum = 1;
+
+                console.log(`📊 데이터 로드 시작: ${dateFrom} ~ ${dateTo}`);
+                console.log(`⚙️ 필터: observation_type=${observationType || 'all'}`);
 
                 while (hasMore) {
                     let url = `${SUPABASE_CONFIG.url}/rest/v1/abs_fetch_log?select=*&request_time=gte.${startDate.toISOString()}&request_time=lte.${endDate.toISOString()}&limit=${limit}&offset=${offset}`;
@@ -643,7 +664,7 @@
                         url += `&observation_type=eq.${observationType}`;
                     }
 
-                    console.log(`페이지 ${Math.floor(offset / limit) + 1} 조회 중... (offset: ${offset})`);
+                    console.log(`📄 페이지 ${pageNum} 조회 중... (offset: ${offset}, limit: ${limit})`);
 
                     const response = await fetch(url, {
                         headers: {
@@ -653,20 +674,32 @@
                     });
 
                     if (!response.ok) {
+                        console.error(`❌ HTTP error! status: ${response.status}`);
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
 
                     const pageData = await response.json();
+
+                    if (!Array.isArray(pageData)) {
+                        console.error('❌ 응답이 배열이 아닙니다:', pageData);
+                        throw new Error('Invalid response format');
+                    }
+
                     allData = allData.concat(pageData);
 
-                    console.log(`- 이번 페이지: ${pageData.length}개, 누적: ${allData.length}개`);
+                    console.log(`   ✅ 페이지 ${pageNum}: ${pageData.length}개 조회, 총 누적: ${allData.length}개`);
 
                     if (pageData.length < limit) {
                         hasMore = false;
+                        console.log(`✔️ 마지막 페이지 도달 (조회된 데이터: ${pageData.length}개 < ${limit}개)`);
                     } else {
                         offset += limit;
+                        pageNum++;
                     }
                 }
+
+                console.log(`🎉 전체 데이터 로드 완료: 총 ${allData.length}개 레코드`);
+                console.log(`📊 유니크 지점 수: ${new Set(allData.map(d => `${d.station_id}_${d.observation_type}`)).size}개`);
 
                 const data = allData;
                 console.log('조회 기간:', `${dateFrom} 00:00:00 ~ ${dateTo} 23:59:59 (UTC)`);
@@ -921,10 +954,45 @@
                     'humidity_available': '습도'
                 };
 
-                // 해당 지점의 데이터 필터링
-                const stationData = currentAllData.filter(row =>
-                    row.station_id === stationId && row.observation_type === observationType
-                );
+                console.log(`🔍 [MODAL DEBUG] showStationDetail 호출됨`);
+                console.log(`   - stationId: ${stationId} (type: ${typeof stationId})`);
+                console.log(`   - observationType: ${observationType}`);
+                console.log(`   - currentAllData.length: ${currentAllData.length}개`);
+                console.log(`   - currentDateFrom: ${currentDateFrom}`);
+                console.log(`   - currentDateTo: ${currentDateTo}`);
+
+                // 먼저 station_id만으로 필터링
+                const stationIdOnly = currentAllData.filter(row => row.station_id == stationId);
+                console.log(`   - station_id=${stationId}만 필터링: ${stationIdOnly.length}개`);
+
+                if (stationIdOnly.length > 0) {
+                    const obsTypes = [...new Set(stationIdOnly.map(r => r.observation_type))];
+                    console.log(`   - 해당 station_id의 observation_type 종류:`, obsTypes);
+
+                    const dates = [...new Set(stationIdOnly.map(r => r.request_time.substring(0, 10)))].sort();
+                    console.log(`   - 날짜 분포:`, dates);
+                }
+
+                // 해당 지점의 데이터 필터링 (타입 불일치 방지를 위해 == 사용)
+                const stationData = currentAllData.filter(row => {
+                    const idMatch = row.station_id == stationId; // == 사용으로 타입 무시
+                    const typeMatch = row.observation_type === observationType;
+                    return idMatch && typeMatch;
+                });
+
+                console.log(`   - station_id + observationType 필터링: ${stationData.length}개`);
+
+                // 샘플 데이터 타입 확인
+                if (currentAllData.length > 0) {
+                    const sample = currentAllData[0];
+                    console.log(`   - currentAllData[0].station_id type: ${typeof sample.station_id}`);
+                }
+
+                if (stationData.length === 0) {
+                    console.warn(`⚠️ 필터링된 데이터가 0개입니다! 타입 불일치 또는 데이터 누락 의심`);
+                    console.log(`   - currentAllData에 있는 고유 station_id 목록:`,
+                        [...new Set(currentAllData.map(r => `${r.station_id} (${typeof r.station_id})`))].slice(0, 10));
+                }
 
                 // 시간순 정렬
                 stationData.sort((a, b) => new Date(b.request_time) - new Date(a.request_time));
@@ -943,27 +1011,27 @@
 
                 // 요약 정보 표시
                 modalSummary.innerHTML = `
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 8px;">
                         <div>
-                            <strong>분석 기간</strong><br>
-                            ${currentDateFrom} ~ ${currentDateTo}
+                            <strong style="font-size: 0.85em;">분석 기간</strong><br>
+                            <span style="font-size: 0.9em;">${currentDateFrom} ~ ${currentDateTo}</span>
                         </div>
                         <div>
-                            <strong>총 레코드</strong><br>
-                            ${totalRecords}개
+                            <strong style="font-size: 0.85em;">총 레코드</strong><br>
+                            <span style="font-size: 0.9em;">${totalRecords}개</span>
                         </div>
                         <div>
-                            <strong>완전한 데이터</strong><br>
-                            <span style="color: #28a745; font-weight: bold;">${completeRecords}개</span>
+                            <strong style="font-size: 0.85em;">완전한 데이터</strong><br>
+                            <span style="color: #28a745; font-weight: bold; font-size: 0.9em;">${completeRecords}개</span>
                         </div>
                         <div>
-                            <strong>누락된 데이터</strong><br>
-                            <span style="color: #ff9800; font-weight: bold;">${missingRecords}개</span>
+                            <strong style="font-size: 0.85em;">누락된 데이터</strong><br>
+                            <span style="color: #ff9800; font-weight: bold; font-size: 0.9em;">${missingRecords}개</span>
                         </div>
                     </div>
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                    <div style="padding-top: 8px; border-top: 1px solid #ddd; font-size: 0.85em;">
                         <strong>분석 항목:</strong> ${selectedFields.map(f => fieldLabels[f]).join(', ')}
-                        <span style="margin-left: 20px; color: #667eea; font-weight: bold;">커버리지: ${coverage}%</span>
+                        <span style="margin-left: 15px; color: #667eea; font-weight: bold;">커버리지: ${coverage}%</span>
                     </div>
                 `;
 
@@ -989,6 +1057,10 @@
         function renderDetailTable(selectedFields, fieldLabels) {
             const detailTableBody = document.getElementById('detailTableBody');
 
+            console.log(`🎨 [RENDER DEBUG] renderDetailTable 호출됨`);
+            console.log(`   - currentDetailData.length: ${currentDetailData.length}개`);
+            console.log(`   - currentDetailFilter: ${currentDetailFilter}`);
+
             // 필터 적용
             let filteredData = currentDetailData;
             if (currentDetailFilter === 'missing') {
@@ -996,6 +1068,8 @@
             } else if (currentDetailFilter === 'complete') {
                 filteredData = currentDetailData.filter(d => d.isComplete);
             }
+
+            console.log(`   - filteredData.length: ${filteredData.length}개`);
 
             // 필터 버튼 활성화 상태 업데이트
             document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
@@ -1023,32 +1097,32 @@
                     minute: '2-digit'
                 });
 
-                // 데이터 상태 표시 - 모든 항목을 ✅/❌로 표시
+                // 데이터 상태 표시 - 모든 항목을 ✅/❌로 표시 (더 컴팩트하게)
                 const statusParts = selectedFields.map(field => {
                     const label = fieldLabels[field];
                     if (row[field]) {
-                        return `<span style="color: #28a745; font-weight: 500;">${label} ✅</span>`;
+                        return `<span style="color: #28a745; font-weight: 500; font-size: 0.9em;">${label}✅</span>`;
                     } else {
-                        return `<span style="color: #dc3545; font-weight: 500;">${label} ❌</span>`;
+                        return `<span style="color: #dc3545; font-weight: 500; font-size: 0.9em;">${label}❌</span>`;
                     }
                 });
-                const statusHtml = statusParts.join('  ');
+                const statusHtml = statusParts.join(' ');
 
                 // 출처 표시
                 const isMissing = row.raw_line && row.raw_line.includes('[MISSING]');
                 const source = isMissing
-                    ? '<span style="color: #ff9800; font-weight: bold;">⚠️ API 누락</span>'
-                    : '<span style="color: #667eea;">API 정상</span>';
+                    ? '<span style="color: #ff9800; font-weight: 600; font-size: 0.85em;">⚠️ 누락</span>'
+                    : '<span style="color: #667eea; font-size: 0.85em;">정상</span>';
 
                 // 행 클래스 (배경색)
                 const rowClass = row.isComplete ? 'detail-row-complete' : 'detail-row-missing';
 
                 return `
                     <tr class="${rowClass}">
-                        <td>${requestTimeStr}</td>
-                        <td>${row.observation_time_kst || '-'}</td>
-                        <td>${statusHtml}</td>
-                        <td>${source}</td>
+                        <td style="padding: 6px 8px;">${requestTimeStr}</td>
+                        <td style="padding: 6px 8px;">${row.observation_time_kst || '-'}</td>
+                        <td style="padding: 6px 8px;">${statusHtml}</td>
+                        <td style="padding: 6px 8px;">${source}</td>
                     </tr>
                 `;
             }).join('');
