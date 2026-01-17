@@ -733,10 +733,10 @@
 
         // 데이터 분석
         function analyzeData(data, startDate, endDate, station) {
-            // 예상 시간 수 계산 (매시간 크론 실행 가정)
+            // 예상 데이터 수 계산 (기상청 해상관측정보 API: 매시 정시/30분 2회 제공)
             // 날짜 범위의 전체 일수를 계산 (종료일 포함)
             const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-            const totalHours = daysDiff * 24;
+            const totalHours = daysDiff * 24 * 2; // 하루 48회 (24시간 × 2회/시간)
 
             // 실제 제공된 고유 시간 수 계산 (중복 제거)
             const uniqueTimes = new Set(data.map(row => row.request_time));
@@ -795,8 +795,8 @@
             const providedTimes = new Set(data.map(d => d.request_time));
             const missingTimes = [];
 
-            // 시간별로 체크 (간단히 데이터가 없는 시간대만 표시)
-            // 실제로는 크론 실행 시간에 맞춰 체크해야 하지만, 여기서는 간략화
+            // 시간별로 체크 (기상청 API: 매시 정시/30분 제공)
+            // 실제로는 정시와 30분 시간대별로 체크해야 하지만, 여기서는 전체 누락 수만 계산
 
             return {
                 totalHours,
@@ -849,7 +849,7 @@
             const timelineHtml = Object.entries(analysis.dailyCoverage)
                 .sort((a, b) => a[0].localeCompare(b[0]))
                 .map(([date, data]) => {
-                    const percentage = (data.complete / 24 * 100);
+                    const percentage = (data.complete / 48 * 100); // 하루 48회 기준 (정시 + 30분)
                     let fillClass = 'timeline-fill';
                     if (percentage < 50) fillClass += ' empty';
                     else if (percentage < 90) fillClass += ' partial';
@@ -871,8 +871,8 @@
 
             // 누락 정보
             document.getElementById('missingTimes').innerHTML = analysis.missingHours > 0
-                ? `<div class="missing-time-item">총 ${analysis.missingHours}회의 데이터가 누락되었습니다. (예상 크론 실행 대비)</div>`
-                : '<div style="color: #28a745; font-weight: bold; text-align: center; padding: 20px;">✅ 모든 시간대에 데이터가 있습니다!</div>';
+                ? `<div class="missing-time-item">총 ${analysis.missingHours}회의 데이터가 누락되었습니다. (기상청 API 제공 기준: 매시 정시/30분)</div>`
+                : '<div style="color: #28a745; font-weight: bold; text-align: center; padding: 20px;">✅ 모든 시간대에 데이터가 있습니다! (매시 정시/30분 완전 수집)</div>';
 
             // 조석관측소 매칭 - 가장 가까운 조석관측소 찾기
             const tidesWithDistance = TIDE_STATIONS.map(tide => ({
