@@ -163,6 +163,13 @@
             grid-template-columns: 120px 1fr;
             gap: 10px;
             align-items: center;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        .timeline-row:hover {
+            background: #f0f0f0;
         }
         .timeline-label {
             font-size: 0.85em;
@@ -254,6 +261,101 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
+        }
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid #888;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            margin: 0;
+        }
+        .modal-close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            opacity: 0.7;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .hourly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .hourly-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            background: white;
+        }
+        .hourly-item.has-data {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        .hourly-item.no-data {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+        .hourly-time {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .hourly-fields {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            font-size: 0.75em;
+        }
+        .field-tag {
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: #e3f2fd;
+            color: #1976d2;
+            white-space: nowrap;
+        }
+        .no-data-text {
+            color: #999;
+            font-size: 0.9em;
+            font-style: italic;
         }
         table {
             width: 100%;
@@ -615,9 +717,25 @@
                 </div>
             </div>
         </div>
+
+        <!-- 일별 상세 데이터 모달 -->
+        <div id="dailyDetailModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">일별 상세 데이터</h2>
+                    <button class="modal-close" onclick="closeDailyDetailModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalBody"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // 전역 변수로 분석 데이터 저장
+        let currentAnalysisData = null;
+        let currentRawData = null;
         // 날짜 필터 초기값 설정
         const today = new Date();
         const sevenDaysAgo = new Date(today);
@@ -716,8 +834,12 @@
                     throw new Error('선택한 기간에 데이터가 없습니다.');
                 }
 
+                // 원본 데이터 저장 (모달에서 사용)
+                currentRawData = allData;
+
                 // 데이터 분석
                 const analysis = analyzeData(allData, startDate, endDate, station);
+                currentAnalysisData = analysis;
 
                 // 결과 표시
                 displayResults(analysis, station);
@@ -855,7 +977,7 @@
                     else if (percentage < 90) fillClass += ' partial';
 
                     return `
-                        <div class="timeline-row">
+                        <div class="timeline-row" onclick="showDailyDetail('${date}')" title="클릭하여 30분 단위 상세 데이터 보기">
                             <div class="timeline-label">${date}</div>
                             <div class="timeline-bar">
                                 <div class="${fillClass}" style="width: ${percentage}%"></div>
@@ -956,6 +1078,104 @@
             document.getElementById('stationType').value = 'A';
             updateStationList();
             document.getElementById('results').style.display = 'none';
+        }
+
+        // 일별 상세 데이터 모달 표시
+        function showDailyDetail(date) {
+            if (!currentRawData) {
+                alert('데이터가 없습니다.');
+                return;
+            }
+
+            // 데이터 필드 라벨
+            const fieldLabels = {
+                'significant_wave_height_available': '파고',
+                'wind_direction_available': '풍향',
+                'wind_speed_available': '풍속',
+                'gust_wind_speed_available': '돌풍',
+                'water_temperature_available': '수온',
+                'air_temperature_available': '기온',
+                'pressure_available': '기압',
+                'humidity_available': '습도'
+            };
+
+            // 해당 날짜의 데이터 필터링
+            const dateData = currentRawData.filter(row => row.request_time.startsWith(date));
+
+            // 시간별 데이터 맵 생성 (request_time을 키로)
+            const timeDataMap = {};
+            dateData.forEach(row => {
+                const time = row.request_time.substring(11, 16); // HH:MM 추출
+                timeDataMap[time] = row;
+            });
+
+            // 00:00부터 23:30까지 48개 시간대 생성
+            const allTimes = [];
+            for (let hour = 0; hour < 24; hour++) {
+                for (let minute of [0, 30]) {
+                    const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                    allTimes.push(timeStr);
+                }
+            }
+
+            // HTML 생성
+            let html = `
+                <p style="color: #666; margin-bottom: 15px;">
+                    총 <strong>${allTimes.length}개</strong> 시간대 중 <strong>${Object.keys(timeDataMap).length}개</strong> 시간대에 데이터가 있습니다.
+                    (커버리지: <strong>${(Object.keys(timeDataMap).length / allTimes.length * 100).toFixed(1)}%</strong>)
+                </p>
+                <div class="hourly-grid">
+            `;
+
+            allTimes.forEach(time => {
+                const rowData = timeDataMap[time];
+                const hasData = !!rowData;
+                const itemClass = hasData ? 'has-data' : 'no-data';
+
+                html += `
+                    <div class="hourly-item ${itemClass}">
+                        <div class="hourly-time">${time}</div>
+                `;
+
+                if (hasData) {
+                    // 사용 가능한 데이터 필드 표시
+                    const availableFields = Object.keys(fieldLabels).filter(field => rowData[field]);
+
+                    if (availableFields.length > 0) {
+                        html += '<div class="hourly-fields">';
+                        availableFields.forEach(field => {
+                            html += `<span class="field-tag">${fieldLabels[field]}</span>`;
+                        });
+                        html += '</div>';
+                    } else {
+                        html += '<div class="no-data-text">데이터 필드 없음</div>';
+                    }
+                } else {
+                    html += '<div class="no-data-text">데이터 없음</div>';
+                }
+
+                html += `</div>`;
+            });
+
+            html += '</div>';
+
+            // 모달에 표시
+            document.getElementById('modalTitle').textContent = `${date} 상세 데이터 (30분 단위)`;
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('dailyDetailModal').style.display = 'block';
+        }
+
+        // 모달 닫기
+        function closeDailyDetailModal() {
+            document.getElementById('dailyDetailModal').style.display = 'none';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('dailyDetailModal');
+            if (event.target === modal) {
+                closeDailyDetailModal();
+            }
         }
 
         // iframe 안에서 로드될 때 헤더 숨기기
