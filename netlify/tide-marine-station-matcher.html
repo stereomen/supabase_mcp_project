@@ -984,6 +984,85 @@
             `;
         }
 
+        // 모든 해양관측소 정보를 조회하는 헬퍼 함수
+        function findMarineStationById(stationId) {
+            if (!stationId) return null;
+
+            // analysisResults에서 모든 필드의 후보 관측소 검색
+            for (const stationCode in analysisResults) {
+                const data = analysisResults[stationCode];
+                const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
+
+                for (const field of fields) {
+                    const candidates = data.fieldRecommendations[field]?.candidates || [];
+                    const found = candidates.find(c => c.station_id === stationId);
+                    if (found) {
+                        return {
+                            station_id: found.station_id,
+                            lat: found.lat,
+                            lon: found.lon,
+                            name: found.name
+                        };
+                    }
+                }
+            }
+
+            // station_matching_top5.json에서도 검색
+            for (const tideCode in STATION_MATCHING_DATA) {
+                const tideData = STATION_MATCHING_DATA[tideCode];
+                const found = tideData.nearest_marine_stations?.find(s => s.station_id === stationId);
+                if (found) {
+                    return {
+                        station_id: found.station_id,
+                        lat: found.lat,
+                        lon: found.lon,
+                        name: found.name
+                    };
+                }
+            }
+
+            return null;
+        }
+
+        // STN_ID 입력 시 자동으로 나머지 정보 채우기
+        function autoFillMarineStationInfo(idCell) {
+            const stationId = idCell.textContent.trim();
+            if (!stationId) return;
+
+            const field = idCell.getAttribute('data-field');
+            const row = idCell.parentElement;
+
+            // 해당 관측소 정보 찾기
+            const stationInfo = findMarineStationById(stationId);
+
+            if (stationInfo) {
+                // 같은 field의 lat, lon, name 셀 찾아서 자동 입력
+                const cells = row.querySelectorAll(`td[data-field="${field}"]`);
+
+                for (const cell of cells) {
+                    const column = cell.getAttribute('data-column');
+
+                    if (column === 'lat') {
+                        cell.textContent = stationInfo.lat;
+                        cell.style.background = 'white';
+                    } else if (column === 'lon') {
+                        cell.textContent = stationInfo.lon;
+                        cell.style.background = 'white';
+                    } else if (column === 'name') {
+                        cell.textContent = stationInfo.name;
+                        cell.style.background = 'white';
+                    }
+                }
+
+                // ID 셀 배경도 흰색으로 변경
+                idCell.style.background = 'white';
+
+                console.log(`✓ 관측소 ${stationId} 정보 자동 입력 완료:`, stationInfo);
+            } else {
+                console.warn(`⚠️ 관측소 ${stationId} 정보를 찾을 수 없습니다.`);
+            }
+        }
+
         function updatePreviewTable() {
             const tbody = document.getElementById('previewTableBody');
             tbody.innerHTML = '';
@@ -994,7 +1073,7 @@
 
             summary.innerHTML = `
                 <strong>매칭 현황:</strong> ${mappedStations} / ${totalStations} 개 조석관측소<br>
-                <small>아래 테이블을 확인하고 값을 수정할 수 있습니다. 수정 후 엑셀로 다운로드하거나 Supabase에 업로드하세요.</small>
+                <small>💡 STN_ID를 입력하면 나머지 정보가 자동으로 채워집니다. 값을 수정한 후 엑셀로 다운로드하거나 Supabase에 업로드하세요.</small>
             `;
 
             // 정렬된 조석관측소 목록 생성
@@ -1058,6 +1137,20 @@
                     idCell.setAttribute('data-column', 'id');
                     idCell.style.cursor = 'text';
                     idCell.style.background = stationId ? 'white' : '#fff9c4';
+
+                    // STN_ID 입력 시 자동으로 나머지 정보 채우기
+                    idCell.addEventListener('blur', function() {
+                        autoFillMarineStationInfo(this);
+                    });
+
+                    // Enter 키로도 동작하도록
+                    idCell.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            this.blur();
+                        }
+                    });
+
                     row.appendChild(idCell);
 
                     // 위도 셀 (편집 가능)
