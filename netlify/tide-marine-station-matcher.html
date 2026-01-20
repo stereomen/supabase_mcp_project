@@ -952,16 +952,26 @@
             excelData.push([
                 '조석관측소 코드',
                 '조석관측소명',
-                '수온(wt) 관측소ID',
+                '수온(wt) ID',
                 '수온(wt) 관측소명',
-                '파고(swh) 관측소ID',
+                '수온(wt) 위도',
+                '수온(wt) 경도',
+                '파고(swh) ID',
                 '파고(swh) 관측소명',
-                '풍향(wd) 관측소ID',
+                '파고(swh) 위도',
+                '파고(swh) 경도',
+                '풍향(wd) ID',
                 '풍향(wd) 관측소명',
-                '풍속(ws) 관측소ID',
+                '풍향(wd) 위도',
+                '풍향(wd) 경도',
+                '풍속(ws) ID',
                 '풍속(ws) 관측소명',
-                '기온(at) 관측소ID',
-                '기온(at) 관측소명'
+                '풍속(ws) 위도',
+                '풍속(ws) 경도',
+                '기온(at) ID',
+                '기온(at) 관측소명',
+                '기온(at) 위도',
+                '기온(at) 경도'
             ]);
 
             // 데이터 행
@@ -985,11 +995,17 @@
                         if (selected) {
                             row.push(selected.station_id);
                             row.push(selected.name);
+                            row.push(selected.lat);
+                            row.push(selected.lon);
                         } else {
                             row.push(mappings[field]);
                             row.push('');
+                            row.push('');
+                            row.push('');
                         }
                     } else {
+                        row.push('');
+                        row.push('');
                         row.push('');
                         row.push('');
                     }
@@ -1005,16 +1021,26 @@
             ws['!cols'] = [
                 { wch: 15 }, // 조석관측소 코드
                 { wch: 15 }, // 조석관측소명
-                { wch: 15 }, // wt ID
+                { wch: 12 }, // wt ID
                 { wch: 15 }, // wt 명
-                { wch: 15 }, // swh ID
+                { wch: 12 }, // wt 위도
+                { wch: 12 }, // wt 경도
+                { wch: 12 }, // swh ID
                 { wch: 15 }, // swh 명
-                { wch: 15 }, // wd ID
+                { wch: 12 }, // swh 위도
+                { wch: 12 }, // swh 경도
+                { wch: 12 }, // wd ID
                 { wch: 15 }, // wd 명
-                { wch: 15 }, // ws ID
+                { wch: 12 }, // wd 위도
+                { wch: 12 }, // wd 경도
+                { wch: 12 }, // ws ID
                 { wch: 15 }, // ws 명
-                { wch: 15 }, // at ID
-                { wch: 15 }  // at 명
+                { wch: 12 }, // ws 위도
+                { wch: 12 }, // ws 경도
+                { wch: 12 }, // at ID
+                { wch: 15 }, // at 명
+                { wch: 12 }, // at 위도
+                { wch: 12 }  // at 경도
             ];
 
             const wb = XLSX.utils.book_new();
@@ -1042,13 +1068,48 @@
                 const updates = [];
 
                 for (const [stationCode, fieldMappings] of Object.entries(selectedMappings)) {
-                    const updateData = {
-                        wt_STN_ID: fieldMappings.wt || null,
-                        swh_STN_ID: fieldMappings.swh || null,
-                        wd_STN_ID: fieldMappings.wd || null,
-                        ws_STN_ID: fieldMappings.ws || null,
-                        at_STN_ID: fieldMappings.at || null
+                    const updateData = {};
+                    const stationData = analysisResults[stationCode];
+
+                    // 각 필드별로 선택된 관측소의 상세 정보 추가
+                    const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
+                    const fieldNames = {
+                        wt: '수온',
+                        swh: '파고',
+                        wd: '풍향',
+                        ws: '풍속',
+                        at: '기온'
                     };
+
+                    for (const field of fields) {
+                        if (fieldMappings[field]) {
+                            // 선택된 관측소 정보 찾기
+                            const candidates = stationData.fieldRecommendations[field]?.candidates || [];
+                            const selected = candidates.find(c => c.station_id === fieldMappings[field]);
+
+                            if (selected) {
+                                // station_id, 위도, 경도, 지역명 모두 업데이트
+                                updateData[`${field}_STN_ID`] = selected.station_id;
+                                updateData[`${field}_위도(LAT)`] = selected.lat;
+                                updateData[`${field}_경도(LON)`] = selected.lon;
+                                updateData[`${field}_지역명(한글)`] = selected.name;
+                            } else {
+                                // 선택된 정보를 찾을 수 없는 경우 ID만 업데이트
+                                updateData[`${field}_STN_ID`] = fieldMappings[field];
+                                updateData[`${field}_위도(LAT)`] = null;
+                                updateData[`${field}_경도(LON)`] = null;
+                                updateData[`${field}_지역명(한글)`] = null;
+                            }
+                        } else {
+                            // 선택되지 않은 필드는 null로 설정
+                            updateData[`${field}_STN_ID`] = null;
+                            updateData[`${field}_위도(LAT)`] = null;
+                            updateData[`${field}_경도(LON)`] = null;
+                            updateData[`${field}_지역명(한글)`] = null;
+                        }
+                    }
+
+                    console.log(`Updating ${stationCode}:`, updateData);
 
                     const { error } = await supabaseClient
                         .from('tide_abs_region')
@@ -1060,7 +1121,7 @@
                     updates.push(stationCode);
                 }
 
-                alert(`✅ 업로드 완료!\n${updates.length}개 조석관측소의 해양관측소 매칭 정보가 업데이트되었습니다.`);
+                alert(`✅ 업로드 완료!\n${updates.length}개 조석관측소의 해양관측소 매칭 정보가 업데이트되었습니다.\n\n업데이트된 항목:\n- 관측소 ID\n- 위도\n- 경도\n- 지역명`);
 
             } catch (error) {
                 console.error('업로드 실패:', error);
