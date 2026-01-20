@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>조석관측소 - 해양관측소 매칭 관리</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 20px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        select, input[type="date"] {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        select:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #loadingSpinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .station-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .station-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .station-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .station-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .station-info {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .field-section {
+            margin-bottom: 20px;
+        }
+
+        .field-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .recommendation-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+
+        .recommendation-card.selected {
+            background: #e8f4ff;
+            border-left-color: #11998e;
+        }
+
+        .rec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .rec-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .rec-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .rec-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .select-btn {
+            padding: 6px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .select-btn:hover {
+            background: #5568d3;
+        }
+
+        .select-btn.selected {
+            background: #11998e;
+        }
+
+        .upload-section {
+            position: sticky;
+            bottom: 20px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary {
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #e8f4ff;
+            color: #0066cc;
+            border-left: 4px solid #0066cc;
+        }
+
+        .alert-success {
+            background: #e8f8f5;
+            color: #00a67d;
+            border-left: 4px solid #00a67d;
+        }
+
+        .alert-error {
+            background: #ffe8e8;
+            color: #cc0000;
+            border-left: 4px solid #cc0000;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: gap 0.2s;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        .back-button:hover {
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">← 대시보드로 돌아가기</a>
+    <div class="container">
+        <h1>🌊 조석관측소 - 해양관측소 매칭 관리</h1>
+        <p class="subtitle">abs_fetch_log 데이터를 분석하여 실제 유효한 해양관측소를 매칭합니다</p>
+
+        <div class="control-panel">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tideStationSelect">조석관측소 선택</label>
+                    <select id="tideStationSelect">
+                        <option value="all">전체 조석관측소</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">시작일</label>
+                    <input type="date" id="startDate" value="2026-01-10">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">종료일</label>
+                    <input type="date" id="endDate" value="2026-01-17">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="analyzeAndMatch()">매칭 실행</button>
+        </div>
+
+        <div id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>abs_fetch_log 데이터 분석 중...</p>
+        </div>
+
+        <div id="resultsContainer" class="results-container"></div>
+
+        <div id="uploadSection" class="upload-section" style="display: none;">
+            <h3>📤 Supabase 업로드</h3>
+            <div id="uploadSummary" class="summary"></div>
+            <button class="btn btn-success" onclick="uploadToSupabase()">tide_abs_region 테이블에 업로드</button>
+        </div>
+    </div>
+
+    <script>
+        // Supabase 설정
+        const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+
+        // Supabase 클라이언트 초기화
+        let supabaseClient;
+        try {
+            if (window.supabase && window.supabase.createClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                console.error('Supabase library not loaded');
+            }
+        } catch (error) {
+            console.error('Failed to initialize Supabase client:', error);
+        }
+
+        // 매칭 데이터 (Python 스크립트에서 생성된 JSON을 하드코딩)
+        let STATION_MATCHING_DATA = {};
+        let analysisResults = {};
+
+        // 페이지 로드 시 초기화
+        async function initializePage() {
+            // 매칭 데이터 로드
+            await loadMatchingData();
+
+            // 조석관측소 드롭다운 채우기
+            populateTideStationSelect();
+        }
+
+        async function loadMatchingData() {
+            // JSON 파일에서 매칭 데이터 로드
+            try {
+                const response = await fetch('station_matching_top10.json');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch matching data');
+                }
+                STATION_MATCHING_DATA = await response.json();
+                console.log('매칭 데이터 로드 완료:', Object.keys(STATION_MATCHING_DATA).length, '개 조석관측소');
+            } catch (error) {
+                console.error('매칭 데이터 로드 실패:', error);
+                alert('매칭 데이터를 로드할 수 없습니다. station_matching_top10.json 파일을 확인해주세요.');
+            }
+        }
+
+        function populateTideStationSelect() {
+            const select = document.getElementById('tideStationSelect');
+
+            for (const [code, data] of Object.entries(STATION_MATCHING_DATA)) {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = `${code} - ${data.tide_station_name}`;
+                select.appendChild(option);
+            }
+        }
+
+        async function analyzeAndMatch() {
+            const tideStationCode = document.getElementById('tideStationSelect').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!startDate || !endDate) {
+                alert('시작일과 종료일을 선택해주세요.');
+                return;
+            }
+
+            // UI 상태 변경
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('uploadSection').style.display = 'none';
+
+            try {
+                // 처리할 조석관측소 목록
+                const stationsToProcess = tideStationCode === 'all'
+                    ? Object.keys(STATION_MATCHING_DATA)
+                    : [tideStationCode];
+
+                analysisResults = {};
+
+                for (const stationCode of stationsToProcess) {
+                    const matchingData = STATION_MATCHING_DATA[stationCode];
+
+                    // abs_fetch_log에서 데이터 분석
+                    const analysis = await analyzeAbsFetchLog(
+                        matchingData.nearest_marine_stations,
+                        startDate,
+                        endDate
+                    );
+
+                    analysisResults[stationCode] = {
+                        ...matchingData,
+                        fieldRecommendations: analysis
+                    };
+                }
+
+                // 결과 표시
+                displayResults();
+
+            } catch (error) {
+                console.error('분석 중 오류:', error);
+                alert('데이터 분석 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        async function analyzeAbsFetchLog(marineStations, startDate, endDate) {
+            const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
+            const fieldNames = {
+                wt: '수온 (Water Temperature)',
+                swh: '파고 (Significant Wave Height)',
+                wd: '풍향 (Wind Direction)',
+                ws: '풍속 (Wind Speed)',
+                at: '기온 (Air Temperature)'
+            };
+
+            const recommendations = {};
+
+            for (const field of fields) {
+                // 해당 필드를 제공하는 관측소만 필터
+                const candidateStations = marineStations.filter(station =>
+                    station.provides.includes(field)
+                );
+
+                const stationStats = [];
+
+                // 각 관측소별로 abs_fetch_log 데이터 분석
+                for (const station of candidateStations) {
+                    const stats = await getStationStats(station.station_id, field, startDate, endDate);
+                    stationStats.push({
+                        ...station,
+                        stats: stats
+                    });
+                }
+
+                // 데이터 품질 기준으로 정렬
+                // 1. 유효 데이터 비율 (valid_ratio)
+                // 2. 평균 수집 간격 (avg_interval)
+                // 3. 거리 (distance_km)
+                stationStats.sort((a, b) => {
+                    if (b.stats.valid_ratio !== a.stats.valid_ratio) {
+                        return b.stats.valid_ratio - a.stats.valid_ratio;
+                    }
+                    if (a.stats.avg_interval !== b.stats.avg_interval) {
+                        return a.stats.avg_interval - b.stats.avg_interval;
+                    }
+                    return a.distance_km - b.distance_km;
+                });
+
+                // 상위 2개 추천
+                recommendations[field] = {
+                    field_name: fieldNames[field],
+                    candidates: stationStats.slice(0, 2)
+                };
+            }
+
+            return recommendations;
+        }
+
+        async function getStationStats(stationId, field, startDate, endDate) {
+            try {
+                // observation_time_kst 형식: YYYYMMDDHHMM
+                const startDateStr = startDate.replace(/-/g, '') + '0000';
+                const endDateStr = endDate.replace(/-/g, '') + '2359';
+
+                // Pagination으로 모든 데이터 가져오기 (1000개 제한 회피)
+                let allData = [];
+                let from = 0;
+                const batchSize = 1000;
+                let hasMore = true;
+
+                while (hasMore) {
+                    const { data, error } = await supabaseClient
+                        .from('abs_fetch_log')
+                        .select('observation_time_kst, ' + field)
+                        .eq('station_id', stationId)
+                        .gte('observation_time_kst', startDateStr)
+                        .lte('observation_time_kst', endDateStr)
+                        .order('observation_time_kst', { ascending: true })
+                        .range(from, from + batchSize - 1);
+
+                    if (error) throw error;
+
+                    if (data && data.length > 0) {
+                        allData = allData.concat(data);
+                    }
+
+                    if (!data || data.length < batchSize) {
+                        hasMore = false;
+                    } else {
+                        from += batchSize;
+                    }
+                }
+
+                const data = allData;
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    return {
+                        total_records: 0,
+                        valid_records: 0,
+                        valid_ratio: 0,
+                        avg_interval: null,
+                        data_quality: '데이터 없음'
+                    };
+                }
+
+                // 유효한 데이터 개수 (null이 아닌 값)
+                const validRecords = data.filter(row => row[field] !== null && row[field] !== '').length;
+                const validRatio = (validRecords / data.length * 100).toFixed(1);
+
+                // 평균 수집 간격 계산 (분 단위)
+                let avgInterval = null;
+                if (data.length > 1) {
+                    const intervals = [];
+                    for (let i = 1; i < data.length; i++) {
+                        const prevTime = parseObservationTime(data[i-1].observation_time_kst);
+                        const currTime = parseObservationTime(data[i].observation_time_kst);
+                        const diff = (currTime - prevTime) / (1000 * 60); // 분 단위
+                        intervals.push(diff);
+                    }
+                    avgInterval = Math.round(intervals.reduce((a, b) => a + b, 0) / intervals.length);
+                }
+
+                // 데이터 품질 평가
+                let dataQuality = '우수';
+                if (validRatio < 50) dataQuality = '불량';
+                else if (validRatio < 80) dataQuality = '보통';
+
+                return {
+                    total_records: data.length,
+                    valid_records: validRecords,
+                    valid_ratio: parseFloat(validRatio),
+                    avg_interval: avgInterval,
+                    data_quality: dataQuality
+                };
+
+            } catch (error) {
+                console.error(`관측소 ${stationId} 통계 조회 실패:`, error);
+                return {
+                    total_records: 0,
+                    valid_records: 0,
+                    valid_ratio: 0,
+                    avg_interval: null,
+                    data_quality: '조회 실패'
+                };
+            }
+        }
+
+        function parseObservationTime(timeStr) {
+            // YYYYMMDDHHMM -> Date 객체
+            const year = parseInt(timeStr.substring(0, 4));
+            const month = parseInt(timeStr.substring(4, 6)) - 1;
+            const day = parseInt(timeStr.substring(6, 8));
+            const hour = parseInt(timeStr.substring(8, 10));
+            const minute = parseInt(timeStr.substring(10, 12));
+            return new Date(year, month, day, hour, minute);
+        }
+
+        function displayResults() {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+            container.style.display = 'block';
+
+            for (const [stationCode, data] of Object.entries(analysisResults)) {
+                const card = createStationCard(stationCode, data);
+                container.appendChild(card);
+            }
+
+            // 업로드 섹션 표시
+            document.getElementById('uploadSection').style.display = 'block';
+            updateUploadSummary();
+        }
+
+        function createStationCard(stationCode, data) {
+            const card = document.createElement('div');
+            card.className = 'station-card';
+            card.id = `station-${stationCode}`;
+
+            let html = `
+                <div class="station-header">
+                    <div>
+                        <div class="station-title">${stationCode} - ${data.tide_station_name}</div>
+                        <div class="station-info">
+                            위치: ${data.tide_station_lat.toFixed(4)}, ${data.tide_station_lon.toFixed(4)} |
+                            해역: ${data.marine_reg_name}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 각 필드별 추천
+            for (const [fieldKey, fieldData] of Object.entries(data.fieldRecommendations)) {
+                html += `
+                    <div class="field-section">
+                        <div class="field-title">📊 ${fieldData.field_name}</div>
+                `;
+
+                fieldData.candidates.forEach((candidate, index) => {
+                    const recId = `rec-${stationCode}-${fieldKey}-${index}`;
+                    const stats = candidate.stats;
+
+                    html += `
+                        <div class="recommendation-card" id="${recId}">
+                            <div class="rec-header">
+                                <div>
+                                    <span class="rec-name">${candidate.name} (${candidate.station_id})</span>
+                                    <span style="color: #666; font-size: 14px; margin-left: 10px;">
+                                        ${candidate.distance_km}km
+                                    </span>
+                                </div>
+                                <button class="select-btn" onclick="selectRecommendation('${stationCode}', '${fieldKey}', ${index}, '${recId}')">
+                                    선택
+                                </button>
+                            </div>
+                            <div class="rec-stats">
+                                <div class="stat-item">
+                                    <div class="stat-label">전체 레코드</div>
+                                    <div class="stat-value">${stats.total_records}건</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">유효 데이터</div>
+                                    <div class="stat-value">${stats.valid_records}건 (${stats.valid_ratio}%)</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">평균 수집 주기</div>
+                                    <div class="stat-value">${stats.avg_interval ? stats.avg_interval + '분' : 'N/A'}</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">데이터 품질</div>
+                                    <div class="stat-value">${stats.data_quality}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+            }
+
+            card.innerHTML = html;
+            return card;
+        }
+
+        // 선택된 매칭 정보 저장
+        const selectedMappings = {};
+
+        function selectRecommendation(stationCode, fieldKey, candidateIndex, recId) {
+            // 해당 필드의 다른 선택 해제
+            const fieldSection = document.getElementById(recId).closest('.field-section');
+            fieldSection.querySelectorAll('.recommendation-card').forEach(card => {
+                card.classList.remove('selected');
+                card.querySelector('.select-btn').textContent = '선택';
+                card.querySelector('.select-btn').classList.remove('selected');
+            });
+
+            // 현재 선택 활성화
+            const recCard = document.getElementById(recId);
+            recCard.classList.add('selected');
+            const btn = recCard.querySelector('.select-btn');
+            btn.textContent = '선택됨';
+            btn.classList.add('selected');
+
+            // 선택 정보 저장
+            if (!selectedMappings[stationCode]) {
+                selectedMappings[stationCode] = {};
+            }
+
+            const candidate = analysisResults[stationCode].fieldRecommendations[fieldKey].candidates[candidateIndex];
+            selectedMappings[stationCode][fieldKey] = candidate.station_id;
+
+            updateUploadSummary();
+        }
+
+        function updateUploadSummary() {
+            const totalStations = Object.keys(analysisResults).length;
+            const mappedStations = Object.keys(selectedMappings).length;
+
+            const summary = document.getElementById('uploadSummary');
+            summary.innerHTML = `
+                <strong>매칭 현황:</strong> ${mappedStations} / ${totalStations} 개 조석관측소<br>
+                <small>각 조석관측소마다 5개 필드(wt, swh, wd, ws, at)의 해양관측소를 선택해주세요.</small>
+            `;
+        }
+
+        async function uploadToSupabase() {
+            if (Object.keys(selectedMappings).length === 0) {
+                alert('선택된 매칭이 없습니다. 먼저 해양관측소를 선택해주세요.');
+                return;
+            }
+
+            if (!confirm(`${Object.keys(selectedMappings).length}개 조석관측소의 매칭 정보를 업로드하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                const updates = [];
+
+                for (const [stationCode, fieldMappings] of Object.entries(selectedMappings)) {
+                    const updateData = {
+                        wt_STN_ID: fieldMappings.wt || null,
+                        swh_STN_ID: fieldMappings.swh || null,
+                        wd_STN_ID: fieldMappings.wd || null,
+                        ws_STN_ID: fieldMappings.ws || null,
+                        at_STN_ID: fieldMappings.at || null
+                    };
+
+                    const { error } = await supabaseClient
+                        .from('tide_abs_region')
+                        .update(updateData)
+                        .eq('Code', stationCode);
+
+                    if (error) throw error;
+
+                    updates.push(stationCode);
+                }
+
+                alert(`✅ 업로드 완료!\n${updates.length}개 조석관측소의 해양관측소 매칭 정보가 업데이트되었습니다.`);
+
+            } catch (error) {
+                console.error('업로드 실패:', error);
+                alert('업로드 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>
