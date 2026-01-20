@@ -453,22 +453,6 @@
                 <button class="btn btn-success" onclick="uploadToSupabase()">📤 tide_abs_region 테이블에 업로드</button>
             </div>
         </div>
-
-        <!-- 가까운 관측소 팝업 모달 -->
-        <div id="nearestStationsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; overflow: auto;">
-            <div style="position: relative; background: white; margin: 50px auto; max-width: 1200px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-                <div style="padding: 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: #667eea; color: white; border-radius: 8px 8px 0 0;">
-                    <h2 style="margin: 0; color: white;">📍 가까운 해양관측소 목록 (거리순 상위 5개)</h2>
-                    <button onclick="closeNearestStationsModal()" style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; line-height: 1;">&times;</button>
-                </div>
-                <div id="nearestStationsModalContent" style="padding: 20px; max-height: 70vh; overflow-y: auto;">
-                    <!-- 내용이 동적으로 채워집니다 -->
-                </div>
-                <div style="padding: 15px 20px; border-top: 1px solid #ddd; text-align: right; background: #f8f9fa; border-radius: 0 0 8px 8px;">
-                    <button class="btn" onclick="closeNearestStationsModal()" style="background: #6c757d; color: white;">닫기</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
@@ -638,7 +622,7 @@
             listDiv.innerHTML = html;
         }
 
-        // 가까운 관측소 팝업 표시
+        // 가까운 관측소 새 창으로 열기
         function showNearestStationsPopup() {
             const select = document.getElementById('tideStationSelect');
             const selectedOptions = Array.from(select.selectedOptions).map(opt => opt.value);
@@ -648,11 +632,6 @@
                 return;
             }
 
-            const modal = document.getElementById('nearestStationsModal');
-            const content = document.getElementById('nearestStationsModalContent');
-
-            let html = '';
-
             // 처리할 조석관측소 목록
             let stationsToShow = [];
             if (selectedOptions.includes('all')) {
@@ -661,6 +640,8 @@
                 stationsToShow = selectedOptions;
             }
 
+            let contentHtml = '';
+
             // 각 조석관측소별로 가까운 해양관측소 목록 생성
             for (const stationCode of stationsToShow) {
                 const stationData = STATION_MATCHING_DATA[stationCode];
@@ -668,8 +649,8 @@
 
                 const nearestStations = stationData.nearest_marine_stations || [];
 
-                html += `
-                    <div style="margin-bottom: 40px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                contentHtml += `
+                    <div style="margin-bottom: 40px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; page-break-inside: avoid;">
                         <div style="padding: 15px; background: #f8f9fa; border-bottom: 2px solid #667eea;">
                             <h3 style="margin: 0 0 10px 0; color: #333;">
                                 ${stationCode} - ${stationData.tide_station_name}
@@ -703,7 +684,7 @@
                     };
                     const providesText = station.provides.map(f => fieldLabels[f] || f).join(', ');
 
-                    html += `
+                    contentHtml += `
                         <tr style="border-bottom: 1px solid #ddd;">
                             <td style="padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${index + 1}</td>
                             <td style="padding: 10px; border: 1px solid #ddd;">${station.station_id}</td>
@@ -721,7 +702,7 @@
                     `;
                 });
 
-                html += `
+                contentHtml += `
                                 </tbody>
                             </table>
                         </div>
@@ -729,37 +710,129 @@
                 `;
             }
 
-            if (html === '') {
-                html = '<p style="text-align: center; padding: 40px; color: #666;">선택된 조석관측소의 매칭 데이터가 없습니다.</p>';
+            if (contentHtml === '') {
+                contentHtml = '<p style="text-align: center; padding: 40px; color: #666;">선택된 조석관측소의 매칭 데이터가 없습니다.</p>';
             } else {
-                html = `<div style="margin-bottom: 15px; padding: 10px; background: #e7f3ff; border-left: 4px solid #667eea; border-radius: 4px;">
+                contentHtml = `<div style="margin-bottom: 20px; padding: 15px; background: #e7f3ff; border-left: 4px solid #667eea; border-radius: 4px;">
                     <strong>총 ${stationsToShow.length}개 조석관측소</strong>의 가까운 해양관측소 목록입니다.
-                </div>` + html;
+                </div>` + contentHtml;
             }
 
-            content.innerHTML = html;
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+            // 새 창에 표시할 완전한 HTML 문서 생성
+            const newWindowHtml = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가까운 해양관측소 목록 (거리순 상위 5개)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        // 가까운 관측소 팝업 닫기
-        function closeNearestStationsModal() {
-            const modal = document.getElementById('nearestStationsModal');
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto'; // 배경 스크롤 복구
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
         }
-
-        // 모달 배경 클릭 시 닫기
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = document.getElementById('nearestStationsModal');
-            if (modal) {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === modal) {
-                        closeNearestStationsModal();
-                    }
-                });
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .print-button:hover {
+            background: #218838;
+        }
+        @media print {
+            body {
+                background: white;
+                padding: 0;
             }
-        });
+            .print-button {
+                display: none;
+            }
+            .header {
+                background: #667eea;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">🖨️ 인쇄</button>
+
+    <div class="header">
+        <h1>📍 가까운 해양관측소 목록</h1>
+        <p>조석관측소별 거리순 상위 5개 해양관측소 정보</p>
+    </div>
+
+    <div class="container">
+        ${contentHtml}
+    </div>
+
+    <div class="footer">
+        <p>생성일시: ${new Date().toLocaleString('ko-KR')}</p>
+        <p>조석-해양 관측소 매칭 시스템 | Marine Station Matcher</p>
+    </div>
+</body>
+</html>
+            `;
+
+            // 새 창 열기
+            const newWindow = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+
+            if (newWindow) {
+                newWindow.document.write(newWindowHtml);
+                newWindow.document.close();
+                newWindow.focus();
+            } else {
+                alert('팝업 차단이 활성화되어 있습니다. 팝업 허용 후 다시 시도해주세요.');
+            }
+        }
 
         async function analyzeAndMatch() {
             const select = document.getElementById('tideStationSelect');
