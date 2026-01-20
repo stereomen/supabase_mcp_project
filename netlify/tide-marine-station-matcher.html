@@ -925,18 +925,19 @@
                     });
                 }
 
-                // 데이터 품질 기준으로 정렬
-                // 1. 유효 데이터 비율 (valid_ratio)
-                // 2. 평균 수집 간격 (avg_interval)
-                // 3. 거리 (distance_km)
+                // 거리 기준으로 정렬 (1순위)
+                // 가장 가까운 관측소 중에서 해당 필드를 제공하는 곳 선택
+                // 1. 거리 (distance_km) - 가까운 순
+                // 2. 유효 데이터 비율 (valid_ratio) - 거리가 같을 때
+                // 3. 평균 수집 간격 (avg_interval) - 거리와 비율이 같을 때
                 stationStats.sort((a, b) => {
+                    if (a.distance_km !== b.distance_km) {
+                        return a.distance_km - b.distance_km;
+                    }
                     if (b.stats.valid_ratio !== a.stats.valid_ratio) {
                         return b.stats.valid_ratio - a.stats.valid_ratio;
                     }
-                    if (a.stats.avg_interval !== b.stats.avg_interval) {
-                        return a.stats.avg_interval - b.stats.avg_interval;
-                    }
-                    return a.distance_km - b.distance_km;
+                    return a.stats.avg_interval - b.stats.avg_interval;
                 });
 
                 // 상위 2개 추천
