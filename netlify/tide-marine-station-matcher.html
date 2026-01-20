@@ -349,7 +349,7 @@
     <a href="/" class="back-button">← 대시보드로 돌아가기</a>
     <div class="container">
         <h1>🌊 조석관측소 - 해양관측소 매칭 관리</h1>
-        <p class="subtitle">abs_fetch_log 데이터를 분석하여 실제 유효한 해양관측소를 매칭합니다</p>
+        <p class="subtitle">marine_observations 데이터를 분석하여 실제 유효한 해양관측소를 매칭합니다</p>
 
         <div class="control-panel">
             <div class="form-row">
@@ -373,7 +373,7 @@
 
         <div id="loadingSpinner">
             <div class="spinner"></div>
-            <p>abs_fetch_log 데이터 분석 중...</p>
+            <p>marine_observations 데이터 분석 중...</p>
         </div>
 
         <div id="resultsContainer" class="results-container"></div>
@@ -550,6 +550,20 @@
                 const startDateStr = startDate.replace(/-/g, '') + '0000';
                 const endDateStr = endDate.replace(/-/g, '') + '2359';
 
+                // 필드명 매핑 (내부 키 → marine_observations 컬럼명)
+                const fieldMapping = {
+                    'wt': 'water_temperature',
+                    'swh': 'significant_wave_height',
+                    'wd': 'wind_direction',
+                    'ws': 'wind_speed',
+                    'at': 'air_temperature'
+                };
+
+                const dbFieldName = fieldMapping[field];
+                if (!dbFieldName) {
+                    throw new Error(`Unknown field: ${field}`);
+                }
+
                 // Pagination으로 모든 데이터 가져오기 (1000개 제한 회피)
                 let allData = [];
                 let from = 0;
@@ -558,8 +572,8 @@
 
                 while (hasMore) {
                     const { data, error } = await supabaseClient
-                        .from('abs_fetch_log')
-                        .select('observation_time_kst, ' + field)
+                        .from('marine_observations')
+                        .select('observation_time_kst, ' + dbFieldName)
                         .eq('station_id', stationId)
                         .gte('observation_time_kst', startDateStr)
                         .lte('observation_time_kst', endDateStr)
@@ -580,7 +594,6 @@
                 }
 
                 const data = allData;
-                if (error) throw error;
 
                 if (!data || data.length === 0) {
                     return {
@@ -593,7 +606,7 @@
                 }
 
                 // 유효한 데이터 개수 (null이 아닌 값)
-                const validRecords = data.filter(row => row[field] !== null && row[field] !== '').length;
+                const validRecords = data.filter(row => row[dbFieldName] !== null && row[dbFieldName] !== '').length;
                 const validRatio = (validRecords / data.length * 100).toFixed(1);
 
                 // 평균 수집 간격 계산 (분 단위)
