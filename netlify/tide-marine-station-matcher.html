@@ -382,7 +382,10 @@
                     <input type="date" id="endDate">
                 </div>
             </div>
-            <button class="btn btn-primary" onclick="analyzeAndMatch()">매칭 실행</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="analyzeAndMatch()">매칭 실행</button>
+                <button class="btn" onclick="showNearestStationsPopup()" style="background: #28a745; color: white;">📍 가까운 관측소 보기</button>
+            </div>
         </div>
 
         <div id="nearestStationsSection" style="display: none; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -448,6 +451,22 @@
             <div style="display: flex; gap: 10px;">
                 <button class="btn btn-primary" onclick="downloadExcel()">📥 엑셀 다운로드</button>
                 <button class="btn btn-success" onclick="uploadToSupabase()">📤 tide_abs_region 테이블에 업로드</button>
+            </div>
+        </div>
+
+        <!-- 가까운 관측소 팝업 모달 -->
+        <div id="nearestStationsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; overflow: auto;">
+            <div style="position: relative; background: white; margin: 50px auto; max-width: 1200px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <div style="padding: 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: #667eea; color: white; border-radius: 8px 8px 0 0;">
+                    <h2 style="margin: 0; color: white;">📍 가까운 해양관측소 목록 (거리순 상위 5개)</h2>
+                    <button onclick="closeNearestStationsModal()" style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; line-height: 1;">&times;</button>
+                </div>
+                <div id="nearestStationsModalContent" style="padding: 20px; max-height: 70vh; overflow-y: auto;">
+                    <!-- 내용이 동적으로 채워집니다 -->
+                </div>
+                <div style="padding: 15px 20px; border-top: 1px solid #ddd; text-align: right; background: #f8f9fa; border-radius: 0 0 8px 8px;">
+                    <button class="btn" onclick="closeNearestStationsModal()" style="background: #6c757d; color: white;">닫기</button>
+                </div>
             </div>
         </div>
     </div>
@@ -618,6 +637,129 @@
 
             listDiv.innerHTML = html;
         }
+
+        // 가까운 관측소 팝업 표시
+        function showNearestStationsPopup() {
+            const select = document.getElementById('tideStationSelect');
+            const selectedOptions = Array.from(select.selectedOptions).map(opt => opt.value);
+
+            if (selectedOptions.length === 0) {
+                alert('조석관측소를 선택해주세요.');
+                return;
+            }
+
+            const modal = document.getElementById('nearestStationsModal');
+            const content = document.getElementById('nearestStationsModalContent');
+
+            let html = '';
+
+            // 처리할 조석관측소 목록
+            let stationsToShow = [];
+            if (selectedOptions.includes('all')) {
+                stationsToShow = Object.keys(STATION_MATCHING_DATA);
+            } else {
+                stationsToShow = selectedOptions;
+            }
+
+            // 각 조석관측소별로 가까운 해양관측소 목록 생성
+            for (const stationCode of stationsToShow) {
+                const stationData = STATION_MATCHING_DATA[stationCode];
+                if (!stationData) continue;
+
+                const nearestStations = stationData.nearest_marine_stations || [];
+
+                html += `
+                    <div style="margin-bottom: 40px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                        <div style="padding: 15px; background: #f8f9fa; border-bottom: 2px solid #667eea;">
+                            <h3 style="margin: 0 0 10px 0; color: #333;">
+                                ${stationCode} - ${stationData.tide_station_name}
+                            </h3>
+                            <div style="font-size: 0.9em; color: #666;">
+                                <strong>위치:</strong> 위도 ${stationData.tide_station_lat}, 경도 ${stationData.tide_station_lon} |
+                                <strong>해역:</strong> ${stationData.marine_reg_name}
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead style="background: #e9ecef;">
+                                    <tr>
+                                        <th style="padding: 10px; border: 1px solid #ddd; text-align: center; width: 60px;">순위</th>
+                                        <th style="padding: 10px; border: 1px solid #ddd; width: 100px;">관측소 ID</th>
+                                        <th style="padding: 10px; border: 1px solid #ddd;">관측소명 / 위치</th>
+                                        <th style="padding: 10px; border: 1px solid #ddd; text-align: right; width: 100px;">거리</th>
+                                        <th style="padding: 10px; border: 1px solid #ddd; width: 150px;">제공 필드</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+
+                nearestStations.forEach((station, index) => {
+                    const fieldLabels = {
+                        'wt': '수온',
+                        'swh': '파고',
+                        'wd': '풍향',
+                        'ws': '풍속',
+                        'at': '기온'
+                    };
+                    const providesText = station.provides.map(f => fieldLabels[f] || f).join(', ');
+
+                    html += `
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${index + 1}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${station.station_id}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <strong>${station.name}</strong><br>
+                                <span style="font-size: 0.85em; color: #666;">위도: ${station.lat}, 경도: ${station.lon}</span>
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">
+                                ${station.distance_km} km
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <span style="background: #e3f2fd; padding: 3px 8px; border-radius: 3px; font-size: 0.9em;">${providesText}</span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (html === '') {
+                html = '<p style="text-align: center; padding: 40px; color: #666;">선택된 조석관측소의 매칭 데이터가 없습니다.</p>';
+            } else {
+                html = `<div style="margin-bottom: 15px; padding: 10px; background: #e7f3ff; border-left: 4px solid #667eea; border-radius: 4px;">
+                    <strong>총 ${stationsToShow.length}개 조석관측소</strong>의 가까운 해양관측소 목록입니다.
+                </div>` + html;
+            }
+
+            content.innerHTML = html;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+        }
+
+        // 가까운 관측소 팝업 닫기
+        function closeNearestStationsModal() {
+            const modal = document.getElementById('nearestStationsModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // 배경 스크롤 복구
+        }
+
+        // 모달 배경 클릭 시 닫기
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('nearestStationsModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeNearestStationsModal();
+                    }
+                });
+            }
+        });
 
         async function analyzeAndMatch() {
             const select = document.getElementById('tideStationSelect');
