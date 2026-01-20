@@ -269,14 +269,28 @@
         }
 
         .upload-section {
-            position: sticky;
-            bottom: 20px;
             background: white;
             border: 2px solid #667eea;
             border-radius: 12px;
             padding: 20px;
             margin-top: 30px;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        #previewTable {
+            font-size: 13px;
+        }
+
+        #previewTable th {
+            position: sticky;
+            top: 0;
+            background: #667eea;
+            color: white;
+            z-index: 10;
+        }
+
+        #previewTable tr:hover {
+            background: #f8f9fa;
         }
 
         .summary {
@@ -378,13 +392,34 @@
 
         <div id="resultsContainer" class="results-container"></div>
 
-        <div id="uploadSection" class="upload-section" style="display: none;">
-            <h3>📤 Supabase 업로드</h3>
-            <div id="uploadSummary" class="summary"></div>
-            <button class="btn btn-success" onclick="uploadToSupabase()">tide_abs_region 테이블에 업로드</button>
+        <div id="previewSection" class="upload-section" style="display: none;">
+            <h3>📋 매칭 결과 미리보기</h3>
+            <div id="previewSummary" class="summary"></div>
+            <div style="overflow-x: auto; margin: 20px 0;">
+                <table id="previewTable" style="width: 100%; border-collapse: collapse; background: white;">
+                    <thead style="background: #667eea; color: white;">
+                        <tr>
+                            <th style="padding: 12px; border: 1px solid #ddd;">조석관측소 코드</th>
+                            <th style="padding: 12px; border: 1px solid #ddd;">조석관측소명</th>
+                            <th style="padding: 12px; border: 1px solid #ddd;">수온(wt)</th>
+                            <th style="padding: 12px; border: 1px solid #ddd;">파고(swh)</th>
+                            <th style="padding: 12px; border: 1px solid #ddd;">풍향(wd)</th>
+                            <th style="padding: 12px; border: 1px solid #ddd;">풍속(ws)</th>
+                            <th style="padding: 12px; border: 1px solid #ddd;">기온(at)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewTableBody">
+                    </tbody>
+                </table>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="downloadExcel()">📥 엑셀 다운로드</button>
+                <button class="btn btn-success" onclick="uploadToSupabase()">📤 tide_abs_region 테이블에 업로드</button>
+            </div>
         </div>
     </div>
 
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script>
         // Supabase 설정
         const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
@@ -665,11 +700,43 @@
             for (const [stationCode, data] of Object.entries(analysisResults)) {
                 const card = createStationCard(stationCode, data);
                 container.appendChild(card);
+
+                // 첫 번째 후보를 자동 선택
+                autoSelectFirstCandidates(stationCode, data);
             }
 
-            // 업로드 섹션 표시
-            document.getElementById('uploadSection').style.display = 'block';
-            updateUploadSummary();
+            // 미리보기 섹션 표시
+            document.getElementById('previewSection').style.display = 'block';
+            updatePreviewTable();
+        }
+
+        function autoSelectFirstCandidates(stationCode, data) {
+            // 각 필드별로 첫 번째 후보를 자동 선택
+            for (const [fieldKey, fieldData] of Object.entries(data.fieldRecommendations)) {
+                if (fieldData.candidates && fieldData.candidates.length > 0) {
+                    const firstCandidate = fieldData.candidates[0];
+                    const recId = `rec-${stationCode}-${fieldKey}-0`;
+
+                    // 선택 상태 설정
+                    if (!selectedMappings[stationCode]) {
+                        selectedMappings[stationCode] = {};
+                    }
+                    selectedMappings[stationCode][fieldKey] = firstCandidate.station_id;
+
+                    // UI 업데이트는 나중에 DOM이 렌더링된 후 실행
+                    setTimeout(() => {
+                        const recCard = document.getElementById(recId);
+                        if (recCard) {
+                            recCard.classList.add('selected');
+                            const btn = recCard.querySelector('.select-btn');
+                            if (btn) {
+                                btn.textContent = '선택됨';
+                                btn.classList.add('selected');
+                            }
+                        }
+                    }, 100);
+                }
+            }
         }
 
         function createStationCard(stationCode, data) {
@@ -769,7 +836,7 @@
             const candidate = analysisResults[stationCode].fieldRecommendations[fieldKey].candidates[candidateIndex];
             selectedMappings[stationCode][fieldKey] = candidate.station_id;
 
-            updateUploadSummary();
+            updatePreviewTable();
         }
 
         function updateUploadSummary() {
@@ -781,6 +848,164 @@
                 <strong>매칭 현황:</strong> ${mappedStations} / ${totalStations} 개 조석관측소<br>
                 <small>각 조석관측소마다 5개 필드(wt, swh, wd, ws, at)의 해양관측소를 선택해주세요.</small>
             `;
+        }
+
+        function updatePreviewTable() {
+            const tbody = document.getElementById('previewTableBody');
+            tbody.innerHTML = '';
+
+            const summary = document.getElementById('previewSummary');
+            const totalStations = Object.keys(analysisResults).length;
+            const mappedStations = Object.keys(selectedMappings).length;
+
+            summary.innerHTML = `
+                <strong>매칭 현황:</strong> ${mappedStations} / ${totalStations} 개 조석관측소<br>
+                <small>아래 테이블을 확인하고 엑셀로 다운로드하거나 Supabase에 업로드할 수 있습니다.</small>
+            `;
+
+            // 정렬된 조석관측소 목록 생성
+            const sortedStations = Object.keys(analysisResults).sort();
+
+            for (const stationCode of sortedStations) {
+                const data = analysisResults[stationCode];
+                const mappings = selectedMappings[stationCode] || {};
+
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid #ddd';
+
+                // 조석관측소 코드
+                const codeCell = document.createElement('td');
+                codeCell.style.padding = '10px';
+                codeCell.style.border = '1px solid #ddd';
+                codeCell.textContent = stationCode;
+                row.appendChild(codeCell);
+
+                // 조석관측소명
+                const nameCell = document.createElement('td');
+                nameCell.style.padding = '10px';
+                nameCell.style.border = '1px solid #ddd';
+                nameCell.textContent = data.tide_station_name;
+                row.appendChild(nameCell);
+
+                // 각 필드별 선택된 관측소 ID
+                const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
+                for (const field of fields) {
+                    const fieldCell = document.createElement('td');
+                    fieldCell.style.padding = '10px';
+                    fieldCell.style.border = '1px solid #ddd';
+                    fieldCell.style.textAlign = 'center';
+
+                    if (mappings[field]) {
+                        // 선택된 관측소 정보 찾기
+                        const candidates = data.fieldRecommendations[field]?.candidates || [];
+                        const selected = candidates.find(c => c.station_id === mappings[field]);
+
+                        if (selected) {
+                            fieldCell.innerHTML = `
+                                <strong>${selected.station_id}</strong><br>
+                                <small style="color: #666;">${selected.name}</small>
+                            `;
+                        } else {
+                            fieldCell.textContent = mappings[field];
+                        }
+                    } else {
+                        fieldCell.innerHTML = '<span style="color: #ccc;">미선택</span>';
+                    }
+
+                    row.appendChild(fieldCell);
+                }
+
+                tbody.appendChild(row);
+            }
+        }
+
+        function downloadExcel() {
+            if (Object.keys(selectedMappings).length === 0) {
+                alert('선택된 매칭이 없습니다. 먼저 해양관측소를 선택해주세요.');
+                return;
+            }
+
+            // 엑셀 데이터 생성
+            const excelData = [];
+
+            // 헤더
+            excelData.push([
+                '조석관측소 코드',
+                '조석관측소명',
+                '수온(wt) 관측소ID',
+                '수온(wt) 관측소명',
+                '파고(swh) 관측소ID',
+                '파고(swh) 관측소명',
+                '풍향(wd) 관측소ID',
+                '풍향(wd) 관측소명',
+                '풍속(ws) 관측소ID',
+                '풍속(ws) 관측소명',
+                '기온(at) 관측소ID',
+                '기온(at) 관측소명'
+            ]);
+
+            // 데이터 행
+            const sortedStations = Object.keys(analysisResults).sort();
+
+            for (const stationCode of sortedStations) {
+                const data = analysisResults[stationCode];
+                const mappings = selectedMappings[stationCode] || {};
+
+                const row = [
+                    stationCode,
+                    data.tide_station_name
+                ];
+
+                const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
+                for (const field of fields) {
+                    if (mappings[field]) {
+                        const candidates = data.fieldRecommendations[field]?.candidates || [];
+                        const selected = candidates.find(c => c.station_id === mappings[field]);
+
+                        if (selected) {
+                            row.push(selected.station_id);
+                            row.push(selected.name);
+                        } else {
+                            row.push(mappings[field]);
+                            row.push('');
+                        }
+                    } else {
+                        row.push('');
+                        row.push('');
+                    }
+                }
+
+                excelData.push(row);
+            }
+
+            // SheetJS로 엑셀 파일 생성
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+            // 컬럼 너비 설정
+            ws['!cols'] = [
+                { wch: 15 }, // 조석관측소 코드
+                { wch: 15 }, // 조석관측소명
+                { wch: 15 }, // wt ID
+                { wch: 15 }, // wt 명
+                { wch: 15 }, // swh ID
+                { wch: 15 }, // swh 명
+                { wch: 15 }, // wd ID
+                { wch: 15 }, // wd 명
+                { wch: 15 }, // ws ID
+                { wch: 15 }, // ws 명
+                { wch: 15 }, // at ID
+                { wch: 15 }  // at 명
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '조석-해양 관측소 매칭');
+
+            // 파일 다운로드
+            const today = new Date().toISOString().split('T')[0];
+            const filename = `tide_marine_station_matching_${today}.xlsx`;
+            XLSX.writeFile(wb, filename);
+
+            console.log('엑셀 파일 다운로드 완료:', filename);
         }
 
         async function uploadToSupabase() {
