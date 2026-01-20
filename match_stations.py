@@ -138,7 +138,7 @@ def main():
     xml_path = 'tide_abs_info/locations_with_addresses.xml'
     a_csv_path = 'tide_abs_info/a지점_파고수온제공_2026-01-10_2026-01-17.csv'
     b_csv_path = 'tide_abs_info/b지점_기온풍향풍속제공_2026-01-10_2026-01-17.csv'
-    output_path = 'tide_abs_info/station_matching_top5.json'
+    output_path = 'tide_abs_info/station_matching_top10.json'
 
     print("📍 조석관측소 로딩 중...")
     tide_stations = load_tide_stations(xml_path)
@@ -149,7 +149,7 @@ def main():
     print(f"   ✅ {len(marine_stations)}개 해양관측소 로드 완료 (중복 제거)")
 
     print("\n🔗 거리 계산 및 매칭 수행 중...")
-    matching_result = match_stations(tide_stations, marine_stations, top_n=5)
+    matching_result = match_stations(tide_stations, marine_stations, top_n=10)
     print(f"   ✅ {len(matching_result)}개 조석관측소 매칭 완료")
 
     # JSON 파일로 저장

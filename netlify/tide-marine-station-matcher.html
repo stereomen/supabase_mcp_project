@@ -389,7 +389,7 @@
         </div>
 
         <div id="nearestStationsSection" style="display: none; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <h3 style="margin: 0 0 15px 0; color: #667eea;">📍 가까운 해양관측소 (거리순 상위 5개)</h3>
+            <h3 style="margin: 0 0 15px 0; color: #667eea;">📍 가까운 해양관측소 (거리순 상위 10개)</h3>
             <div id="nearestStationsList"></div>
         </div>
 
@@ -509,7 +509,7 @@
         async function loadMatchingData() {
             // JSON 파일에서 매칭 데이터 로드
             try {
-                const response = await fetch('station_matching_top5.json');
+                const response = await fetch('station_matching_top10.json');
                 if (!response.ok) {
                     throw new Error('Failed to fetch matching data');
                 }
@@ -517,7 +517,7 @@
                 console.log('매칭 데이터 로드 완료:', Object.keys(STATION_MATCHING_DATA).length, '개 조석관측소');
             } catch (error) {
                 console.error('매칭 데이터 로드 실패:', error);
-                alert('매칭 데이터를 로드할 수 없습니다. station_matching_top5.json 파일을 확인해주세요.');
+                alert('매칭 데이터를 로드할 수 없습니다. station_matching_top10.json 파일을 확인해주세요.');
             }
         }
 
@@ -725,7 +725,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>가까운 해양관측소 목록 (거리순 상위 5개)</title>
+    <title>가까운 해양관측소 목록 (거리순 상위 10개)</title>
     <style>
         * {
             margin: 0;
@@ -807,7 +807,7 @@
 
     <div class="header">
         <h1>📍 가까운 해양관측소 목록</h1>
-        <p>조석관측소별 거리순 상위 5개 해양관측소 정보</p>
+        <p>조석관측소별 거리순 상위 10개 해양관측소 정보</p>
     </div>
 
     <div class="container">
@@ -1250,7 +1250,7 @@
                 }
             }
 
-            // station_matching_top5.json에서도 검색
+            // station_matching_top10.json에서도 검색
             for (const tideCode in STATION_MATCHING_DATA) {
                 const tideData = STATION_MATCHING_DATA[tideCode];
                 const found = tideData.nearest_marine_stations?.find(s => s.station_id === stationId);
