@@ -385,6 +385,11 @@
             <button class="btn btn-primary" onclick="analyzeAndMatch()">매칭 실행</button>
         </div>
 
+        <div id="nearestStationsSection" style="display: none; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3 style="margin: 0 0 15px 0; color: #667eea;">📍 가까운 해양관측소 (거리순 상위 5개)</h3>
+            <div id="nearestStationsList"></div>
+        </div>
+
         <div id="loadingSpinner">
             <div class="spinner"></div>
             <p>marine_observations 데이터 분석 중...</p>
@@ -473,7 +478,7 @@
         async function loadMatchingData() {
             // JSON 파일에서 매칭 데이터 로드
             try {
-                const response = await fetch('station_matching_top10.json');
+                const response = await fetch('station_matching_top5.json');
                 if (!response.ok) {
                     throw new Error('Failed to fetch matching data');
                 }
@@ -481,7 +486,7 @@
                 console.log('매칭 데이터 로드 완료:', Object.keys(STATION_MATCHING_DATA).length, '개 조석관측소');
             } catch (error) {
                 console.error('매칭 데이터 로드 실패:', error);
-                alert('매칭 데이터를 로드할 수 없습니다. station_matching_top10.json 파일을 확인해주세요.');
+                alert('매칭 데이터를 로드할 수 없습니다. station_matching_top5.json 파일을 확인해주세요.');
             }
         }
 
@@ -494,6 +499,87 @@
                 option.textContent = `${code} - ${data.tide_station_name}`;
                 select.appendChild(option);
             }
+
+            // 조석관측소 선택 시 가까운 해양관측소 목록 표시
+            select.addEventListener('change', function() {
+                showNearestStations(this.value);
+            });
+        }
+
+        function showNearestStations(tideStationCode) {
+            const section = document.getElementById('nearestStationsSection');
+            const listDiv = document.getElementById('nearestStationsList');
+
+            // "전체 조석관측소" 선택 시 섹션 숨김
+            if (tideStationCode === 'all') {
+                section.style.display = 'none';
+                return;
+            }
+
+            const stationData = STATION_MATCHING_DATA[tideStationCode];
+            if (!stationData) {
+                section.style.display = 'none';
+                return;
+            }
+
+            // 섹션 표시
+            section.style.display = 'block';
+
+            // 가까운 관측소 목록 생성
+            const nearestStations = stationData.nearest_marine_stations || [];
+
+            let html = `
+                <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                    <strong>조석관측소:</strong> ${stationData.tide_station_name} (${tideStationCode})<br>
+                    <strong>위치:</strong> 위도 ${stationData.tide_station_lat}, 경도 ${stationData.tide_station_lon}<br>
+                    <strong>해역:</strong> ${stationData.marine_reg_name}
+                </div>
+                <table style="width: 100%; border-collapse: collapse; background: white;">
+                    <thead style="background: #667eea; color: white;">
+                        <tr>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">순위</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">관측소 ID</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">관측소명</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">거리</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">제공 필드</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">위치</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            nearestStations.forEach((station, index) => {
+                const fieldLabels = {
+                    'wt': '수온',
+                    'swh': '파고',
+                    'wd': '풍향',
+                    'ws': '풍속',
+                    'at': '기온'
+                };
+                const providesText = station.provides.map(f => fieldLabels[f] || f).join(', ');
+
+                html += `
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${index + 1}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${station.station_id}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${station.name}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${station.distance_km} km</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">
+                            <span style="background: #e3f2fd; padding: 3px 8px; border-radius: 3px; font-size: 0.9em;">${providesText}</span>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #ddd; font-size: 0.85em; color: #666;">
+                            ${station.lat}, ${station.lon}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            listDiv.innerHTML = html;
         }
 
         async function analyzeAndMatch() {
