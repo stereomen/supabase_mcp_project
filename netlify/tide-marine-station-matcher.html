@@ -368,8 +368,8 @@
         <div class="control-panel">
             <div class="form-row">
                 <div class="form-group">
-                    <label for="tideStationSelect">조석관측소 선택</label>
-                    <select id="tideStationSelect">
+                    <label for="tideStationSelect">조석관측소 선택 (Ctrl/Cmd로 다중 선택)</label>
+                    <select id="tideStationSelect" multiple size="8" style="width: 100%;">
                         <option value="all">전체 조석관측소</option>
                     </select>
                 </div>
@@ -528,9 +528,17 @@
                 select.appendChild(option);
             }
 
-            // 조석관측소 선택 시 가까운 해양관측소 목록 표시
+            // 조석관측소 선택 시 가까운 해양관측소 목록 표시 (단일 선택일 때만)
             select.addEventListener('change', function() {
-                showNearestStations(this.value);
+                const selectedOptions = Array.from(this.selectedOptions).map(opt => opt.value);
+
+                // 한 개만 선택되었고 "all"이 아닌 경우에만 가까운 관측소 표시
+                if (selectedOptions.length === 1 && selectedOptions[0] !== 'all') {
+                    showNearestStations(selectedOptions[0]);
+                } else {
+                    // 여러 개 선택되었거나 "전체" 선택 시 목록 숨김
+                    document.getElementById('nearestStationsSection').style.display = 'none';
+                }
             });
         }
 
@@ -567,10 +575,9 @@
                         <tr>
                             <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">순위</th>
                             <th style="padding: 10px; border: 1px solid #ddd;">관측소 ID</th>
-                            <th style="padding: 10px; border: 1px solid #ddd;">관측소명</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">관측소명 / 위치</th>
                             <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">거리</th>
                             <th style="padding: 10px; border: 1px solid #ddd;">제공 필드</th>
-                            <th style="padding: 10px; border: 1px solid #ddd;">위치</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -590,13 +597,15 @@
                     <tr style="border-bottom: 1px solid #ddd;">
                         <td style="padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${index + 1}</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">${station.station_id}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">${station.name}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${station.distance_km} km</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">
+                            <strong>${station.name}</strong><br>
+                            <span style="font-size: 0.85em; color: #666;">위도: ${station.lat}, 경도: ${station.lon}</span>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">
+                            ${station.distance_km} km
+                        </td>
                         <td style="padding: 10px; border: 1px solid #ddd;">
                             <span style="background: #e3f2fd; padding: 3px 8px; border-radius: 3px; font-size: 0.9em;">${providesText}</span>
-                        </td>
-                        <td style="padding: 10px; border: 1px solid #ddd; font-size: 0.85em; color: #666;">
-                            ${station.lat}, ${station.lon}
                         </td>
                     </tr>
                 `;
@@ -611,9 +620,15 @@
         }
 
         async function analyzeAndMatch() {
-            const tideStationCode = document.getElementById('tideStationSelect').value;
+            const select = document.getElementById('tideStationSelect');
+            const selectedOptions = Array.from(select.selectedOptions).map(opt => opt.value);
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
+
+            if (selectedOptions.length === 0) {
+                alert('조석관측소를 선택해주세요.');
+                return;
+            }
 
             if (!startDate || !endDate) {
                 alert('시작일과 종료일을 선택해주세요.');
@@ -627,9 +642,15 @@
 
             try {
                 // 처리할 조석관측소 목록
-                const stationsToProcess = tideStationCode === 'all'
-                    ? Object.keys(STATION_MATCHING_DATA)
-                    : [tideStationCode];
+                let stationsToProcess = [];
+
+                if (selectedOptions.includes('all')) {
+                    // "전체 조석관측소"가 선택된 경우
+                    stationsToProcess = Object.keys(STATION_MATCHING_DATA);
+                } else {
+                    // 선택된 조석관측소들
+                    stationsToProcess = selectedOptions;
+                }
 
                 analysisResults = {};
 
