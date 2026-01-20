@@ -925,12 +925,18 @@
                     });
                 }
 
+                // 유효 데이터가 0건인 관측소 제외 (필수 조건)
+                // 예: 인천(송도) 3km 유효 0건 제외, 안산 12km 유효 1건 선택
+                const validStations = stationStats.filter(station =>
+                    station.stats.valid_records > 0
+                );
+
                 // 거리 기준으로 정렬 (1순위)
                 // 가장 가까운 관측소 중에서 해당 필드를 제공하는 곳 선택
                 // 1. 거리 (distance_km) - 가까운 순
                 // 2. 유효 데이터 비율 (valid_ratio) - 거리가 같을 때
                 // 3. 평균 수집 간격 (avg_interval) - 거리와 비율이 같을 때
-                stationStats.sort((a, b) => {
+                validStations.sort((a, b) => {
                     if (a.distance_km !== b.distance_km) {
                         return a.distance_km - b.distance_km;
                     }
@@ -943,7 +949,7 @@
                 // 상위 2개 추천
                 recommendations[field] = {
                     field_name: fieldNames[field],
-                    candidates: stationStats.slice(0, 2)
+                    candidates: validStations.slice(0, 2)
                 };
             }
 
