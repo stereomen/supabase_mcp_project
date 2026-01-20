@@ -398,19 +398,47 @@
         <div id="resultsContainer" class="results-container"></div>
 
         <div id="previewSection" class="upload-section" style="display: none;">
-            <h3>📋 매칭 결과 미리보기</h3>
+            <h3>📋 매칭 결과 미리보기 (tide_abs_region 테이블)</h3>
+            <p style="color: #666; margin: 10px 0;">💡 표의 값을 클릭하면 직접 수정할 수 있습니다. 수정 후 업로드하면 변경된 값이 반영됩니다.</p>
             <div id="previewSummary" class="summary"></div>
             <div style="overflow-x: auto; margin: 20px 0;">
-                <table id="previewTable" style="width: 100%; border-collapse: collapse; background: white;">
+                <table id="previewTable" style="width: 100%; border-collapse: collapse; background: white; font-size: 0.85em;">
                     <thead style="background: #667eea; color: white;">
                         <tr>
-                            <th style="padding: 12px; border: 1px solid #ddd;">조석관측소 코드</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">조석관측소명</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">수온(wt)</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">파고(swh)</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">풍향(wd)</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">풍속(ws)</th>
-                            <th style="padding: 12px; border: 1px solid #ddd;">기온(at)</th>
+                            <th rowspan="2" style="padding: 8px; border: 1px solid #ddd; vertical-align: middle;">Code</th>
+                            <th rowspan="2" style="padding: 8px; border: 1px solid #ddd; vertical-align: middle;">Name</th>
+                            <th colspan="4" style="padding: 8px; border: 1px solid #ddd; background: #5e73d8;">수온(wt)</th>
+                            <th colspan="4" style="padding: 8px; border: 1px solid #ddd; background: #5e73d8;">파고(swh)</th>
+                            <th colspan="4" style="padding: 8px; border: 1px solid #ddd; background: #5e73d8;">풍향(wd)</th>
+                            <th colspan="4" style="padding: 8px; border: 1px solid #ddd; background: #5e73d8;">풍속(ws)</th>
+                            <th colspan="4" style="padding: 8px; border: 1px solid #ddd; background: #5e73d8;">기온(at)</th>
+                        </tr>
+                        <tr>
+                            <!-- wt -->
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">STN_ID</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">위도</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">경도</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">지역명</th>
+                            <!-- swh -->
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">STN_ID</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">위도</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">경도</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">지역명</th>
+                            <!-- wd -->
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">STN_ID</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">위도</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">경도</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">지역명</th>
+                            <!-- ws -->
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">STN_ID</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">위도</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">경도</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">지역명</th>
+                            <!-- at -->
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">STN_ID</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">위도</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">경도</th>
+                            <th style="padding: 6px; border: 1px solid #ddd; font-size: 0.9em;">지역명</th>
                         </tr>
                     </thead>
                     <tbody id="previewTableBody">
@@ -966,7 +994,7 @@
 
             summary.innerHTML = `
                 <strong>매칭 현황:</strong> ${mappedStations} / ${totalStations} 개 조석관측소<br>
-                <small>아래 테이블을 확인하고 엑셀로 다운로드하거나 Supabase에 업로드할 수 있습니다.</small>
+                <small>아래 테이블을 확인하고 값을 수정할 수 있습니다. 수정 후 엑셀로 다운로드하거나 Supabase에 업로드하세요.</small>
             `;
 
             // 정렬된 조석관측소 목록 생성
@@ -978,28 +1006,31 @@
 
                 const row = document.createElement('tr');
                 row.style.borderBottom = '1px solid #ddd';
+                row.setAttribute('data-station-code', stationCode);
 
-                // 조석관측소 코드
+                // 조석관측소 코드 (편집 불가)
                 const codeCell = document.createElement('td');
-                codeCell.style.padding = '10px';
+                codeCell.style.padding = '8px';
                 codeCell.style.border = '1px solid #ddd';
+                codeCell.style.background = '#f5f5f5';
                 codeCell.textContent = stationCode;
                 row.appendChild(codeCell);
 
-                // 조석관측소명
+                // 조석관측소명 (편집 불가)
                 const nameCell = document.createElement('td');
-                nameCell.style.padding = '10px';
+                nameCell.style.padding = '8px';
                 nameCell.style.border = '1px solid #ddd';
+                nameCell.style.background = '#f5f5f5';
                 nameCell.textContent = data.tide_station_name;
                 row.appendChild(nameCell);
 
-                // 각 필드별 선택된 관측소 ID
+                // 각 필드별 4개 컬럼 (STN_ID, 위도, 경도, 지역명)
                 const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
                 for (const field of fields) {
-                    const fieldCell = document.createElement('td');
-                    fieldCell.style.padding = '10px';
-                    fieldCell.style.border = '1px solid #ddd';
-                    fieldCell.style.textAlign = 'center';
+                    let stationId = '';
+                    let lat = '';
+                    let lon = '';
+                    let name = '';
 
                     if (mappings[field]) {
                         // 선택된 관측소 정보 찾기
@@ -1007,27 +1038,81 @@
                         const selected = candidates.find(c => c.station_id === mappings[field]);
 
                         if (selected) {
-                            fieldCell.innerHTML = `
-                                <strong>${selected.station_id}</strong><br>
-                                <small style="color: #666;">${selected.name}</small>
-                            `;
+                            stationId = selected.station_id;
+                            lat = selected.lat;
+                            lon = selected.lon;
+                            name = selected.name;
                         } else {
-                            fieldCell.textContent = mappings[field];
+                            stationId = mappings[field];
                         }
-                    } else {
-                        fieldCell.innerHTML = '<span style="color: #ccc;">미선택</span>';
                     }
 
-                    row.appendChild(fieldCell);
+                    // STN_ID 셀 (편집 가능)
+                    const idCell = document.createElement('td');
+                    idCell.style.padding = '8px';
+                    idCell.style.border = '1px solid #ddd';
+                    idCell.style.minWidth = '80px';
+                    idCell.contentEditable = 'true';
+                    idCell.textContent = stationId;
+                    idCell.setAttribute('data-field', field);
+                    idCell.setAttribute('data-column', 'id');
+                    idCell.style.cursor = 'text';
+                    idCell.style.background = stationId ? 'white' : '#fff9c4';
+                    row.appendChild(idCell);
+
+                    // 위도 셀 (편집 가능)
+                    const latCell = document.createElement('td');
+                    latCell.style.padding = '8px';
+                    latCell.style.border = '1px solid #ddd';
+                    latCell.style.minWidth = '80px';
+                    latCell.contentEditable = 'true';
+                    latCell.textContent = lat;
+                    latCell.setAttribute('data-field', field);
+                    latCell.setAttribute('data-column', 'lat');
+                    latCell.style.cursor = 'text';
+                    latCell.style.background = lat ? 'white' : '#fff9c4';
+                    row.appendChild(latCell);
+
+                    // 경도 셀 (편집 가능)
+                    const lonCell = document.createElement('td');
+                    lonCell.style.padding = '8px';
+                    lonCell.style.border = '1px solid #ddd';
+                    lonCell.style.minWidth = '80px';
+                    lonCell.contentEditable = 'true';
+                    lonCell.textContent = lon;
+                    lonCell.setAttribute('data-field', field);
+                    lonCell.setAttribute('data-column', 'lon');
+                    lonCell.style.cursor = 'text';
+                    lonCell.style.background = lon ? 'white' : '#fff9c4';
+                    row.appendChild(lonCell);
+
+                    // 지역명 셀 (편집 가능)
+                    const nameEditCell = document.createElement('td');
+                    nameEditCell.style.padding = '8px';
+                    nameEditCell.style.border = '1px solid #ddd';
+                    nameEditCell.style.minWidth = '100px';
+                    nameEditCell.contentEditable = 'true';
+                    nameEditCell.textContent = name;
+                    nameEditCell.setAttribute('data-field', field);
+                    nameEditCell.setAttribute('data-column', 'name');
+                    nameEditCell.style.cursor = 'text';
+                    nameEditCell.style.background = name ? 'white' : '#fff9c4';
+                    row.appendChild(nameEditCell);
                 }
 
                 tbody.appendChild(row);
             }
+
+            // 미리보기 섹션 표시
+            document.getElementById('previewSection').style.display = 'block';
         }
 
         function downloadExcel() {
-            if (Object.keys(selectedMappings).length === 0) {
-                alert('선택된 매칭이 없습니다. 먼저 해양관측소를 선택해주세요.');
+            const tbody = document.getElementById('previewTableBody');
+            const rows = tbody.querySelectorAll('tr');
+
+            if (rows.length === 0) {
+                alert('다운로드할 데이터가 없습니다. 먼저 매칭 실행을 해주세요.');
                 return;
             }
 
@@ -1036,169 +1121,108 @@
 
             // 헤더
             excelData.push([
-                '조석관측소 코드',
-                '조석관측소명',
-                '수온(wt) ID',
-                '수온(wt) 관측소명',
-                '수온(wt) 위도',
-                '수온(wt) 경도',
-                '파고(swh) ID',
-                '파고(swh) 관측소명',
-                '파고(swh) 위도',
-                '파고(swh) 경도',
-                '풍향(wd) ID',
-                '풍향(wd) 관측소명',
-                '풍향(wd) 위도',
-                '풍향(wd) 경도',
-                '풍속(ws) ID',
-                '풍속(ws) 관측소명',
-                '풍속(ws) 위도',
-                '풍속(ws) 경도',
-                '기온(at) ID',
-                '기온(at) 관측소명',
-                '기온(at) 위도',
-                '기온(at) 경도'
+                'Code', 'Name',
+                'wt_STN_ID', 'wt_위도(LAT)', 'wt_경도(LON)', 'wt_지역명(한글)',
+                'swh_STN_ID', 'swh_위도(LAT)', 'swh_경도(LON)', 'swh_지역명(한글)',
+                'wd_STN_ID', 'wd_위도(LAT)', 'wd_경도(LON)', 'wd_지역명(한글)',
+                'ws_STN_ID', 'ws_위도(LAT)', 'ws_경도(LON)', 'ws_지역명(한글)',
+                'at_STN_ID', 'at_위도(LAT)', 'at_경도(LON)', 'at_지역명(한글)'
             ]);
 
-            // 데이터 행
-            const sortedStations = Object.keys(analysisResults).sort();
+            // 데이터 행 - 테이블에서 직접 읽기 (수정된 값 포함)
+            for (const row of rows) {
+                const cells = row.querySelectorAll('td');
+                const rowData = [];
 
-            for (const stationCode of sortedStations) {
-                const data = analysisResults[stationCode];
-                const mappings = selectedMappings[stationCode] || {};
-
-                const row = [
-                    stationCode,
-                    data.tide_station_name
-                ];
-
-                const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
-                for (const field of fields) {
-                    if (mappings[field]) {
-                        const candidates = data.fieldRecommendations[field]?.candidates || [];
-                        const selected = candidates.find(c => c.station_id === mappings[field]);
-
-                        if (selected) {
-                            row.push(selected.station_id);
-                            row.push(selected.name);
-                            row.push(selected.lat);
-                            row.push(selected.lon);
-                        } else {
-                            row.push(mappings[field]);
-                            row.push('');
-                            row.push('');
-                            row.push('');
-                        }
-                    } else {
-                        row.push('');
-                        row.push('');
-                        row.push('');
-                        row.push('');
-                    }
+                // 모든 셀 값 읽기 (편집 불가능한 셀 + 편집 가능한 셀)
+                for (const cell of cells) {
+                    rowData.push(cell.textContent.trim());
                 }
 
-                excelData.push(row);
+                excelData.push(rowData);
             }
 
             // SheetJS로 엑셀 파일 생성
             const ws = XLSX.utils.aoa_to_sheet(excelData);
 
-            // 컬럼 너비 설정
+            // 컬럼 너비 설정 (22개 컬럼)
             ws['!cols'] = [
-                { wch: 15 }, // 조석관측소 코드
-                { wch: 15 }, // 조석관측소명
-                { wch: 12 }, // wt ID
-                { wch: 15 }, // wt 명
-                { wch: 12 }, // wt 위도
-                { wch: 12 }, // wt 경도
-                { wch: 12 }, // swh ID
-                { wch: 15 }, // swh 명
-                { wch: 12 }, // swh 위도
-                { wch: 12 }, // swh 경도
-                { wch: 12 }, // wd ID
-                { wch: 15 }, // wd 명
-                { wch: 12 }, // wd 위도
-                { wch: 12 }, // wd 경도
-                { wch: 12 }, // ws ID
-                { wch: 15 }, // ws 명
-                { wch: 12 }, // ws 위도
-                { wch: 12 }, // ws 경도
-                { wch: 12 }, // at ID
-                { wch: 15 }, // at 명
-                { wch: 12 }, // at 위도
-                { wch: 12 }  // at 경도
+                { wch: 12 }, // Code
+                { wch: 15 }, // Name
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, // wt
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, // swh
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, // wd
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, // ws
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }  // at
             ];
 
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, '조석-해양 관측소 매칭');
+            XLSX.utils.book_append_sheet(wb, ws, 'tide_abs_region');
 
             // 파일 다운로드
             const today = new Date().toISOString().split('T')[0];
-            const filename = `tide_marine_station_matching_${today}.xlsx`;
+            const filename = `tide_abs_region_${today}.xlsx`;
             XLSX.writeFile(wb, filename);
 
             console.log('엑셀 파일 다운로드 완료:', filename);
         }
 
         async function uploadToSupabase() {
-            if (Object.keys(selectedMappings).length === 0) {
-                alert('선택된 매칭이 없습니다. 먼저 해양관측소를 선택해주세요.');
+            const tbody = document.getElementById('previewTableBody');
+            const rows = tbody.querySelectorAll('tr');
+
+            if (rows.length === 0) {
+                alert('업로드할 데이터가 없습니다. 먼저 매칭 실행을 해주세요.');
                 return;
             }
 
-            if (!confirm(`${Object.keys(selectedMappings).length}개 조석관측소의 매칭 정보를 업로드하시겠습니까?`)) {
+            if (!confirm(`${rows.length}개 조석관측소의 매칭 정보를 업로드하시겠습니까?\n\n⚠️ 테이블에서 수정한 값이 그대로 반영됩니다.`)) {
                 return;
             }
 
             try {
                 const updates = [];
+                const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
 
-                for (const [stationCode, fieldMappings] of Object.entries(selectedMappings)) {
+                // 각 행을 순회하면서 데이터 읽기
+                for (const row of rows) {
+                    const stationCode = row.getAttribute('data-station-code');
+                    if (!stationCode) continue;
+
                     const updateData = {};
-                    const stationData = analysisResults[stationCode];
 
-                    // analysisResults가 없는 경우 체크
-                    if (!stationData) {
-                        console.error(`조석관측소 ${stationCode}의 분석 데이터가 없습니다. 먼저 매칭 실행을 해주세요.`);
-                        alert('분석 데이터가 없습니다. 먼저 "매칭 실행" 버튼을 클릭하여 데이터를 분석해주세요.');
-                        return;
-                    }
+                    // 각 필드별로 4개 컬럼(id, lat, lon, name) 읽기
+                    const cells = row.querySelectorAll('td[contenteditable="true"]');
 
-                    // 각 필드별로 선택된 관측소의 상세 정보 추가
-                    const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
-                    const fieldNames = {
-                        wt: '수온',
-                        swh: '파고',
-                        wd: '풍향',
-                        ws: '풍속',
-                        at: '기온'
-                    };
+                    for (const cell of cells) {
+                        const field = cell.getAttribute('data-field');
+                        const column = cell.getAttribute('data-column');
+                        const value = cell.textContent.trim();
 
-                    for (const field of fields) {
-                        if (fieldMappings[field]) {
-                            // 선택된 관측소 정보 찾기
-                            const candidates = stationData.fieldRecommendations[field]?.candidates || [];
-                            const selected = candidates.find(c => c.station_id === fieldMappings[field]);
+                        if (!field || !column) continue;
 
-                            if (selected) {
-                                // station_id, 위도, 경도, 지역명 모두 업데이트
-                                updateData[`${field}_STN_ID`] = selected.station_id;
-                                updateData[`${field}_위도(LAT)`] = selected.lat;
-                                updateData[`${field}_경도(LON)`] = selected.lon;
-                                updateData[`${field}_지역명(한글)`] = selected.name;
+                        // 컬럼명 매핑
+                        const columnMapping = {
+                            'id': `${field}_STN_ID`,
+                            'lat': `${field}_위도(LAT)`,
+                            'lon': `${field}_경도(LON)`,
+                            'name': `${field}_지역명(한글)`
+                        };
+
+                        const dbColumn = columnMapping[column];
+                        if (dbColumn) {
+                            // 빈 값은 null로 처리
+                            if (value === '') {
+                                updateData[dbColumn] = null;
                             } else {
-                                // 선택된 정보를 찾을 수 없는 경우 ID만 업데이트
-                                updateData[`${field}_STN_ID`] = fieldMappings[field];
-                                updateData[`${field}_위도(LAT)`] = null;
-                                updateData[`${field}_경도(LON)`] = null;
-                                updateData[`${field}_지역명(한글)`] = null;
+                                // 위도/경도는 숫자로 변환
+                                if (column === 'lat' || column === 'lon') {
+                                    const numValue = parseFloat(value);
+                                    updateData[dbColumn] = isNaN(numValue) ? null : numValue;
+                                } else {
+                                    updateData[dbColumn] = value;
+                                }
                             }
-                        } else {
-                            // 선택되지 않은 필드는 null로 설정
-                            updateData[`${field}_STN_ID`] = null;
-                            updateData[`${field}_위도(LAT)`] = null;
-                            updateData[`${field}_경도(LON)`] = null;
-                            updateData[`${field}_지역명(한글)`] = null;
                         }
                     }
 
@@ -1209,12 +1233,15 @@
                         .update(updateData)
                         .eq('Code', stationCode);
 
-                    if (error) throw error;
+                    if (error) {
+                        console.error(`Failed to update ${stationCode}:`, error);
+                        throw error;
+                    }
 
                     updates.push(stationCode);
                 }
 
-                alert(`✅ 업로드 완료!\n${updates.length}개 조석관측소의 해양관측소 매칭 정보가 업데이트되었습니다.\n\n업데이트된 항목:\n- 관측소 ID\n- 위도\n- 경도\n- 지역명`);
+                alert(`✅ 업로드 완료!\n${updates.length}개 조석관측소의 해양관측소 매칭 정보가 업데이트되었습니다.\n\n업데이트된 컬럼:\n- 각 필드별 STN_ID\n- 위도(LAT)\n- 경도(LON)\n- 지역명(한글)`);
 
             } catch (error) {
                 console.error('업로드 실패:', error);
