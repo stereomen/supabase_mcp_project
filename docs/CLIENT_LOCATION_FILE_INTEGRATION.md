@@ -19,10 +19,13 @@
 | 키 | 타입 | 설명 | 예시 값 |
 |---|---|---|---|
 | `location_file_version` | String | 현재 파일 버전 (정수) | `"1"`, `"2"`, `"3"` |
-| `location_file_url` | String | XML 파일 다운로드 URL | `"https://iwpgvdtfpwazzfeniusk.supabase.co/storage/v1/object/public/location-files/locations_v1.xml"` |
+| `location_file_data_base64` | String | Base64로 인코딩된 XML 전체 내용 | `"PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPExvY2F0aW9ucz4..."` |
 
 ### 기본값 (Fallback)
 Remote Config를 가져오지 못한 경우 앱에 번들된 `locations_v1.xml`을 사용합니다.
+
+### 💡 중요: Base64 인코딩 방식
+관리자 페이지에서 XML 파일을 업로드한 후 "Base64 인코딩하여 Remote Config 배포" 버튼을 클릭하면, XML 전체 내용이 Base64로 인코딩되어 `location_file_data_base64` 파라미터에 저장됩니다. 클라이언트는 이 값을 가져와서 디코딩하여 사용합니다.
 
 ---
 
@@ -76,7 +79,7 @@ class LocationFileManager(private val context: Context) {
 
         // Remote Config 키
         private const val RC_VERSION_KEY = "location_file_version"
-        private const val RC_URL_KEY = "location_file_url"
+        private const val RC_DATA_KEY = "location_file_data_base64"
     }
 
     init {
@@ -106,7 +109,7 @@ class LocationFileManager(private val context: Context) {
                 Log.d(TAG, "Remote Config fetch success: $fetchSuccess")
 
                 val remoteVersion = remoteConfig.getString(RC_VERSION_KEY).toIntOrNull() ?: 1
-                val remoteUrl = remoteConfig.getString(RC_URL_KEY)
+                val remoteDataBase64 = remoteConfig.getString(RC_DATA_KEY)
                 val localVersion = prefs.getInt(LOCAL_VERSION_KEY, 0)
 
                 Log.d(TAG, "Remote version: $remoteVersion, Local version: $localVersion")
@@ -119,17 +122,17 @@ class LocationFileManager(private val context: Context) {
                 }
 
                 // 새 버전 확인
-                if (remoteVersion > localVersion && remoteUrl.isNotEmpty()) {
-                    Log.d(TAG, "New version available: $remoteVersion. Downloading...")
+                if (remoteVersion > localVersion && remoteDataBase64.isNotEmpty()) {
+                    Log.d(TAG, "New version available: $remoteVersion. Decoding Base64 data...")
 
-                    val downloadSuccess = downloadLocationFile(remoteUrl, remoteVersion)
+                    val decodeSuccess = decodeAndSaveLocationFile(remoteDataBase64, remoteVersion)
 
-                    if (downloadSuccess) {
+                    if (decodeSuccess) {
                         prefs.edit().putInt(LOCAL_VERSION_KEY, remoteVersion).apply()
                         Log.d(TAG, "Update complete: v$remoteVersion")
                         return@withContext UpdateResult.Updated(remoteVersion)
                     } else {
-                        Log.e(TAG, "Download failed")
+                        Log.e(TAG, "Decode failed")
                         return@withContext UpdateResult.DownloadFailed
                     }
                 }
@@ -145,38 +148,28 @@ class LocationFileManager(private val context: Context) {
     }
 
     /**
-     * XML 파일 다운로드
+     * Base64 디코딩 및 XML 저장
      */
-    private fun downloadLocationFile(url: String, version: Int): Boolean {
+    private fun decodeAndSaveLocationFile(base64Data: String, version: Int): Boolean {
         return try {
-            val connection = URL(url).openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.connectTimeout = 15000
-            connection.readTimeout = 15000
+            // Base64 디코딩
+            val decodedBytes = android.util.Base64.decode(base64Data, android.util.Base64.DEFAULT)
+            val xmlContent = String(decodedBytes, Charsets.UTF_8)
 
-            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                connection.inputStream.use { input ->
-                    val xmlContent = input.bufferedReader().readText()
-
-                    // 간단한 XML 유효성 검증
-                    if (!xmlContent.trim().startsWith("<")) {
-                        Log.e(TAG, "Invalid XML content")
-                        return false
-                    }
-
-                    // 내부 저장소에 저장
-                    val file = File(context.filesDir, LOCATION_FILE_NAME)
-                    file.writeText(xmlContent)
-
-                    Log.d(TAG, "File saved: ${file.absolutePath}, Size: ${xmlContent.length} bytes")
-                    return true
-                }
-            } else {
-                Log.e(TAG, "HTTP error: ${connection.responseCode}")
+            // 간단한 XML 유효성 검증
+            if (!xmlContent.trim().startsWith("<")) {
+                Log.e(TAG, "Invalid XML content after decoding")
                 return false
             }
+
+            // 내부 저장소에 저장
+            val file = File(context.filesDir, LOCATION_FILE_NAME)
+            file.writeText(xmlContent)
+
+            Log.d(TAG, "File saved: ${file.absolutePath}, Size: ${xmlContent.length} bytes")
+            return true
         } catch (e: Exception) {
-            Log.e(TAG, "Download failed", e)
+            Log.e(TAG, "Decode and save failed", e)
             false
         }
     }
@@ -349,7 +342,7 @@ class LocationFileManager {
 
     // Remote Config 키
     private let rcVersionKey = "location_file_version"
-    private let rcUrlKey = "location_file_url"
+    private let rcDataKey = "location_file_data_base64"
 
     private init() {
         // Remote Config 설정
@@ -383,7 +376,7 @@ class LocationFileManager {
 
     private func processRemoteConfig(completion: @escaping (UpdateResult) -> Void) {
         let remoteVersion = Int(remoteConfig[rcVersionKey].stringValue ?? "1") ?? 1
-        let remoteUrl = remoteConfig[rcUrlKey].stringValue ?? ""
+        let remoteDataBase64 = remoteConfig[rcDataKey].stringValue ?? ""
         let localVersion = userDefaults.integer(forKey: localVersionKey)
 
         print("📦 Remote version: \(remoteVersion), Local version: \(localVersion)")
@@ -397,20 +390,18 @@ class LocationFileManager {
         }
 
         // 새 버전 확인
-        if remoteVersion > localVersion && !remoteUrl.isEmpty {
-            print("⬇️ Downloading new version: \(remoteVersion)")
+        if remoteVersion > localVersion && !remoteDataBase64.isEmpty {
+            print("🔓 Decoding Base64 data for version: \(remoteVersion)")
 
-            downloadLocationFile(url: remoteUrl, version: remoteVersion) { [weak self] success in
-                guard let self = self else { return }
+            let success = decodeAndSaveLocationFile(base64Data: remoteDataBase64, version: remoteVersion)
 
-                if success {
-                    self.userDefaults.set(remoteVersion, forKey: self.localVersionKey)
-                    print("✅ Update complete: v\(remoteVersion)")
-                    completion(.updated(remoteVersion))
-                } else {
-                    print("❌ Download failed")
-                    completion(.downloadFailed)
-                }
+            if success {
+                userDefaults.set(remoteVersion, forKey: localVersionKey)
+                print("✅ Update complete: v\(remoteVersion)")
+                completion(.updated(remoteVersion))
+            } else {
+                print("❌ Decode failed")
+                completion(.downloadFailed)
             }
         } else {
             print("✅ Already up to date: v\(localVersion)")
@@ -418,46 +409,38 @@ class LocationFileManager {
         }
     }
 
-    private func downloadLocationFile(url: String, version: Int, completion: @escaping (Bool) -> Void) {
-        guard let downloadUrl = URL(string: url) else {
-            completion(false)
-            return
+    private func decodeAndSaveLocationFile(base64Data: String, version: Int) -> Bool {
+        // Base64 디코딩
+        guard let decodedData = Data(base64Encoded: base64Data) else {
+            print("❌ Base64 decode failed")
+            return false
         }
 
-        let task = URLSession.shared.dataTask(with: downloadUrl) { [weak self] data, response, error in
-            guard let self = self,
-                  let data = data,
-                  error == nil,
-                  let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200 else {
-                print("❌ Download error: \(error?.localizedDescription ?? "Unknown")")
-                completion(false)
-                return
-            }
-
-            // XML 유효성 간단 검증
-            if let xmlString = String(data: data, encoding: .utf8),
-               xmlString.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("<") {
-
-                let fileManager = FileManager.default
-                let documentsPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                let destinationURL = documentsPath.appendingPathComponent(self.locationFileName)
-
-                do {
-                    try data.write(to: destinationURL)
-                    print("✅ File saved: \(destinationURL.path), Size: \(data.count) bytes")
-                    completion(true)
-                } catch {
-                    print("❌ Failed to save: \(error)")
-                    completion(false)
-                }
-            } else {
-                print("❌ Invalid XML content")
-                completion(false)
-            }
+        // UTF-8 문자열로 변환
+        guard let xmlString = String(data: decodedData, encoding: .utf8) else {
+            print("❌ UTF-8 decode failed")
+            return false
         }
 
-        task.resume()
+        // XML 유효성 간단 검증
+        guard xmlString.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("<") else {
+            print("❌ Invalid XML content after decoding")
+            return false
+        }
+
+        // 파일 저장
+        let fileManager = FileManager.default
+        let documentsPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let destinationURL = documentsPath.appendingPathComponent(locationFileName)
+
+        do {
+            try decodedData.write(to: destinationURL)
+            print("✅ File saved: \(destinationURL.path), Size: \(decodedData.count) bytes")
+            return true
+        } catch {
+            print("❌ Failed to save: \(error)")
+            return false
+        }
     }
 
     private func copyBundledFile() {
