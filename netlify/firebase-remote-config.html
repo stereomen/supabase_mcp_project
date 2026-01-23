@@ -930,12 +930,50 @@
                     const config = result.config;
                     const version = config.parameters?.location_file_version?.defaultValue?.value || '없음';
                     const url = config.parameters?.location_file_url?.defaultValue?.value || '없음';
+                    const base64Data = config.parameters?.location_file_data_base64?.defaultValue?.value || '';
+
+                    let base64Info = '';
+                    let xmlPreview = '';
+
+                    if (base64Data) {
+                        const base64Size = (base64Data.length / 1024).toFixed(2);
+
+                        try {
+                            // Base64 디코딩해서 미리보기
+                            const decodedData = atob(base64Data);
+                            const xmlContent = decodeURIComponent(escape(decodedData));
+                            const previewLength = 500;
+                            const preview = xmlContent.substring(0, previewLength);
+
+                            // Location 개수 세기
+                            const locationMatches = xmlContent.match(/<Location>/g);
+                            const locationCount = locationMatches ? locationMatches.length : 0;
+
+                            base64Info = `
+                                <p><strong>📦 Base64 데이터:</strong> <span class="value">✅ 배포됨 (${base64Size} KB)</span></p>
+                                <p><strong>📍 지역 개수:</strong> <span class="value">${locationCount}개</span></p>
+                            `;
+
+                            xmlPreview = `
+                                <div style="margin-top: 10px;">
+                                    <strong>🔍 XML 미리보기:</strong>
+                                    <div class="xml-preview" style="max-height: 200px;">${escapeHtml(preview)}${xmlContent.length > previewLength ? '\n... (생략)' : ''}</div>
+                                </div>
+                            `;
+                        } catch (e) {
+                            base64Info = `<p><strong>📦 Base64 데이터:</strong> <span class="value">❌ 디코딩 실패 (${base64Size} KB)</span></p>`;
+                        }
+                    } else {
+                        base64Info = '<p><strong>📦 Base64 데이터:</strong> <span class="value">❌ 없음 (URL 방식)</span></p>';
+                    }
 
                     displayDiv.innerHTML = `
                         <div class="info-card">
                             <h3>📋 현재 배포된 버전 정보</h3>
                             <p><strong>버전:</strong> <span class="value">${version}</span></p>
-                            <p><strong>URL:</strong> <span class="value"><a href="${url}" target="_blank">${url}</a></span></p>
+                            ${base64Info}
+                            <p><strong>Storage URL:</strong> <span class="value"><a href="${url}" target="_blank" style="font-size: 12px;">${url !== '없음' ? url : '없음'}</a></span></p>
+                            ${xmlPreview}
                             ${config.version ? `
                                 <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
                                     <strong>Remote Config 버전:</strong> ${config.version.versionNumber || 'N/A'}<br>
