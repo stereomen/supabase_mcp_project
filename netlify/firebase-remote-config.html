@@ -1173,12 +1173,17 @@
             return div.innerHTML;
         }
 
-        // Base64 인코딩하여 Remote Config에 배포 (업로드 섹션)
+        // Base64 인코딩하여 Remote Config에 배포 (Storage 업로드 + Remote Config 배포)
         async function encodeAndDeployFile() {
             const adminPassword = sessionStorage.getItem('adminSecret');
             if (!adminPassword) {
                 alert('로그인이 필요합니다.');
                 window.location.href = 'admin-login.html';
+                return;
+            }
+
+            if (!supabaseClient) {
+                alert('Supabase 클라이언트를 초기화할 수 없습니다.');
                 return;
             }
 
@@ -1199,36 +1204,86 @@
 
             const file = fileInput.files[0];
             const version = versionInput.value;
+            const fileName = `locations_v${version}.xml`;
 
             encodeBtn.disabled = true;
-            uploadStatus.innerHTML = '<div class="alert alert-info">🔄 Base64 인코딩 및 Remote Config 업데이트 중...</div>';
+            uploadStatus.innerHTML = '<div class="alert alert-info">🔄 1/2 Storage에 업로드 중...</div>';
 
             try {
-                // 파일 읽기
-                const xmlContent = await file.text();
+                // 1단계: Storage에 업로드
+                // 중복 확인
+                const { data: existingFiles, error: listError } = await supabaseClient
+                    .storage
+                    .from('location-files')
+                    .list('', { search: fileName });
 
-                // Base64 인코딩
+                if (listError) {
+                    throw new Error('Storage 조회 실패: ' + listError.message);
+                }
+
+                // 기존 파일이 있으면 삭제 후 재업로드
+                if (existingFiles && existingFiles.length > 0) {
+                    const { error: deleteError } = await supabaseClient
+                        .storage
+                        .from('location-files')
+                        .remove([fileName]);
+
+                    if (deleteError) {
+                        console.warn('기존 파일 삭제 실패:', deleteError);
+                    }
+                }
+
+                // 파일 업로드
+                const { data: uploadData, error: uploadError } = await supabaseClient
+                    .storage
+                    .from('location-files')
+                    .upload(fileName, file, {
+                        contentType: 'application/xml',
+                        upsert: true  // 덮어쓰기 허용
+                    });
+
+                if (uploadError) {
+                    throw new Error('Storage 업로드 실패: ' + uploadError.message);
+                }
+
+                // Public URL 생성
+                const { data: urlData } = supabaseClient
+                    .storage
+                    .from('location-files')
+                    .getPublicUrl(fileName);
+
+                const fileUrl = urlData.publicUrl;
+
+                uploadStatus.innerHTML = '<div class="alert alert-info">🔄 2/2 Base64 인코딩 및 Remote Config 업데이트 중...</div>';
+
+                // 2단계: 파일 읽기 및 Base64 인코딩
+                const xmlContent = await file.text();
                 const base64Content = btoa(unescape(encodeURIComponent(xmlContent)));
 
-                // Remote Config에 배포
-                const success = await updateRemoteConfigWithBase64(version, base64Content, adminPassword);
+                // 3단계: Remote Config에 배포
+                const success = await updateRemoteConfigWithBase64(version, base64Content, adminPassword, fileUrl);
 
                 if (success) {
                     uploadStatus.innerHTML = `
                         <div class="alert alert-success">
-                            ✅ Remote Config 배포 성공!<br>
+                            ✅ Storage 업로드 및 Remote Config 배포 완료!<br>
                             📦 버전: ${version}<br>
+                            🔗 Storage URL: <a href="${fileUrl}" target="_blank">${fileUrl}</a><br>
                             📊 인코딩된 크기: ${(base64Content.length / 1024).toFixed(2)} KB<br>
-                            🔑 키: location_file_data_base64
+                            🔑 Remote Config 키: location_file_data_base64
                         </div>
                     `;
-                    addLog('✅ 지역 파일 Base64 배포 성공: v' + version);
+                    addLog('✅ 지역 파일 업로드 및 Base64 배포 성공: v' + version);
+
+                    // 버전 히스토리 새로고침
+                    loadLocationVersionHistory();
+                    loadCurrentLocationVersion();
                 } else {
-                    uploadStatus.innerHTML = '<div class="alert alert-error">❌ Remote Config 업데이트 실패</div>';
+                    uploadStatus.innerHTML = '<div class="alert alert-error">❌ Remote Config 업데이트 실패 (Storage 업로드는 성공)</div>';
                 }
             } catch (error) {
                 uploadStatus.innerHTML = '<div class="alert alert-error">❌ 오류: ' + error.message + '</div>';
-                addLog('❌ Base64 배포 오류: ' + error.message);
+                addLog('❌ 배포 오류: ' + error.message);
             } finally {
                 encodeBtn.disabled = false;
             }
@@ -1263,6 +1318,14 @@
                     throw new Error('파일 다운로드 실패: ' + error.message);
                 }
 
+                // Public URL 생성
+                const { data: urlData } = supabaseClient
+                    .storage
+                    .from('location-files')
+                    .getPublicUrl(fileName);
+
+                const fileUrl = urlData.publicUrl;
+
                 // Blob을 텍스트로 변환
                 const xmlContent = await data.text();
 
@@ -1270,11 +1333,12 @@
                 const base64Content = btoa(unescape(encodeURIComponent(xmlContent)));
 
                 // Remote Config에 배포
-                const success = await updateRemoteConfigWithBase64(version, base64Content, adminPassword);
+                const success = await updateRemoteConfigWithBase64(version, base64Content, adminPassword, fileUrl);
 
                 if (success) {
                     alert(`✅ 버전 ${version}이 Remote Config에 배포되었습니다!\n인코딩된 크기: ${(base64Content.length / 1024).toFixed(2)} KB`);
                     addLog('✅ 지역 파일 Base64 배포 성공: v' + version);
+                    loadCurrentLocationVersion();
                 } else {
                     alert('❌ Remote Config 업데이트 실패');
                 }
@@ -1285,7 +1349,7 @@
         }
 
         // Remote Config에 Base64 데이터 업데이트 (공통 함수)
-        async function updateRemoteConfigWithBase64(version, base64Content, adminPassword) {
+        async function updateRemoteConfigWithBase64(version, base64Content, adminPassword, fileUrl = null) {
             try {
                 // 버전 업데이트
                 const versionResponse = await fetch(FUNCTION_URL, {
@@ -1331,6 +1395,32 @@
                 const dataResult = await dataResponse.json();
                 if (!dataResult.success) {
                     throw new Error('데이터 업데이트 실패: ' + (dataResult.error || dataResult.message));
+                }
+
+                // Storage URL 업데이트 (fileUrl이 제공된 경우)
+                if (fileUrl) {
+                    const urlResponse = await fetch(FUNCTION_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                        },
+                        body: JSON.stringify({
+                            adminPassword: adminPassword,
+                            authenticated: true,
+                            action: 'update',
+                            projectId: 'mancooltime-83e29',
+                            paramKey: 'location_file_url',
+                            paramValue: fileUrl,
+                            paramDescription: '지역 목록 XML 파일 Storage URL (백업용)'
+                        })
+                    });
+
+                    const urlResult = await urlResponse.json();
+                    if (!urlResult.success) {
+                        console.warn('URL 업데이트 실패:', urlResult.error || urlResult.message);
+                        // URL 업데이트 실패는 치명적이지 않으므로 계속 진행
+                    }
                 }
 
                 return true;
