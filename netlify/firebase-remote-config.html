@@ -776,31 +776,55 @@
 
                 // XML 유효성 검증
                 try {
+                    // 기본 체크: XML 시작 태그 확인
+                    const trimmed = xmlContent.trim();
+                    if (!trimmed.startsWith('<?xml') && !trimmed.startsWith('<')) {
+                        throw new Error('XML 파일이 아닙니다. 파일 형식을 확인하세요.');
+                    }
+
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
 
                     const parserError = xmlDoc.querySelector('parsererror');
                     if (parserError) {
-                        throw new Error('XML 파싱 오류');
+                        const errorText = parserError.textContent || 'XML 구문 오류';
+                        throw new Error('XML 파싱 오류: ' + errorText);
                     }
 
                     // Location 개수 세기
                     const locations = xmlDoc.querySelectorAll('Location');
                     const locationCount = locations.length;
 
+                    // Locations 루트 확인
+                    const root = xmlDoc.documentElement;
+                    const rootName = root ? root.nodeName : '알 수 없음';
+
                     previewDiv.innerHTML = `
                         <div class="alert alert-success">
                             ✅ 유효한 XML 파일입니다<br>
                             📊 파일 크기: ${(file.size / 1024).toFixed(2)} KB<br>
-                            📍 지역 개수: ${locationCount}개
+                            📍 지역 개수: ${locationCount}개<br>
+                            🏷️ 루트 태그: &lt;${rootName}&gt;
                         </div>
                         <div class="xml-preview">${escapeHtml(xmlContent.substring(0, 500))}${xmlContent.length > 500 ? '\n... (생략)' : ''}</div>
                     `;
                 } catch (error) {
-                    previewDiv.innerHTML = '<div class="alert alert-error">❌ XML 파싱 실패: 파일 형식을 확인하세요</div>';
+                    console.error('XML Preview Error:', error);
+                    previewDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            ❌ XML 파싱 실패<br>
+                            <strong>오류:</strong> ${error.message}<br>
+                            <br>
+                            <small>파일 내용 미리보기:</small>
+                            <div class="xml-preview" style="max-height: 150px;">${escapeHtml(xmlContent.substring(0, 200))}</div>
+                        </div>
+                    `;
                 }
             };
-            reader.readAsText(file);
+            reader.onerror = function(e) {
+                previewDiv.innerHTML = '<div class="alert alert-error">❌ 파일 읽기 실패: ' + e.target.error + '</div>';
+            };
+            reader.readAsText(file, 'UTF-8');
         }
 
         async function uploadLocationFile() {
