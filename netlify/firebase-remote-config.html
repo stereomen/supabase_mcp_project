@@ -356,7 +356,7 @@
                     <input type="file" id="xmlFile" accept=".xml" onchange="previewXMLFile()">
                 </div>
                 <div class="form-group">
-                    <label for="version">버전 번호:</label>
+                    <label for="version">버전 번호: <span id="currentVersionHint" style="color: #888; font-weight: normal; font-size: 14px;"></span></label>
                     <input type="text" id="version" placeholder="예: 1, 2, 3..." pattern="[0-9]+">
                     <small style="color: #888;">정수 버전 번호를 입력하세요 (예: 1, 2, 3...)</small>
                 </div>
@@ -1009,6 +1009,18 @@
                         base64Info = '<p><strong>📦 Base64 데이터:</strong> <span class="value">❌ 없음 (URL 방식)</span></p>';
                     }
 
+                    // 버전 번호 입력란 옆에 현재 버전 표시
+                    const versionHintElem = document.getElementById('currentVersionHint');
+                    if (versionHintElem) {
+                        if (version !== '없음') {
+                            versionHintElem.textContent = `(현재: v${version})`;
+                            versionHintElem.style.color = '#2196F3';
+                        } else {
+                            versionHintElem.textContent = '(배포된 버전 없음)';
+                            versionHintElem.style.color = '#888';
+                        }
+                    }
+
                     displayDiv.innerHTML = `
                         <div class="info-card">
                             <h3>📋 현재 배포된 버전 정보</h3>
@@ -1026,9 +1038,23 @@
                     `;
                 } else {
                     displayDiv.innerHTML = '<div class="alert alert-error">❌ 조회 실패: ' + (result.error || result.message) + '</div>';
+
+                    // 에러 시에도 힌트 표시
+                    const versionHintElem = document.getElementById('currentVersionHint');
+                    if (versionHintElem) {
+                        versionHintElem.textContent = '(조회 실패)';
+                        versionHintElem.style.color = '#f44336';
+                    }
                 }
             } catch (error) {
                 displayDiv.innerHTML = '<div class="alert alert-error">❌ 오류: ' + error.message + '</div>';
+
+                // 에러 시에도 힌트 표시
+                const versionHintElem = document.getElementById('currentVersionHint');
+                if (versionHintElem) {
+                    versionHintElem.textContent = '(조회 실패)';
+                    versionHintElem.style.color = '#f44336';
+                }
             }
         }
 
