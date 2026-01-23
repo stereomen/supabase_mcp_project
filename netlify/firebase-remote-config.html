@@ -858,33 +858,22 @@
 
             const file = fileInput.files[0];
             const version = versionInput.value;
-            const fileName = `locations_v${version}.xml`;
+
+            // CDN 캐시 문제를 해결하기 위해 파일명에 타임스탬프 포함
+            const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+            const fileName = `locations_v${version}_${timestamp}.xml`;
 
             uploadBtn.disabled = true;
             uploadStatus.innerHTML = '<div class="alert alert-info">🔄 Storage에 업로드 중...</div>';
 
             try {
-                // 중복 확인
-                const { data: existingFiles, error: listError } = await supabaseClient
-                    .storage
-                    .from('location-files')
-                    .list('', { search: fileName });
-
-                if (listError) {
-                    throw new Error('Storage 조회 실패: ' + listError.message);
-                }
-
-                if (existingFiles && existingFiles.length > 0) {
-                    uploadStatus.innerHTML = `<div class="alert alert-error">❌ 버전 ${version}이 이미 존재합니다. 다른 버전 번호를 사용하세요.</div>`;
-                    return;
-                }
-
-                // 파일 업로드
+                // 파일 업로드 (타임스탬프로 고유한 파일명 보장)
                 const { data, error } = await supabaseClient
                     .storage
                     .from('location-files')
                     .upload(fileName, file, {
                         contentType: 'application/xml',
+                        cacheControl: 'no-cache, no-store, must-revalidate',
                         upsert: false
                     });
 
@@ -904,7 +893,7 @@
                     <div class="alert alert-success">
                         ✅ Storage 업로드 성공!<br>
                         📦 버전: ${version}<br>
-                        🔗 URL: <a href="${fileUrl}" target="_blank">${fileUrl}</a><br>
+                        🔗 URL: <a href="${fileUrl}" target="_blank">${fileName}</a><br>
                         📄 파일명: ${fileName}<br>
                         <br>
                         💡 이제 "Base64 인코딩하여 Remote Config 배포" 버튼을 클릭하거나<br>
@@ -912,7 +901,10 @@
                     </div>
                 `;
 
-                addLog('✅ 지역 파일 Storage 업로드 성공: v' + version);
+                addLog('✅ 지역 파일 Storage 업로드 성공: v' + version + ' (' + fileName + ')');
+
+                // 버전 히스토리 새로고침
+                loadLocationVersionHistory();
 
                 // 폼은 초기화하지 않음 (인코딩 버튼을 위해 파일 유지)
             } catch (error) {
@@ -1052,8 +1044,8 @@
                 let html = '<ul class="file-list">';
 
                 for (const file of files) {
-                    // 파일명에서 버전 추출 (locations_v1.xml -> 1)
-                    const versionMatch = file.name.match(/locations_v(\d+)\.xml/);
+                    // 파일명에서 버전 추출 (locations_v1.xml 또는 locations_v1_20260123.xml -> 1)
+                    const versionMatch = file.name.match(/locations_v(\d+)(?:_\d+)?\.xml/);
                     const version = versionMatch ? versionMatch[1] : '알 수 없음';
 
                     const { data: urlData } = supabaseClient.storage
@@ -1069,13 +1061,12 @@
                             <div class="file-info">
                                 <div class="file-name">📦 버전 ${version}</div>
                                 <div class="file-meta">
-                                    📄 ${file.name} | 💾 ${fileSize} KB | 📅 ${createdAt}
+                                    📄 ${file.name}<br>💾 ${fileSize} KB | 📅 ${createdAt}
                                 </div>
                             </div>
                             <div class="file-actions">
                                 <button class="btn-small" onclick="window.open('${fileUrl}', '_blank')">다운로드</button>
                                 <button class="btn-small" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);" onclick="deployVersionToRemoteConfig('${version}', '${file.name}')">📦 Remote Config 배포</button>
-                                <button class="btn-small btn-secondary" onclick="rollbackToLocationVersion('${version}', '${fileUrl}')">URL 롤백</button>
                             </div>
                         </li>
                     `;
@@ -1204,7 +1195,10 @@
 
             const file = fileInput.files[0];
             const version = versionInput.value;
-            const fileName = `locations_v${version}.xml`;
+
+            // CDN 캐시 문제를 해결하기 위해 파일명에 타임스탬프 포함
+            const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+            const fileName = `locations_v${version}_${timestamp}.xml`;
 
             encodeBtn.disabled = true;
             uploadStatus.innerHTML = '<div class="alert alert-info">🔄 1/3 파일 읽기 중...</div>';
@@ -1216,29 +1210,7 @@
 
                 uploadStatus.innerHTML = '<div class="alert alert-info">🔄 2/3 Storage에 업로드 중...</div>';
 
-                // 2단계: Storage에 업로드
-                // 중복 확인
-                const { data: existingFiles, error: listError } = await supabaseClient
-                    .storage
-                    .from('location-files')
-                    .list('', { search: fileName });
-
-                if (listError) {
-                    throw new Error('Storage 조회 실패: ' + listError.message);
-                }
-
-                // 기존 파일이 있으면 삭제
-                if (existingFiles && existingFiles.length > 0) {
-                    const { error: deleteError } = await supabaseClient
-                        .storage
-                        .from('location-files')
-                        .remove([fileName]);
-
-                    if (deleteError) {
-                        throw new Error('기존 파일 삭제 실패: ' + deleteError.message);
-                    }
-                }
-
+                // 2단계: Storage에 업로드 (고유한 파일명으로 항상 새 파일)
                 // XML 내용을 Blob으로 변환하여 업로드
                 const blob = new Blob([xmlContent], { type: 'application/xml' });
                 const { data: uploadData, error: uploadError } = await supabaseClient
@@ -1246,7 +1218,7 @@
                     .from('location-files')
                     .upload(fileName, blob, {
                         contentType: 'application/xml',
-                        cacheControl: '3600',  // 1시간 캐시
+                        cacheControl: 'no-cache, no-store, must-revalidate',  // 캐시 비활성화
                         upsert: false
                     });
 
@@ -1254,13 +1226,13 @@
                     throw new Error('Storage 업로드 실패: ' + uploadError.message);
                 }
 
-                // Public URL 생성 (캐시 버스팅을 위해 타임스탬프 추가)
+                // Public URL 생성
                 const { data: urlData } = supabaseClient
                     .storage
                     .from('location-files')
                     .getPublicUrl(fileName);
 
-                const fileUrl = urlData.publicUrl + '?t=' + Date.now();
+                const fileUrl = urlData.publicUrl;
 
                 uploadStatus.innerHTML = '<div class="alert alert-info">🔄 3/3 Remote Config 업데이트 중...</div>';
 
