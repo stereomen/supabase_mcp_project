@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Firebase Remote Config 관리</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -155,6 +156,128 @@
         .back-button:hover {
             gap: 12px;
         }
+        input[type="file"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .info-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px solid #e0e0e0;
+        }
+        .info-card h3 {
+            color: #007cba;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .info-card p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .info-card .value {
+            font-family: monospace;
+            color: #333;
+            font-weight: bold;
+        }
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+        .file-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e0e0e0;
+        }
+        .file-info {
+            flex: 1;
+        }
+        .file-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .file-meta {
+            font-size: 12px;
+            color: #888;
+        }
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 12px;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007cba;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .xml-preview {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
@@ -166,6 +289,7 @@
         <div class="tabs">
             <div class="tab active" onclick="showTab('view')">조회</div>
             <div class="tab" onclick="showTab('update')">업데이트</div>
+            <div class="tab" onclick="showTab('locationFile')">📍 지역 파일</div>
             <div class="tab" onclick="showTab('logs')">로그</div>
         </div>
 
@@ -223,6 +347,37 @@
             </div>
         </div>
 
+        <!-- 지역 파일 관리 탭 -->
+        <div id="locationFileTab" class="tab-content">
+            <div class="section">
+                <h2>📤 새 버전 업로드</h2>
+                <div class="form-group">
+                    <label for="xmlFile">XML 파일 선택:</label>
+                    <input type="file" id="xmlFile" accept=".xml" onchange="previewXMLFile()">
+                </div>
+                <div class="form-group">
+                    <label for="version">버전 번호:</label>
+                    <input type="text" id="version" placeholder="예: 1, 2, 3..." pattern="[0-9]+">
+                    <small style="color: #888;">정수 버전 번호를 입력하세요 (예: 1, 2, 3...)</small>
+                </div>
+                <div id="xmlPreview"></div>
+                <button onclick="uploadLocationFile()" id="uploadBtn">업로드 및 Remote Config 업데이트</button>
+                <div id="uploadStatus"></div>
+            </div>
+
+            <div class="section">
+                <h2>📋 현재 배포된 버전</h2>
+                <button onclick="loadCurrentLocationVersion()">현재 버전 조회</button>
+                <div id="currentLocationVersionDisplay"></div>
+            </div>
+
+            <div class="section">
+                <h2>📚 업로드된 버전 히스토리</h2>
+                <button onclick="loadLocationVersionHistory()">버전 목록 새로고침</button>
+                <div id="locationVersionHistoryDisplay"></div>
+            </div>
+        </div>
+
         <!-- 로그 탭 -->
         <div id="logsTab" class="tab-content">
             <div class="section">
@@ -245,6 +400,12 @@
 
         // 현재 Remote Config 데이터 저장
         let currentConfig = null;
+
+        // Supabase 클라이언트 초기화
+        let supabaseClient = null;
+        if (typeof supabase !== 'undefined') {
+            supabaseClient = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+        }
 
         // 로그인 체크 (iframe 안에서는 체크 안 함)
         if (window.self === window.top) {
@@ -588,6 +749,352 @@
         function clearLogs() {
             document.getElementById('logs').innerHTML = '';
         }
+
+        // ========== 지역 파일 관리 함수 ==========
+
+        function previewXMLFile() {
+            const fileInput = document.getElementById('xmlFile');
+            const previewDiv = document.getElementById('xmlPreview');
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                previewDiv.innerHTML = '';
+                return;
+            }
+
+            const file = fileInput.files[0];
+
+            // 파일 크기 체크 (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                previewDiv.innerHTML = '<div class="alert alert-error">❌ 파일 크기가 10MB를 초과합니다</div>';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const xmlContent = e.target.result;
+
+                // XML 유효성 검증
+                try {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+
+                    const parserError = xmlDoc.querySelector('parsererror');
+                    if (parserError) {
+                        throw new Error('XML 파싱 오류');
+                    }
+
+                    // Location 개수 세기
+                    const locations = xmlDoc.querySelectorAll('Location');
+                    const locationCount = locations.length;
+
+                    previewDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            ✅ 유효한 XML 파일입니다<br>
+                            📊 파일 크기: ${(file.size / 1024).toFixed(2)} KB<br>
+                            📍 지역 개수: ${locationCount}개
+                        </div>
+                        <div class="xml-preview">${escapeHtml(xmlContent.substring(0, 500))}${xmlContent.length > 500 ? '\n... (생략)' : ''}</div>
+                    `;
+                } catch (error) {
+                    previewDiv.innerHTML = '<div class="alert alert-error">❌ XML 파싱 실패: 파일 형식을 확인하세요</div>';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function uploadLocationFile() {
+            const adminPassword = sessionStorage.getItem('adminSecret');
+            if (!adminPassword) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            const fileInput = document.getElementById('xmlFile');
+            const versionInput = document.getElementById('version');
+            const uploadStatus = document.getElementById('uploadStatus');
+            const uploadBtn = document.getElementById('uploadBtn');
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                uploadStatus.innerHTML = '<div class="alert alert-error">❌ 파일을 선택하세요</div>';
+                return;
+            }
+
+            if (!versionInput.value) {
+                uploadStatus.innerHTML = '<div class="alert alert-error">❌ 버전 번호를 입력하세요</div>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const version = parseInt(versionInput.value);
+
+            uploadBtn.disabled = true;
+            uploadStatus.innerHTML = '<div class="alert alert-info">🔄 파일 업로드 중...</div>';
+
+            try {
+                // 파일을 Base64로 인코딩
+                const base64Content = await fileToBase64(file);
+
+                // Edge Function 호출
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        adminPassword: adminPassword,
+                        authenticated: true,
+                        action: 'upload-location-file',
+                        version: version,
+                        fileContent: base64Content
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    uploadStatus.innerHTML = `
+                        <div class="alert alert-success">
+                            ✅ 업로드 성공!<br>
+                            📦 버전: ${result.version}<br>
+                            🔗 URL: <a href="${result.url}" target="_blank">${result.url}</a><br>
+                            📄 파일명: ${result.fileName}<br>
+                            ${result.warning ? '<br>⚠️ ' + result.warning : ''}
+                        </div>
+                    `;
+
+                    addLog('✅ 지역 파일 업로드 성공: v' + result.version);
+
+                    // 폼 초기화
+                    fileInput.value = '';
+                    versionInput.value = '';
+                    document.getElementById('xmlPreview').innerHTML = '';
+                } else {
+                    uploadStatus.innerHTML = '<div class="alert alert-error">❌ 업로드 실패: ' + (result.error || result.message) + '</div>';
+                    addLog('❌ 지역 파일 업로드 실패: ' + (result.error || result.message));
+                }
+            } catch (error) {
+                uploadStatus.innerHTML = '<div class="alert alert-error">❌ 오류: ' + error.message + '</div>';
+                addLog('❌ 지역 파일 업로드 오류: ' + error.message);
+            } finally {
+                uploadBtn.disabled = false;
+            }
+        }
+
+        async function loadCurrentLocationVersion() {
+            const adminPassword = sessionStorage.getItem('adminSecret');
+            if (!adminPassword) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            const displayDiv = document.getElementById('currentLocationVersionDisplay');
+            displayDiv.innerHTML = '<div style="text-align: center;"><div class="spinner"></div><p>로딩 중...</p></div>';
+
+            try {
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        adminPassword: adminPassword,
+                        authenticated: true,
+                        action: 'get',
+                        projectId: 'mancooltime-83e29'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success && result.config) {
+                    const config = result.config;
+                    const version = config.parameters?.location_file_version?.defaultValue?.value || '없음';
+                    const url = config.parameters?.location_file_url?.defaultValue?.value || '없음';
+
+                    displayDiv.innerHTML = `
+                        <div class="info-card">
+                            <h3>📋 현재 배포된 버전 정보</h3>
+                            <p><strong>버전:</strong> <span class="value">${version}</span></p>
+                            <p><strong>URL:</strong> <span class="value"><a href="${url}" target="_blank">${url}</a></span></p>
+                            ${config.version ? `
+                                <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                                    <strong>Remote Config 버전:</strong> ${config.version.versionNumber || 'N/A'}<br>
+                                    <strong>마지막 업데이트:</strong> ${config.version.updateTime ? new Date(config.version.updateTime).toLocaleString('ko-KR') : 'N/A'}
+                                </p>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    displayDiv.innerHTML = '<div class="alert alert-error">❌ 조회 실패: ' + (result.error || result.message) + '</div>';
+                }
+            } catch (error) {
+                displayDiv.innerHTML = '<div class="alert alert-error">❌ 오류: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadLocationVersionHistory() {
+            const adminPassword = sessionStorage.getItem('adminSecret');
+            if (!adminPassword) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            if (!supabaseClient) {
+                document.getElementById('locationVersionHistoryDisplay').innerHTML = '<div class="alert alert-error">❌ Supabase 클라이언트를 초기화할 수 없습니다</div>';
+                return;
+            }
+
+            const displayDiv = document.getElementById('locationVersionHistoryDisplay');
+            displayDiv.innerHTML = '<div style="text-align: center;"><div class="spinner"></div><p>로딩 중...</p></div>';
+
+            try {
+                // Storage에서 파일 목록 조회
+                const { data: files, error } = await supabaseClient
+                    .storage
+                    .from('location-files')
+                    .list('', {
+                        sortBy: { column: 'created_at', order: 'desc' }
+                    });
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                if (!files || files.length === 0) {
+                    displayDiv.innerHTML = '<div class="alert alert-info">📭 업로드된 파일이 없습니다</div>';
+                    return;
+                }
+
+                let html = '<ul class="file-list">';
+
+                for (const file of files) {
+                    // 파일명에서 버전 추출 (locations_v1.xml -> 1)
+                    const versionMatch = file.name.match(/locations_v(\d+)\.xml/);
+                    const version = versionMatch ? versionMatch[1] : '알 수 없음';
+
+                    const { data: urlData } = supabaseClient.storage
+                        .from('location-files')
+                        .getPublicUrl(file.name);
+
+                    const fileUrl = urlData.publicUrl;
+                    const fileSize = (file.metadata?.size / 1024).toFixed(2) || '알 수 없음';
+                    const createdAt = file.created_at ? new Date(file.created_at).toLocaleString('ko-KR') : '알 수 없음';
+
+                    html += `
+                        <li class="file-item">
+                            <div class="file-info">
+                                <div class="file-name">📦 버전 ${version}</div>
+                                <div class="file-meta">
+                                    📄 ${file.name} | 💾 ${fileSize} KB | 📅 ${createdAt}
+                                </div>
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn-small" onclick="window.open('${fileUrl}', '_blank')">다운로드</button>
+                                <button class="btn-small btn-secondary" onclick="rollbackToLocationVersion('${version}', '${fileUrl}')">롤백</button>
+                            </div>
+                        </li>
+                    `;
+                }
+
+                html += '</ul>';
+                displayDiv.innerHTML = html;
+
+            } catch (error) {
+                displayDiv.innerHTML = '<div class="alert alert-error">❌ 오류: ' + error.message + '</div>';
+            }
+        }
+
+        async function rollbackToLocationVersion(version, url) {
+            if (!confirm(`버전 ${version}으로 롤백하시겠습니까?\n\nRemote Config가 이 버전의 URL로 업데이트됩니다.`)) {
+                return;
+            }
+
+            const adminPassword = sessionStorage.getItem('adminSecret');
+            if (!adminPassword) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            try {
+                // Remote Config에 두 개의 파라미터 업데이트
+                const updateVersion = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        adminPassword: adminPassword,
+                        authenticated: true,
+                        action: 'update',
+                        projectId: 'mancooltime-83e29',
+                        paramKey: 'location_file_version',
+                        paramValue: version,
+                        paramDescription: '현재 지역 목록 파일 버전'
+                    })
+                });
+
+                const updateUrl = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        adminPassword: adminPassword,
+                        authenticated: true,
+                        action: 'update',
+                        projectId: 'mancooltime-83e29',
+                        paramKey: 'location_file_url',
+                        paramValue: url,
+                        paramDescription: '지역 목록 XML 파일 공개 URL'
+                    })
+                });
+
+                const versionResult = await updateVersion.json();
+                const urlResult = await updateUrl.json();
+
+                if (versionResult.success && urlResult.success) {
+                    alert(`✅ 버전 ${version}으로 롤백 완료!`);
+                    addLog('✅ 지역 파일 롤백: v' + version);
+                    loadLocationVersionHistory();
+                } else {
+                    throw new Error(versionResult.error || urlResult.error || '롤백 실패');
+                }
+
+            } catch (error) {
+                alert('❌ 롤백 실패: ' + error.message);
+                addLog('❌ 지역 파일 롤백 실패: ' + error.message);
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    // Data URL에서 Base64 부분만 추출
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== 지역 파일 관리 함수 끝 ==========
+
         // iframe 안에서 로드될 때 헤더/뒤로가기 버튼 숨기기
         if (window.self !== window.top) {
             // 뒤로가기 버튼 숨기기
