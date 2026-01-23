@@ -361,7 +361,8 @@
                     <small style="color: #888;">정수 버전 번호를 입력하세요 (예: 1, 2, 3...)</small>
                 </div>
                 <div id="xmlPreview"></div>
-                <button onclick="uploadLocationFile()" id="uploadBtn">업로드 및 Remote Config 업데이트</button>
+                <button onclick="uploadLocationFile()" id="uploadBtn">Storage에 업로드</button>
+                <button onclick="encodeAndDeployFile()" id="encodeBtn" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">📦 Base64 인코딩하여 Remote Config 배포</button>
                 <div id="uploadStatus"></div>
             </div>
 
@@ -810,6 +811,11 @@
                 return;
             }
 
+            if (!supabaseClient) {
+                alert('Supabase 클라이언트를 초기화할 수 없습니다.');
+                return;
+            }
+
             const fileInput = document.getElementById('xmlFile');
             const versionInput = document.getElementById('version');
             const uploadStatus = document.getElementById('uploadStatus');
@@ -826,54 +832,64 @@
             }
 
             const file = fileInput.files[0];
-            const version = parseInt(versionInput.value);
+            const version = versionInput.value;
+            const fileName = `locations_v${version}.xml`;
 
             uploadBtn.disabled = true;
-            uploadStatus.innerHTML = '<div class="alert alert-info">🔄 파일 업로드 중...</div>';
+            uploadStatus.innerHTML = '<div class="alert alert-info">🔄 Storage에 업로드 중...</div>';
 
             try {
-                // 파일을 Base64로 인코딩
-                const base64Content = await fileToBase64(file);
+                // 중복 확인
+                const { data: existingFiles, error: listError } = await supabaseClient
+                    .storage
+                    .from('location-files')
+                    .list('', { search: fileName });
 
-                // Edge Function 호출
-                const response = await fetch(FUNCTION_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
-                    },
-                    body: JSON.stringify({
-                        adminPassword: adminPassword,
-                        authenticated: true,
-                        action: 'upload-location-file',
-                        version: version,
-                        fileContent: base64Content
-                    })
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    uploadStatus.innerHTML = `
-                        <div class="alert alert-success">
-                            ✅ 업로드 성공!<br>
-                            📦 버전: ${result.version}<br>
-                            🔗 URL: <a href="${result.url}" target="_blank">${result.url}</a><br>
-                            📄 파일명: ${result.fileName}<br>
-                            ${result.warning ? '<br>⚠️ ' + result.warning : ''}
-                        </div>
-                    `;
-
-                    addLog('✅ 지역 파일 업로드 성공: v' + result.version);
-
-                    // 폼 초기화
-                    fileInput.value = '';
-                    versionInput.value = '';
-                    document.getElementById('xmlPreview').innerHTML = '';
-                } else {
-                    uploadStatus.innerHTML = '<div class="alert alert-error">❌ 업로드 실패: ' + (result.error || result.message) + '</div>';
-                    addLog('❌ 지역 파일 업로드 실패: ' + (result.error || result.message));
+                if (listError) {
+                    throw new Error('Storage 조회 실패: ' + listError.message);
                 }
+
+                if (existingFiles && existingFiles.length > 0) {
+                    uploadStatus.innerHTML = `<div class="alert alert-error">❌ 버전 ${version}이 이미 존재합니다. 다른 버전 번호를 사용하세요.</div>`;
+                    return;
+                }
+
+                // 파일 업로드
+                const { data, error } = await supabaseClient
+                    .storage
+                    .from('location-files')
+                    .upload(fileName, file, {
+                        contentType: 'application/xml',
+                        upsert: false
+                    });
+
+                if (error) {
+                    throw new Error('파일 업로드 실패: ' + error.message);
+                }
+
+                // Public URL 생성
+                const { data: urlData } = supabaseClient
+                    .storage
+                    .from('location-files')
+                    .getPublicUrl(fileName);
+
+                const fileUrl = urlData.publicUrl;
+
+                uploadStatus.innerHTML = `
+                    <div class="alert alert-success">
+                        ✅ Storage 업로드 성공!<br>
+                        📦 버전: ${version}<br>
+                        🔗 URL: <a href="${fileUrl}" target="_blank">${fileUrl}</a><br>
+                        📄 파일명: ${fileName}<br>
+                        <br>
+                        💡 이제 "Base64 인코딩하여 Remote Config 배포" 버튼을 클릭하거나<br>
+                        버전 히스토리에서 해당 버전의 "Remote Config 배포" 버튼을 클릭하세요.
+                    </div>
+                `;
+
+                addLog('✅ 지역 파일 Storage 업로드 성공: v' + version);
+
+                // 폼은 초기화하지 않음 (인코딩 버튼을 위해 파일 유지)
             } catch (error) {
                 uploadStatus.innerHTML = '<div class="alert alert-error">❌ 오류: ' + error.message + '</div>';
                 addLog('❌ 지역 파일 업로드 오류: ' + error.message);
@@ -995,7 +1011,8 @@
                             </div>
                             <div class="file-actions">
                                 <button class="btn-small" onclick="window.open('${fileUrl}', '_blank')">다운로드</button>
-                                <button class="btn-small btn-secondary" onclick="rollbackToLocationVersion('${version}', '${fileUrl}')">롤백</button>
+                                <button class="btn-small" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);" onclick="deployVersionToRemoteConfig('${version}', '${file.name}')">📦 Remote Config 배포</button>
+                                <button class="btn-small btn-secondary" onclick="rollbackToLocationVersion('${version}', '${fileUrl}')">URL 롤백</button>
                             </div>
                         </li>
                     `;
@@ -1091,6 +1108,173 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        // Base64 인코딩하여 Remote Config에 배포 (업로드 섹션)
+        async function encodeAndDeployFile() {
+            const adminPassword = sessionStorage.getItem('adminSecret');
+            if (!adminPassword) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            const fileInput = document.getElementById('xmlFile');
+            const versionInput = document.getElementById('version');
+            const uploadStatus = document.getElementById('uploadStatus');
+            const encodeBtn = document.getElementById('encodeBtn');
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                uploadStatus.innerHTML = '<div class="alert alert-error">❌ 파일을 선택하세요</div>';
+                return;
+            }
+
+            if (!versionInput.value) {
+                uploadStatus.innerHTML = '<div class="alert alert-error">❌ 버전 번호를 입력하세요</div>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const version = versionInput.value;
+
+            encodeBtn.disabled = true;
+            uploadStatus.innerHTML = '<div class="alert alert-info">🔄 Base64 인코딩 및 Remote Config 업데이트 중...</div>';
+
+            try {
+                // 파일 읽기
+                const xmlContent = await file.text();
+
+                // Base64 인코딩
+                const base64Content = btoa(unescape(encodeURIComponent(xmlContent)));
+
+                // Remote Config에 배포
+                const success = await updateRemoteConfigWithBase64(version, base64Content, adminPassword);
+
+                if (success) {
+                    uploadStatus.innerHTML = `
+                        <div class="alert alert-success">
+                            ✅ Remote Config 배포 성공!<br>
+                            📦 버전: ${version}<br>
+                            📊 인코딩된 크기: ${(base64Content.length / 1024).toFixed(2)} KB<br>
+                            🔑 키: location_file_data_base64
+                        </div>
+                    `;
+                    addLog('✅ 지역 파일 Base64 배포 성공: v' + version);
+                } else {
+                    uploadStatus.innerHTML = '<div class="alert alert-error">❌ Remote Config 업데이트 실패</div>';
+                }
+            } catch (error) {
+                uploadStatus.innerHTML = '<div class="alert alert-error">❌ 오류: ' + error.message + '</div>';
+                addLog('❌ Base64 배포 오류: ' + error.message);
+            } finally {
+                encodeBtn.disabled = false;
+            }
+        }
+
+        // 특정 버전을 Storage에서 다운로드하여 Base64로 배포
+        async function deployVersionToRemoteConfig(version, fileName) {
+            if (!confirm(`버전 ${version}을 Base64로 인코딩하여 Remote Config에 배포하시겠습니까?`)) {
+                return;
+            }
+
+            const adminPassword = sessionStorage.getItem('adminSecret');
+            if (!adminPassword) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            if (!supabaseClient) {
+                alert('Supabase 클라이언트를 초기화할 수 없습니다.');
+                return;
+            }
+
+            try {
+                // Storage에서 파일 다운로드
+                const { data, error } = await supabaseClient
+                    .storage
+                    .from('location-files')
+                    .download(fileName);
+
+                if (error) {
+                    throw new Error('파일 다운로드 실패: ' + error.message);
+                }
+
+                // Blob을 텍스트로 변환
+                const xmlContent = await data.text();
+
+                // Base64 인코딩
+                const base64Content = btoa(unescape(encodeURIComponent(xmlContent)));
+
+                // Remote Config에 배포
+                const success = await updateRemoteConfigWithBase64(version, base64Content, adminPassword);
+
+                if (success) {
+                    alert(`✅ 버전 ${version}이 Remote Config에 배포되었습니다!\n인코딩된 크기: ${(base64Content.length / 1024).toFixed(2)} KB`);
+                    addLog('✅ 지역 파일 Base64 배포 성공: v' + version);
+                } else {
+                    alert('❌ Remote Config 업데이트 실패');
+                }
+            } catch (error) {
+                alert('❌ 오류: ' + error.message);
+                addLog('❌ Base64 배포 오류: ' + error.message);
+            }
+        }
+
+        // Remote Config에 Base64 데이터 업데이트 (공통 함수)
+        async function updateRemoteConfigWithBase64(version, base64Content, adminPassword) {
+            try {
+                // 버전 업데이트
+                const versionResponse = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        adminPassword: adminPassword,
+                        authenticated: true,
+                        action: 'update',
+                        projectId: 'mancooltime-83e29',
+                        paramKey: 'location_file_version',
+                        paramValue: version,
+                        paramDescription: '현재 지역 목록 파일 버전'
+                    })
+                });
+
+                const versionResult = await versionResponse.json();
+                if (!versionResult.success) {
+                    throw new Error('버전 업데이트 실패: ' + (versionResult.error || versionResult.message));
+                }
+
+                // Base64 데이터 업데이트
+                const dataResponse = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`
+                    },
+                    body: JSON.stringify({
+                        adminPassword: adminPassword,
+                        authenticated: true,
+                        action: 'update',
+                        projectId: 'mancooltime-83e29',
+                        paramKey: 'location_file_data_base64',
+                        paramValue: base64Content,
+                        paramDescription: 'Base64로 인코딩된 지역 목록 XML 데이터'
+                    })
+                });
+
+                const dataResult = await dataResponse.json();
+                if (!dataResult.success) {
+                    throw new Error('데이터 업데이트 실패: ' + (dataResult.error || dataResult.message));
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Remote Config 업데이트 실패:', error);
+                return false;
+            }
         }
 
         // ========== 지역 파일 관리 함수 끝 ==========
