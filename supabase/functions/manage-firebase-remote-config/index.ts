@@ -1,5 +1,6 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 
 interface RemoteConfigParameter {
   defaultValue?: {
@@ -127,7 +128,7 @@ async function getAccessToken(): Promise<string> {
 // Remote Config 템플릿 조회
 async function getRemoteConfigTemplate(projectId: string): Promise<RemoteConfigTemplate> {
   const accessToken = await getAccessToken();
-  
+
   const response = await fetch(
     `https://firebaseremoteconfig.googleapis.com/v1/projects/${projectId}/remoteConfig`,
     {
@@ -145,7 +146,15 @@ async function getRemoteConfigTemplate(projectId: string): Promise<RemoteConfigT
     throw new Error(`Remote Config 조회 실패: ${response.status}`);
   }
 
-  return await response.json();
+  const config = await response.json();
+
+  // etag는 HTTP 헤더에서 가져옴
+  const etag = response.headers.get('etag');
+  if (etag) {
+    config.etag = etag;
+  }
+
+  return config;
 }
 
 // Remote Config 템플릿 업데이트
@@ -155,7 +164,23 @@ async function updateRemoteConfigTemplate(
   etag: string
 ): Promise<RemoteConfigTemplate> {
   const accessToken = await getAccessToken();
-  
+
+  // etag와 version은 읽기 전용이므로 요청 본문에서 제거
+  // undefined 필드도 제거
+  const templateToSend: any = {};
+
+  if (template.conditions && template.conditions.length > 0) {
+    templateToSend.conditions = template.conditions;
+  }
+
+  if (template.parameters && Object.keys(template.parameters).length > 0) {
+    templateToSend.parameters = template.parameters;
+  }
+
+  if (template.parameterGroups && Object.keys(template.parameterGroups).length > 0) {
+    templateToSend.parameterGroups = template.parameterGroups;
+  }
+
   const response = await fetch(
     `https://firebaseremoteconfig.googleapis.com/v1/projects/${projectId}/remoteConfig`,
     {
@@ -165,7 +190,7 @@ async function updateRemoteConfigTemplate(
         'Content-Type': 'application/json; UTF-8',
         'If-Match': etag,
       },
-      body: JSON.stringify(template),
+      body: JSON.stringify(templateToSend),
     }
   );
 
@@ -720,10 +745,35 @@ serve(async (req) => {
 
       // 실제 작업 수행
       if (authenticated) {
-        if (!projectId) {
-          return new Response(JSON.stringify({ 
+        // adminPassword 검증
+        if (!adminPassword || !validateAdminAuth(adminPassword)) {
+          return new Response(JSON.stringify({
             success: false,
-            error: '프로젝트 ID가 필요합니다.' 
+            error: '관리자 인증이 필요합니다.'
+          }), {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        // Service Account Key에서 실제 프로젝트 ID 추출
+        let actualProjectId = projectId;
+        try {
+          const serviceAccountKey = Deno.env.get('FIREBASE_SERVICE_ACCOUNT_KEY');
+          if (serviceAccountKey) {
+            const serviceAccount = JSON.parse(serviceAccountKey);
+            if (serviceAccount.project_id) {
+              actualProjectId = serviceAccount.project_id;
+            }
+          }
+        } catch (e) {
+          console.error('프로젝트 ID 추출 실패:', e);
+        }
+
+        if (!actualProjectId) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: '프로젝트 ID가 필요합니다.'
           }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -733,59 +783,264 @@ serve(async (req) => {
         try {
           if (action === 'get') {
             // Remote Config 조회
-            const config = await getRemoteConfigTemplate(projectId);
-            console.log('Remote Config 조회 성공:', projectId);
-            
-            return new Response(JSON.stringify({ 
+            const config = await getRemoteConfigTemplate(actualProjectId);
+            console.log('Remote Config 조회 성공:', actualProjectId);
+
+            return new Response(JSON.stringify({
               success: true,
               config: config,
               message: 'Remote Config 조회 성공'
             }), {
               headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
-            
+
           } else if (action === 'update') {
-            // Remote Config 업데이트
+            // Remote Config 업데이트 (재시도 로직 포함)
             const { paramKey, paramValue, paramType, paramDescription } = body;
-            
-            // 현재 설정 조회
-            const currentConfig = await getRemoteConfigTemplate(projectId);
-            
-            // 새 매개변수 추가/수정
-            const newParameter: RemoteConfigParameter = {
-              defaultValue: { value: paramValue },
-              valueType: paramType || 'STRING'
-            };
-            
-            if (paramDescription) {
-              newParameter.description = paramDescription;
+
+            let retries = 3;
+            let lastError;
+
+            while (retries > 0) {
+              try {
+                // 현재 설정 조회 (최신 etag 획득)
+                const currentConfig = await getRemoteConfigTemplate(actualProjectId);
+
+                if (!currentConfig.etag) {
+                  throw new Error('etag를 가져올 수 없습니다. Remote Config가 초기화되지 않았을 수 있습니다.');
+                }
+
+                // 새 매개변수 추가/수정
+                const newParameter: RemoteConfigParameter = {
+                  defaultValue: { value: paramValue }
+                };
+
+                // description만 추가 (valueType은 Firebase API에서 자동 판단)
+                if (paramDescription) {
+                  newParameter.description = paramDescription;
+                }
+
+                // 기존 키가 parameterGroups에 있는지 확인하고 업데이트
+                let foundInGroup = false;
+                if (currentConfig.parameterGroups) {
+                  for (const [groupName, group] of Object.entries(currentConfig.parameterGroups)) {
+                    if (group.parameters && group.parameters[paramKey]) {
+                      group.parameters[paramKey] = newParameter;
+                      foundInGroup = true;
+                      break;
+                    }
+                  }
+                }
+
+                // 그룹에 없으면 parameters에 추가/업데이트
+                if (!foundInGroup) {
+                  if (!currentConfig.parameters) {
+                    currentConfig.parameters = {};
+                  }
+                  currentConfig.parameters[paramKey] = newParameter;
+                }
+
+                // 업데이트 실행
+                const updatedConfig = await updateRemoteConfigTemplate(actualProjectId, currentConfig, currentConfig.etag);
+
+                return new Response(JSON.stringify({
+                  success: true,
+                  config: updatedConfig,
+                  message: `매개변수 '${paramKey}' 업데이트 성공`
+                }), {
+                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                });
+              } catch (error) {
+                lastError = error;
+                // 412 에러 (etag 불일치)인 경우 재시도
+                if (error.message && error.message.includes('412')) {
+                  retries--;
+                  if (retries > 0) {
+                    // 100ms 대기 후 재시도
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    continue;
+                  } else {
+                    break;
+                  }
+                } else {
+                  // 412가 아닌 다른 에러는 즉시 throw
+                  throw error;
+                }
+              }
             }
-            
-            // parameters 객체가 없으면 생성
-            if (!currentConfig.parameters) {
-              currentConfig.parameters = {};
+
+            // 모든 재시도 실패
+            if (lastError) {
+              throw lastError;
             }
-            
-            // 매개변수 업데이트
-            currentConfig.parameters[paramKey] = newParameter;
-            
-            // 업데이트 실행
-            const updatedConfig = await updateRemoteConfigTemplate(projectId, currentConfig, currentConfig.etag!);
-            
-            console.log('Remote Config 업데이트 성공:', projectId, paramKey);
-            
-            return new Response(JSON.stringify({ 
-              success: true,
-              config: updatedConfig,
-              message: `매개변수 '${paramKey}' 업데이트 성공`
-            }), {
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-            });
+
+          } else if (action === 'upload-location-file') {
+            // 지역 목록 XML 파일을 Storage에 업로드하고 Remote Config 업데이트
+            const { version, fileContent } = body;
+
+            if (!version || !fileContent) {
+              return new Response(JSON.stringify({
+                success: false,
+                error: '버전 번호와 파일 내용이 필요합니다.'
+              }), {
+                status: 400,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              });
+            }
+
+            try {
+              // Supabase Storage Client 생성
+              const supabaseUrl = Deno.env.get('SUPABASE_URL');
+              const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+              if (!supabaseUrl || !supabaseServiceKey) {
+                throw new Error('Supabase 환경변수가 설정되지 않았습니다.');
+              }
+
+              const supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
+
+              // Base64 디코딩
+              const decoder = new TextDecoder('utf-8');
+              const fileData = Uint8Array.from(atob(fileContent), c => c.charCodeAt(0));
+              const xmlText = decoder.decode(fileData);
+
+              // XML 유효성 간단 검증
+              if (!xmlText.trim().startsWith('<?xml') && !xmlText.trim().startsWith('<')) {
+                throw new Error('유효하지 않은 XML 형식입니다.');
+              }
+
+              // 파일명 생성
+              const fileName = `locations_v${version}.xml`;
+
+              // Storage에 업로드 (파일이 이미 존재하는지 확인)
+              const { data: existingFiles, error: listError } = await supabaseClient
+                .storage
+                .from('location-files')
+                .list('', { search: fileName });
+
+              if (listError) {
+                throw new Error(`Storage 조회 실패: ${listError.message}`);
+              }
+
+              if (existingFiles && existingFiles.length > 0) {
+                return new Response(JSON.stringify({
+                  success: false,
+                  error: `버전 ${version}이 이미 존재합니다. 다른 버전 번호를 사용하세요.`
+                }), {
+                  status: 409,
+                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                });
+              }
+
+              // 파일 업로드
+              const { data: uploadData, error: uploadError } = await supabaseClient
+                .storage
+                .from('location-files')
+                .upload(fileName, fileData, {
+                  contentType: 'application/xml',
+                  upsert: false
+                });
+
+              if (uploadError) {
+                throw new Error(`파일 업로드 실패: ${uploadError.message}`);
+              }
+
+              // Public URL 생성
+              const { data: publicUrlData } = supabaseClient
+                .storage
+                .from('location-files')
+                .getPublicUrl(fileName);
+
+              const fileUrl = publicUrlData.publicUrl;
+
+              console.log('파일 업로드 완료:', fileName, fileUrl);
+
+              // Remote Config 업데이트 (버전과 URL)
+              let retries = 3;
+              let lastConfigError;
+
+              while (retries > 0) {
+                try {
+                  const currentConfig = await getRemoteConfigTemplate(actualProjectId);
+
+                  if (!currentConfig.etag) {
+                    throw new Error('etag를 가져올 수 없습니다.');
+                  }
+
+                  // 두 개의 파라미터 추가/업데이트
+                  if (!currentConfig.parameters) {
+                    currentConfig.parameters = {};
+                  }
+
+                  currentConfig.parameters['location_file_version'] = {
+                    defaultValue: { value: version.toString() },
+                    description: '현재 지역 목록 파일 버전'
+                  };
+
+                  currentConfig.parameters['location_file_url'] = {
+                    defaultValue: { value: fileUrl },
+                    description: '지역 목록 XML 파일 공개 URL'
+                  };
+
+                  // 업데이트 실행
+                  await updateRemoteConfigTemplate(actualProjectId, currentConfig, currentConfig.etag);
+
+                  console.log('Remote Config 업데이트 완료');
+
+                  return new Response(JSON.stringify({
+                    success: true,
+                    version: version,
+                    url: fileUrl,
+                    fileName: fileName,
+                    message: `버전 ${version} 업로드 및 Remote Config 업데이트 완료`
+                  }), {
+                    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                  });
+
+                } catch (error) {
+                  lastConfigError = error;
+                  if (error.message && error.message.includes('412')) {
+                    retries--;
+                    if (retries > 0) {
+                      await new Promise(resolve => setTimeout(resolve, 100));
+                      continue;
+                    }
+                  } else {
+                    throw error;
+                  }
+                }
+              }
+
+              // Remote Config 업데이트 실패해도 파일은 업로드됨
+              if (lastConfigError) {
+                return new Response(JSON.stringify({
+                  success: true,
+                  warning: 'Remote Config 업데이트 실패 (수동 업데이트 필요)',
+                  version: version,
+                  url: fileUrl,
+                  fileName: fileName,
+                  error: lastConfigError.message
+                }), {
+                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+                });
+              }
+
+            } catch (error) {
+              console.error('파일 업로드 실패:', error);
+              return new Response(JSON.stringify({
+                success: false,
+                error: '파일 업로드 실패',
+                message: error.message
+              }), {
+                status: 500,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              });
+            }
           }
-          
-          return new Response(JSON.stringify({ 
+
+          return new Response(JSON.stringify({
             success: false,
-            error: '지원하지 않는 작업입니다.' 
+            error: '지원하지 않는 작업입니다.'
           }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -793,7 +1048,7 @@ serve(async (req) => {
           
         } catch (error) {
           console.error('Remote Config 작업 실패:', error);
-          return new Response(JSON.stringify({ 
+          return new Response(JSON.stringify({
             success: false,
             error: 'Remote Config 작업 실패',
             message: error.message
@@ -825,7 +1080,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('함수 실행 오류:', error);
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       success: false,
       error: '내부 서버 오류',
       message: error.message
