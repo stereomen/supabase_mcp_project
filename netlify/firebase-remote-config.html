@@ -1009,15 +1009,29 @@
                         base64Info = '<p><strong>📦 Base64 데이터:</strong> <span class="value">❌ 없음 (URL 방식)</span></p>';
                     }
 
-                    // 버전 번호 입력란 옆에 현재 버전 표시
+                    // 버전 번호 입력란 옆에 현재 버전 표시 및 다음 버전 자동 입력
                     const versionHintElem = document.getElementById('currentVersionHint');
-                    if (versionHintElem) {
+                    const versionInputElem = document.getElementById('version');
+
+                    if (versionHintElem && versionInputElem) {
                         if (version !== '없음') {
                             versionHintElem.textContent = `(현재: v${version})`;
                             versionHintElem.style.color = '#2196F3';
+
+                            // 다음 버전 자동 입력 (현재 버전 + 1)
+                            const currentVersionNum = parseInt(version);
+                            if (!isNaN(currentVersionNum)) {
+                                const nextVersion = currentVersionNum + 1;
+                                versionInputElem.value = nextVersion.toString();
+                                versionInputElem.placeholder = `다음 버전: ${nextVersion}`;
+                            }
                         } else {
                             versionHintElem.textContent = '(배포된 버전 없음)';
                             versionHintElem.style.color = '#888';
+
+                            // 첫 배포인 경우 버전 1 제안
+                            versionInputElem.value = '1';
+                            versionInputElem.placeholder = '첫 배포: 1';
                         }
                     }
 
@@ -1039,21 +1053,35 @@
                 } else {
                     displayDiv.innerHTML = '<div class="alert alert-error">❌ 조회 실패: ' + (result.error || result.message) + '</div>';
 
-                    // 에러 시에도 힌트 표시
+                    // 에러 시 힌트 표시 및 입력란 비우기
                     const versionHintElem = document.getElementById('currentVersionHint');
+                    const versionInputElem = document.getElementById('version');
+
                     if (versionHintElem) {
                         versionHintElem.textContent = '(조회 실패)';
                         versionHintElem.style.color = '#f44336';
+                    }
+
+                    if (versionInputElem) {
+                        versionInputElem.value = '';
+                        versionInputElem.placeholder = '예: 1, 2, 3...';
                     }
                 }
             } catch (error) {
                 displayDiv.innerHTML = '<div class="alert alert-error">❌ 오류: ' + error.message + '</div>';
 
-                // 에러 시에도 힌트 표시
+                // 에러 시 힌트 표시 및 입력란 비우기
                 const versionHintElem = document.getElementById('currentVersionHint');
+                const versionInputElem = document.getElementById('version');
+
                 if (versionHintElem) {
                     versionHintElem.textContent = '(조회 실패)';
                     versionHintElem.style.color = '#f44336';
+                }
+
+                if (versionInputElem) {
+                    versionInputElem.value = '';
+                    versionInputElem.placeholder = '예: 1, 2, 3...';
                 }
             }
         }
