@@ -801,13 +801,11 @@ serve(async (req) => {
       return new Response(html, {
         status: 200,
         headers: {
+          ...corsHeaders,
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
-          'Expires': '0',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+          'Expires': '0'
         }
       });
     }

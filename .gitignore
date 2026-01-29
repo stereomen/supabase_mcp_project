@@ -43,6 +43,7 @@ build/
 tmp/
 temp/
 *.tmp
+.smbdelete*
 
 # Local Netlify folder
 .netlify

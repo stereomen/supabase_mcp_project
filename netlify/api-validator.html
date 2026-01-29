@@ -979,11 +979,11 @@
                 `;
             }
 
-            // Marine Observations A
-            if (currentData.marine_observations && currentData.marine_observations.a && currentData.marine_observations.a.length > 0) {
+            // Marine Observations - Water Temperature
+            if (currentData.marine_observations && currentData.marine_observations.wt && currentData.marine_observations.wt.length > 0) {
                 html += `
-                    <div class="section-title">🌊 marine_observations.a (해양 관측 A - 수온/파고)</div>
-                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.marine_observations.a.length}개 레코드</p>
+                    <div class="section-title">🌡️ marine_observations.wt (수온)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.marine_observations.wt.length}개 레코드</p>
                     <table class="field-table">
                         <thead>
                             <tr>
@@ -993,20 +993,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td>station_id</td><td>관측소 ID</td><td>${currentData.marine_observations.a[0].station_id || '-'}</td></tr>
-                            <tr><td>observation_time_kst</td><td>관측 시각 (KST, YYYYMMDDHHmm)</td><td>${currentData.marine_observations.a[0].observation_time_kst || '-'}</td></tr>
-                            <tr><td>water_temperature</td><td>수온 (°C)</td><td>${currentData.marine_observations.a[0].water_temperature || '-'}</td></tr>
-                            <tr><td>significant_wave_height</td><td>유의파고 (m)</td><td>${currentData.marine_observations.a[0].significant_wave_height || '-'}</td></tr>
+                            <tr><td>station_id</td><td>관측소 ID</td><td>${currentData.marine_observations.wt[0].station_id || '-'}</td></tr>
+                            <tr><td>observation_time_kst</td><td>관측 시각 (KST, YYYYMMDDHHmm)</td><td>${currentData.marine_observations.wt[0].observation_time_kst || '-'}</td></tr>
+                            <tr><td>water_temperature</td><td>수온 (°C)</td><td>${currentData.marine_observations.wt[0].water_temperature || '-'}</td></tr>
                         </tbody>
                     </table>
                 `;
             }
 
-            // Marine Observations B
-            if (currentData.marine_observations && currentData.marine_observations.b && currentData.marine_observations.b.length > 0) {
+            // Marine Observations - Significant Wave Height
+            if (currentData.marine_observations && currentData.marine_observations.swh && currentData.marine_observations.swh.length > 0) {
                 html += `
-                    <div class="section-title">🌬️ marine_observations.b (해양 관측 B - 기상)</div>
-                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.marine_observations.b.length}개 레코드</p>
+                    <div class="section-title">🌊 marine_observations.swh (파고)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.marine_observations.swh.length}개 레코드</p>
                     <table class="field-table">
                         <thead>
                             <tr>
@@ -1016,11 +1015,75 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td>station_id</td><td>관측소 ID</td><td>${currentData.marine_observations.b[0].station_id || '-'}</td></tr>
-                            <tr><td>observation_time_kst</td><td>관측 시각 (KST, YYYYMMDDHHmm)</td><td>${currentData.marine_observations.b[0].observation_time_kst || '-'}</td></tr>
-                            <tr><td>air_temperature</td><td>기온 (°C)</td><td>${currentData.marine_observations.b[0].air_temperature || '-'}</td></tr>
-                            <tr><td>wind_direction</td><td>풍향 (도)</td><td>${currentData.marine_observations.b[0].wind_direction || '-'}</td></tr>
-                            <tr><td>wind_speed</td><td>풍속 (m/s)</td><td>${currentData.marine_observations.b[0].wind_speed || '-'}</td></tr>
+                            <tr><td>station_id</td><td>관측소 ID</td><td>${currentData.marine_observations.swh[0].station_id || '-'}</td></tr>
+                            <tr><td>observation_time_kst</td><td>관측 시각 (KST, YYYYMMDDHHmm)</td><td>${currentData.marine_observations.swh[0].observation_time_kst || '-'}</td></tr>
+                            <tr><td>significant_wave_height</td><td>유의파고 (m)</td><td>${currentData.marine_observations.swh[0].significant_wave_height || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Marine Observations - Wind Direction
+            if (currentData.marine_observations && currentData.marine_observations.wd && currentData.marine_observations.wd.length > 0) {
+                html += `
+                    <div class="section-title">🧭 marine_observations.wd (풍향)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.marine_observations.wd.length}개 레코드</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>station_id</td><td>관측소 ID</td><td>${currentData.marine_observations.wd[0].station_id || '-'}</td></tr>
+                            <tr><td>observation_time_kst</td><td>관측 시각 (KST, YYYYMMDDHHmm)</td><td>${currentData.marine_observations.wd[0].observation_time_kst || '-'}</td></tr>
+                            <tr><td>wind_direction</td><td>풍향 (도)</td><td>${currentData.marine_observations.wd[0].wind_direction || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Marine Observations - Wind Speed
+            if (currentData.marine_observations && currentData.marine_observations.ws && currentData.marine_observations.ws.length > 0) {
+                html += `
+                    <div class="section-title">💨 marine_observations.ws (풍속)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.marine_observations.ws.length}개 레코드</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>station_id</td><td>관측소 ID</td><td>${currentData.marine_observations.ws[0].station_id || '-'}</td></tr>
+                            <tr><td>observation_time_kst</td><td>관측 시각 (KST, YYYYMMDDHHmm)</td><td>${currentData.marine_observations.ws[0].observation_time_kst || '-'}</td></tr>
+                            <tr><td>wind_speed</td><td>풍속 (m/s)</td><td>${currentData.marine_observations.ws[0].wind_speed || '-'}</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Marine Observations - Air Temperature
+            if (currentData.marine_observations && currentData.marine_observations.at && currentData.marine_observations.at.length > 0) {
+                html += `
+                    <div class="section-title">🌡️ marine_observations.at (기온)</div>
+                    <p style="margin-bottom: 15px; color: #666;">총 ${currentData.marine_observations.at.length}개 레코드</p>
+                    <table class="field-table">
+                        <thead>
+                            <tr>
+                                <th>필드명</th>
+                                <th>설명</th>
+                                <th>샘플 값</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>station_id</td><td>관측소 ID</td><td>${currentData.marine_observations.at[0].station_id || '-'}</td></tr>
+                            <tr><td>observation_time_kst</td><td>관측 시각 (KST, YYYYMMDDHHmm)</td><td>${currentData.marine_observations.at[0].observation_time_kst || '-'}</td></tr>
+                            <tr><td>air_temperature</td><td>기온 (°C)</td><td>${currentData.marine_observations.at[0].air_temperature || '-'}</td></tr>
                         </tbody>
                     </table>
                 `;
@@ -1190,7 +1253,10 @@
             if (data.ads && data.ads.length > 0) navItems.push({id: 'json-ads', label: '🎯 광고', count: data.ads.length});
             if (data.weather_forecasts && data.weather_forecasts.length > 0) navItems.push({id: 'json-weather-forecasts', label: '☁️ 단기예보', count: data.weather_forecasts.length});
             if (data.tide_data && data.tide_data.length > 0) navItems.push({id: 'json-tide-data', label: '🌊 조석', count: data.tide_data.length});
-            if (data.marine_observations && ((data.marine_observations.a && data.marine_observations.a.length > 0) || (data.marine_observations.b && data.marine_observations.b.length > 0))) navItems.push({id: 'json-marine-obs', label: '🌊 해상관측', count: (data.marine_observations.a?.length || 0) + (data.marine_observations.b?.length || 0)});
+            if (data.marine_observations) {
+                const obsCount = (data.marine_observations.wt?.length || 0) + (data.marine_observations.swh?.length || 0) + (data.marine_observations.wd?.length || 0) + (data.marine_observations.ws?.length || 0) + (data.marine_observations.at?.length || 0);
+                if (obsCount > 0) navItems.push({id: 'json-marine-obs', label: '🌊 해상관측', count: obsCount});
+            }
             if (data.marine && data.marine.length > 0) navItems.push({id: 'json-marine', label: '🌊 중기해상', count: data.marine.length});
             if (data.temper && data.temper.length > 0) navItems.push({id: 'json-temper', label: '🌡️ 중기기온', count: data.temper.length});
             if (data.openweathermap?.forecast && data.openweathermap.forecast.length > 0) navItems.push({id: 'json-owm-forecast', label: '🌤️ OWM예보', count: data.openweathermap.forecast.length});
@@ -1231,12 +1297,15 @@
                 });
             }
 
-            if (data.marine_observations && ((data.marine_observations.a && data.marine_observations.a.length > 0) || (data.marine_observations.b && data.marine_observations.b.length > 0))) {
-                sections.push({
-                    id: 'json-marine-obs',
-                    title: `🌊 marine_observations (a: ${data.marine_observations.a?.length || 0}개, b: ${data.marine_observations.b?.length || 0}개)`,
-                    data: { marine_observations: data.marine_observations }
-                });
+            if (data.marine_observations) {
+                const obsCount = (data.marine_observations.wt?.length || 0) + (data.marine_observations.swh?.length || 0) + (data.marine_observations.wd?.length || 0) + (data.marine_observations.ws?.length || 0) + (data.marine_observations.at?.length || 0);
+                if (obsCount > 0) {
+                    sections.push({
+                        id: 'json-marine-obs',
+                        title: `🌊 marine_observations (wt: ${data.marine_observations.wt?.length || 0}, swh: ${data.marine_observations.swh?.length || 0}, wd: ${data.marine_observations.wd?.length || 0}, ws: ${data.marine_observations.ws?.length || 0}, at: ${data.marine_observations.at?.length || 0})`,
+                        data: { marine_observations: data.marine_observations }
+                    });
+                }
             }
 
             if (data.marine && data.marine.length > 0) {
@@ -1300,7 +1369,10 @@
             if (data.ads && data.ads.length > 0) navItems.push({id: 'ads-data', label: '🎯 광고', count: data.ads.length});
             if (data.weather_forecasts && data.weather_forecasts.length > 0) navItems.push({id: 'weather-forecasts', label: '☁️ 단기예보', count: data.weather_forecasts.length});
             if (data.tide_data && data.tide_data.length > 0) navItems.push({id: 'tide-data', label: '🌊 조석', count: data.tide_data.length});
-            if (data.marine_observations && ((data.marine_observations.a && data.marine_observations.a.length > 0) || (data.marine_observations.b && data.marine_observations.b.length > 0))) navItems.push({id: 'marine-obs', label: '🌊 해상관측', count: (data.marine_observations.a?.length || 0) + (data.marine_observations.b?.length || 0)});
+            if (data.marine_observations) {
+                const obsCount = (data.marine_observations.wt?.length || 0) + (data.marine_observations.swh?.length || 0) + (data.marine_observations.wd?.length || 0) + (data.marine_observations.ws?.length || 0) + (data.marine_observations.at?.length || 0);
+                if (obsCount > 0) navItems.push({id: 'marine-obs', label: '🌊 해상관측', count: obsCount});
+            }
             if (data.marine && data.marine.length > 0) navItems.push({id: 'marine', label: '🌊 중기해상', count: data.marine.length});
             if (data.temper && data.temper.length > 0) navItems.push({id: 'temper', label: '🌡️ 중기기온', count: data.temper.length});
             if (data.openweathermap?.forecast && data.openweathermap.forecast.length > 0) navItems.push({id: 'owm-forecast', label: '🌤️ OWM예보', count: data.openweathermap.forecast.length});
@@ -1430,65 +1502,73 @@
             }
 
             // Marine Observations (해상 관측 데이터)
-            if (data.marine_observations && ((data.marine_observations.a && data.marine_observations.a.length > 0) || (data.marine_observations.b && data.marine_observations.b.length > 0))) {
-                const totalCount = (data.marine_observations.a?.length || 0) + (data.marine_observations.b?.length || 0);
-                text += `<div class="data-section" id="marine-obs">`;
-                text += `<div class="section-header" onclick="toggleSection('marine-obs')">`;
-                text += `<h3 class="section-title">🌊 해상 관측 데이터 (${totalCount}개)</h3>`;
-                text += `<span class="section-toggle">▼</span>`;
-                text += `</div>`;
-                text += `<div class="section-content"><pre>`;
+            if (data.marine_observations) {
+                const totalCount = (data.marine_observations.wt?.length || 0) + (data.marine_observations.swh?.length || 0) + (data.marine_observations.wd?.length || 0) + (data.marine_observations.ws?.length || 0) + (data.marine_observations.at?.length || 0);
+                if (totalCount > 0) {
+                    text += `<div class="data-section" id="marine-obs">`;
+                    text += `<div class="section-header" onclick="toggleSection('marine-obs')">`;
+                    text += `<h3 class="section-title">🌊 해상 관측 데이터 (${totalCount}개)</h3>`;
+                    text += `<span class="section-toggle">▼</span>`;
+                    text += `</div>`;
+                    text += `<div class="section-content"><pre>`;
 
-                // A 섹션 (수온, 파고)
-                if (data.marine_observations.a && Array.isArray(data.marine_observations.a) && data.marine_observations.a.length > 0) {
-                    text += `💧 수온 및 파고 관측 (${data.marine_observations.a.length}개)\n`;
+                    // 수온 (wt)
+                    if (data.marine_observations.wt && Array.isArray(data.marine_observations.wt) && data.marine_observations.wt.length > 0) {
+                        text += `🌡️ 수온 관측 (${data.marine_observations.wt.length}개)\n`;
+                        data.marine_observations.wt.forEach(obs => {
+                            text += `observation_time_kst: ${obs.observation_time_kst || 'N/A'}\n`;
+                            text += `station_id(관측소): ${obs.station_id || 'N/A'}\n`;
+                            const waterTemp = (obs.water_temperature !== undefined && obs.water_temperature !== null) ? `${obs.water_temperature}°C` : 'N/A';
+                            text += `water_temperature(수온): ${waterTemp}\n\n`;
+                        });
+                    }
 
-                    data.marine_observations.a.forEach(obs => {
-                        const obsTime = obs.observation_time_kst || 'N/A';
-                        text += `observation_time_kst: ${obsTime}\n`;
+                    // 파고 (swh)
+                    if (data.marine_observations.swh && Array.isArray(data.marine_observations.swh) && data.marine_observations.swh.length > 0) {
+                        text += `🌊 파고 관측 (${data.marine_observations.swh.length}개)\n`;
+                        data.marine_observations.swh.forEach(obs => {
+                            text += `observation_time_kst: ${obs.observation_time_kst || 'N/A'}\n`;
+                            text += `station_id(관측소): ${obs.station_id || 'N/A'}\n`;
+                            const waveHeight = (obs.significant_wave_height !== undefined && obs.significant_wave_height !== null) ? obs.significant_wave_height : 'N/A';
+                            text += `significant_wave_height(파고): ${waveHeight}m\n\n`;
+                        });
+                    }
 
-                        const stationId = obs.station_id || 'N/A';
-                        text += `station_id(관측소): ${stationId}\n`;
+                    // 풍향 (wd)
+                    if (data.marine_observations.wd && Array.isArray(data.marine_observations.wd) && data.marine_observations.wd.length > 0) {
+                        text += `🧭 풍향 관측 (${data.marine_observations.wd.length}개)\n`;
+                        data.marine_observations.wd.forEach(obs => {
+                            text += `observation_time_kst: ${obs.observation_time_kst || 'N/A'}\n`;
+                            text += `station_id(관측소): ${obs.station_id || 'N/A'}\n`;
+                            const windDir = (obs.wind_direction !== undefined && obs.wind_direction !== null) ? `${obs.wind_direction}°` : 'N/A';
+                            text += `wind_direction(풍향): ${windDir}\n\n`;
+                        });
+                    }
 
-                        const waveHeight = (obs.significant_wave_height !== undefined && obs.significant_wave_height !== null)
-                            ? obs.significant_wave_height : 'N/A';
-                        text += `significant_wave_height(파고): ${waveHeight}m\n`;
+                    // 풍속 (ws)
+                    if (data.marine_observations.ws && Array.isArray(data.marine_observations.ws) && data.marine_observations.ws.length > 0) {
+                        text += `💨 풍속 관측 (${data.marine_observations.ws.length}개)\n`;
+                        data.marine_observations.ws.forEach(obs => {
+                            text += `observation_time_kst: ${obs.observation_time_kst || 'N/A'}\n`;
+                            text += `station_id(관측소): ${obs.station_id || 'N/A'}\n`;
+                            const windSpeed = (obs.wind_speed !== undefined && obs.wind_speed !== null) ? `${obs.wind_speed}m/s` : 'N/A';
+                            text += `wind_speed(풍속): ${windSpeed}\n\n`;
+                        });
+                    }
 
-                        const waterTemp = (obs.water_temperature !== undefined && obs.water_temperature !== null)
-                            ? `${obs.water_temperature}°C` : 'N/A';
-                        text += `water_temperature(수온): ${waterTemp}\n`;
+                    // 기온 (at)
+                    if (data.marine_observations.at && Array.isArray(data.marine_observations.at) && data.marine_observations.at.length > 0) {
+                        text += `🌡️ 기온 관측 (${data.marine_observations.at.length}개)\n`;
+                        data.marine_observations.at.forEach(obs => {
+                            text += `observation_time_kst: ${obs.observation_time_kst || 'N/A'}\n`;
+                            text += `station_id(관측소): ${obs.station_id || 'N/A'}\n`;
+                            const airTemp = (obs.air_temperature !== undefined && obs.air_temperature !== null) ? `${obs.air_temperature}°C` : 'N/A';
+                            text += `air_temperature(기온): ${airTemp}\n\n`;
+                        });
+                    }
 
-                        text += '\n';
-                    });
+                    text += `</pre></div></div>`;
                 }
-
-                // B 섹션 (기상)
-                if (data.marine_observations.b && Array.isArray(data.marine_observations.b) && data.marine_observations.b.length > 0) {
-                    text += `🌬️ 기상 관측 (${data.marine_observations.b.length}개)\n`;
-
-                    data.marine_observations.b.forEach(obs => {
-                        const obsTime = obs.observation_time_kst || 'N/A';
-                        text += `observation_time_kst: ${obsTime}\n`;
-
-                        const stationId = obs.station_id || 'N/A';
-                        text += `station_id(관측소): ${stationId}\n`;
-
-                        const airTemp = (obs.air_temperature !== undefined && obs.air_temperature !== null)
-                            ? `${obs.air_temperature}°C` : 'N/A';
-                        text += `air_temperature(기온): ${airTemp}\n`;
-
-                        const windDir = (obs.wind_direction !== undefined && obs.wind_direction !== null)
-                            ? `${obs.wind_direction}°` : 'N/A';
-                        text += `wind_direction(풍향): ${windDir}\n`;
-
-                        const windSpeed = (obs.wind_speed !== undefined && obs.wind_speed !== null)
-                            ? `${obs.wind_speed}m/s` : 'N/A';
-                        text += `wind_speed(풍속): ${windSpeed}\n`;
-
-                        text += '\n';
-                    });
-                }
-                text += `</pre></div></div>`;
             }
 
             // Marine (중기 해상 예보)

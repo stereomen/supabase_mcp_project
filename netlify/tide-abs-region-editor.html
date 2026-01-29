@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tide_abs_region 테이블 편집</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 20px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #loadingSpinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .editor-section {
+            display: none;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary {
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #editorTable {
+            font-size: 13px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #editorTable th {
+            position: sticky;
+            top: 0;
+            background: #667eea;
+            color: white;
+            padding: 10px 8px;
+            border: 1px solid #ddd;
+            z-index: 10;
+            font-size: 0.85em;
+        }
+
+        #editorTable td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        #editorTable tr:hover {
+            background: #f8f9fa;
+        }
+
+        #editorTable td[contenteditable="true"] {
+            cursor: text;
+            min-width: 80px;
+        }
+
+        #editorTable td[contenteditable="true"]:hover {
+            background: #fff9e6;
+        }
+
+        #editorTable td[contenteditable="true"]:focus {
+            background: #fffacd;
+            outline: 2px solid #667eea;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #e8f4ff;
+            color: #0066cc;
+            border-left: 4px solid #0066cc;
+        }
+
+        .alert-success {
+            background: #e8f8f5;
+            color: #00a67d;
+            border-left: 4px solid #00a67d;
+        }
+
+        .alert-error {
+            background: #ffe8e8;
+            color: #cc0000;
+            border-left: 4px solid #cc0000;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: gap 0.2s;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        .back-button:hover {
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .highlight-changed {
+            background: #fff3cd !important;
+            border-left: 3px solid #ffc107 !important;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">← 대시보드로 돌아가기</a>
+    <div class="container">
+        <h1>📝 tide_abs_region 테이블 편집</h1>
+        <p class="subtitle">조석관측소별 해양관측소 매칭 정보를 조회하고 수정합니다</p>
+
+        <div class="control-panel">
+            <div class="alert alert-info">
+                <strong>ℹ️ 사용 방법</strong><br>
+                1. "테이블 데이터 불러오기" 버튼을 클릭하여 현재 저장된 데이터를 조회합니다<br>
+                2. 테이블의 값을 클릭하여 직접 수정할 수 있습니다 (STN_ID 입력 시 자동으로 위도/경도/지역명이 채워집니다)<br>
+                3. 수정 완료 후 "Supabase에 업로드" 버튼으로 변경사항을 저장합니다
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="loadTableData()">📥 테이블 데이터 불러오기</button>
+                <button class="btn btn-info" onclick="downloadExcel()" id="downloadBtn" disabled>📊 엑셀 다운로드</button>
+                <button class="btn btn-success" onclick="uploadToSupabase()" id="uploadBtn" disabled>📤 Supabase에 업로드</button>
+            </div>
+        </div>
+
+        <div id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>데이터를 불러오는 중...</p>
+        </div>
+
+        <div id="statsSection" style="display: none;">
+            <div class="stats-card">
+                <h3 style="margin: 0 0 10px 0;">📊 데이터 통계</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalStations">0</div>
+                        <div class="stat-label">전체 조석관측소</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="mappedFields">0</div>
+                        <div class="stat-label">매칭된 필드</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="completionRate">0%</div>
+                        <div class="stat-label">완성도</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="editorSection" class="editor-section">
+            <h3>📋 tide_abs_region 테이블 데이터</h3>
+            <p style="color: #666; margin: 10px 0;">💡 셀을 클릭하면 직접 수정할 수 있습니다. STN_ID를 입력하면 나머지 정보가 자동으로 채워집니다.</p>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="조석관측소 코드 또는 이름으로 검색..." onkeyup="filterTable()">
+                <button class="btn btn-info" onclick="clearSearch()">검색 초기화</button>
+            </div>
+
+            <div id="editorSummary" class="summary"></div>
+
+            <div class="table-container">
+                <table id="editorTable">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="vertical-align: middle;">Code</th>
+                            <th rowspan="2" style="vertical-align: middle;">Name</th>
+                            <th colspan="4" style="background: #5e73d8;">수온(wt)</th>
+                            <th colspan="4" style="background: #5e73d8;">파고(swh)</th>
+                            <th colspan="4" style="background: #5e73d8;">풍향(wd)</th>
+                            <th colspan="4" style="background: #5e73d8;">풍속(ws)</th>
+                            <th colspan="4" style="background: #5e73d8;">기온(at)</th>
+                        </tr>
+                        <tr>
+                            <!-- wt -->
+                            <th>STN_ID</th>
+                            <th>위도</th>
+                            <th>경도</th>
+                            <th>지역명</th>
+                            <!-- swh -->
+                            <th>STN_ID</th>
+                            <th>위도</th>
+                            <th>경도</th>
+                            <th>지역명</th>
+                            <!-- wd -->
+                            <th>STN_ID</th>
+                            <th>위도</th>
+                            <th>경도</th>
+                            <th>지역명</th>
+                            <!-- ws -->
+                            <th>STN_ID</th>
+                            <th>위도</th>
+                            <th>경도</th>
+                            <th>지역명</th>
+                            <!-- at -->
+                            <th>STN_ID</th>
+                            <th>위도</th>
+                            <th>경도</th>
+                            <th>지역명</th>
+                        </tr>
+                    </thead>
+                    <tbody id="editorTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script>
+        // Supabase 설정
+        const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE';
+
+        // Supabase 클라이언트 초기화
+        let supabaseClient;
+        try {
+            if (window.supabase && window.supabase.createClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                console.error('Supabase library not loaded');
+            }
+        } catch (error) {
+            console.error('Failed to initialize Supabase client:', error);
+        }
+
+        let tableData = [];
+        let originalData = [];
+        let marineStationsCache = {};
+        let latestTideStationsXML = {}; // 최신 XML의 조석관측소 정보
+
+        async function loadTableData() {
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const editorSection = document.getElementById('editorSection');
+            const statsSection = document.getElementById('statsSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const uploadBtn = document.getElementById('uploadBtn');
+
+            try {
+                loadingSpinner.style.display = 'block';
+                editorSection.style.display = 'none';
+                statsSection.style.display = 'none';
+
+                // Pagination으로 모든 데이터 가져오기
+                let allData = [];
+                let from = 0;
+                const batchSize = 1000;
+                let hasMore = true;
+
+                while (hasMore) {
+                    const { data, error } = await supabaseClient
+                        .from('tide_abs_region')
+                        .select('*')
+                        .order('Code', { ascending: true })
+                        .range(from, from + batchSize - 1);
+
+                    if (error) throw error;
+
+                    if (data && data.length > 0) {
+                        allData = allData.concat(data);
+                    }
+
+                    if (!data || data.length < batchSize) {
+                        hasMore = false;
+                    } else {
+                        from += batchSize;
+                    }
+                }
+
+                tableData = allData;
+                originalData = JSON.parse(JSON.stringify(allData)); // 원본 데이터 백업
+
+                console.log(`Loaded ${tableData.length} tide stations from tide_abs_region`);
+
+                // 최신 XML에서 조석관측소 정보 로드
+                await loadLatestTideStationsXML();
+
+                // 해양관측소 정보 캐시 로드
+                await loadMarineStationsCache();
+
+                // 테이블 렌더링
+                renderTable();
+
+                // 통계 업데이트
+                updateStats();
+
+                // UI 업데이트
+                editorSection.style.display = 'block';
+                statsSection.style.display = 'block';
+                downloadBtn.disabled = false;
+                uploadBtn.disabled = false;
+
+            } catch (error) {
+                console.error('데이터 로드 실패:', error);
+                alert('테이블 데이터를 불러오는 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        async function loadLatestTideStationsXML() {
+            try {
+                const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+                const timestamp = new Date().getTime();
+                const xmlUrl = `${SUPABASE_URL}/storage/v1/object/public/location-files/locations_latest.xml?t=${timestamp}`;
+
+                const xmlResponse = await fetch(xmlUrl, {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache'
+                    }
+                });
+
+                if (!xmlResponse.ok) {
+                    throw new Error(`HTTP error! status: ${xmlResponse.status}`);
+                }
+
+                const xmlText = await xmlResponse.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+                // XML 파싱하여 조석관측소 정보 저장
+                const locations = xmlDoc.getElementsByTagName('Location');
+                for (let i = 0; i < locations.length; i++) {
+                    const location = locations[i];
+                    const code = location.getElementsByTagName('Code')[0]?.textContent;
+                    const name = location.getElementsByTagName('Name')[0]?.textContent;
+                    const latText = location.getElementsByTagName('Latitude')[0]?.textContent;
+                    const lonText = location.getElementsByTagName('Longitude')[0]?.textContent;
+
+                    if (code) {
+                        latestTideStationsXML[code] = {
+                            name: name || '',
+                            lat: latText ? parseFloat(latText) : null,
+                            lon: lonText ? parseFloat(lonText) : null
+                        };
+                    }
+                }
+
+                console.log(`Loaded ${Object.keys(latestTideStationsXML).length} tide stations from latest XML`);
+
+            } catch (error) {
+                console.warn('최신 XML 로드 실패 (테이블 데이터 사용):', error);
+                // 실패해도 계속 진행 (테이블의 기존 데이터 사용)
+            }
+        }
+
+        async function loadMarineStationsCache() {
+            try {
+                // marine_observations에서 유니크한 station_id 목록 가져오기
+                // 실제로는 locations 테이블이나 별도 마스터 테이블에서 가져오는 것이 더 좋음
+                const { data, error } = await supabaseClient
+                    .from('marine_observations')
+                    .select('station_id, station_name, latitude, longitude')
+                    .limit(1000); // 최근 1000건에서 추출
+
+                if (error) throw error;
+
+                // station_id를 키로 하는 맵 생성
+                const uniqueStations = {};
+                if (data) {
+                    data.forEach(row => {
+                        if (row.station_id && !uniqueStations[row.station_id]) {
+                            uniqueStations[row.station_id] = {
+                                station_id: row.station_id,
+                                name: row.station_name || '',
+                                lat: row.latitude || '',
+                                lon: row.longitude || ''
+                            };
+                        }
+                    });
+                }
+
+                marineStationsCache = uniqueStations;
+                console.log(`Cached ${Object.keys(marineStationsCache).length} marine stations`);
+
+            } catch (error) {
+                console.warn('해양관측소 캐시 로드 실패:', error);
+                // 실패해도 계속 진행
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('editorTableBody');
+            tbody.innerHTML = '';
+
+            if (tableData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="22" style="text-align: center; padding: 40px; color: #999;">데이터가 없습니다</td></tr>';
+                return;
+            }
+
+            const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
+            const columnMapping = {
+                'id': 'STN_ID',
+                'lat': '위도(LAT)',
+                'lon': '경도(LON)',
+                'name': '지역명(한글)'
+            };
+
+            tableData.forEach((rowData, index) => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-station-code', rowData.Code);
+                row.setAttribute('data-row-index', index);
+
+                // Code (편집 불가)
+                const codeCell = document.createElement('td');
+                codeCell.style.background = '#f5f5f5';
+                codeCell.style.fontWeight = '600';
+                codeCell.textContent = rowData.Code || '';
+                row.appendChild(codeCell);
+
+                // Name (편집 불가) - 최신 XML 우선 사용
+                const nameCell = document.createElement('td');
+                nameCell.style.background = '#f5f5f5';
+                const latestName = latestTideStationsXML[rowData.Code]?.name;
+                nameCell.textContent = latestName || rowData.Name || '';
+                if (latestName && latestName !== rowData.Name) {
+                    nameCell.title = `DB: ${rowData.Name} → XML: ${latestName}`;
+                    nameCell.style.color = '#ff6b00'; // 변경된 값 강조
+                }
+                row.appendChild(nameCell);
+
+                // 각 필드별 4개 컬럼 (STN_ID, 위도, 경도, 지역명)
+                for (const field of fields) {
+                    for (const [colType, colSuffix] of Object.entries(columnMapping)) {
+                        const dbColumn = `${field}_${colSuffix}`;
+                        const value = rowData[dbColumn] || '';
+
+                        const cell = document.createElement('td');
+                        cell.contentEditable = 'true';
+                        cell.textContent = value;
+                        cell.setAttribute('data-field', field);
+                        cell.setAttribute('data-column', colType);
+                        cell.setAttribute('data-db-column', dbColumn);
+                        cell.style.cursor = 'text';
+
+                        // STN_ID 입력 시 자동완성
+                        if (colType === 'id') {
+                            cell.addEventListener('blur', function() {
+                                autoFillMarineStationInfo(this);
+                            });
+
+                            cell.addEventListener('keydown', function(e) {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    this.blur();
+                                }
+                            });
+                        }
+
+                        // 값 변경 추적
+                        cell.addEventListener('input', function() {
+                            markAsChanged(this);
+                        });
+
+                        row.appendChild(cell);
+                    }
+                }
+
+                tbody.appendChild(row);
+            });
+
+            updateSummary();
+        }
+
+        function markAsChanged(cell) {
+            const row = cell.closest('tr');
+            if (!row.classList.contains('highlight-changed')) {
+                row.classList.add('highlight-changed');
+            }
+        }
+
+        function autoFillMarineStationInfo(idCell) {
+            const stationId = idCell.textContent.trim();
+            if (!stationId) return;
+
+            const field = idCell.getAttribute('data-field');
+            const row = idCell.parentElement;
+
+            // 캐시에서 관측소 정보 찾기
+            const stationInfo = marineStationsCache[stationId];
+
+            if (stationInfo) {
+                // 같은 field의 lat, lon, name 셀 찾아서 자동 입력
+                const cells = row.querySelectorAll(`td[data-field="${field}"]`);
+
+                for (const cell of cells) {
+                    const column = cell.getAttribute('data-column');
+
+                    if (column === 'lat' && stationInfo.lat) {
+                        cell.textContent = stationInfo.lat;
+                    } else if (column === 'lon' && stationInfo.lon) {
+                        cell.textContent = stationInfo.lon;
+                    } else if (column === 'name' && stationInfo.name) {
+                        cell.textContent = stationInfo.name;
+                    }
+                }
+
+                console.log(`✓ 관측소 ${stationId} 정보 자동 입력 완료:`, stationInfo);
+                markAsChanged(idCell);
+            } else {
+                console.warn(`⚠️ 관측소 ${stationId} 정보를 캐시에서 찾을 수 없습니다.`);
+            }
+        }
+
+        function updateStats() {
+            const totalStations = tableData.length;
+            let totalFields = totalStations * 5; // 5개 필드
+            let mappedFields = 0;
+
+            const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
+
+            tableData.forEach(rowData => {
+                fields.forEach(field => {
+                    const stnId = rowData[`${field}_STN_ID`];
+                    if (stnId && stnId.trim() !== '') {
+                        mappedFields++;
+                    }
+                });
+            });
+
+            const completionRate = totalFields > 0 ? Math.round((mappedFields / totalFields) * 100) : 0;
+
+            document.getElementById('totalStations').textContent = totalStations;
+            document.getElementById('mappedFields').textContent = `${mappedFields} / ${totalFields}`;
+            document.getElementById('completionRate').textContent = `${completionRate}%`;
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('editorSummary');
+            const changedRows = document.querySelectorAll('#editorTableBody tr.highlight-changed').length;
+
+            summary.innerHTML = `
+                <strong>총 ${tableData.length}개 조석관측소</strong><br>
+                ${changedRows > 0 ? `<span style="color: #ff9800;">⚠️ ${changedRows}개 행이 수정되었습니다</span>` : '<span style="color: #4caf50;">✓ 수정사항 없음</span>'}
+            `;
+        }
+
+        function filterTable() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#editorTableBody tr');
+
+            rows.forEach(row => {
+                const code = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+                const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+
+                if (code.includes(searchInput) || name.includes(searchInput)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            filterTable();
+        }
+
+        function downloadExcel() {
+            if (tableData.length === 0) {
+                alert('다운로드할 데이터가 없습니다. 먼저 데이터를 불러와주세요.');
+                return;
+            }
+
+            // 엑셀 데이터 생성
+            const excelData = [];
+
+            // 헤더
+            excelData.push([
+                'Code', 'Name',
+                'wt_STN_ID', 'wt_위도(LAT)', 'wt_경도(LON)', 'wt_지역명(한글)',
+                'swh_STN_ID', 'swh_위도(LAT)', 'swh_경도(LON)', 'swh_지역명(한글)',
+                'wd_STN_ID', 'wd_위도(LAT)', 'wd_경도(LON)', 'wd_지역명(한글)',
+                'ws_STN_ID', 'ws_위도(LAT)', 'ws_경도(LON)', 'ws_지역명(한글)',
+                'at_STN_ID', 'at_위도(LAT)', 'at_경도(LON)', 'at_지역명(한글)'
+            ]);
+
+            // 데이터 행 - 테이블에서 직접 읽기 (수정된 값 포함)
+            const tbody = document.getElementById('editorTableBody');
+            const rows = tbody.querySelectorAll('tr');
+
+            for (const row of rows) {
+                if (row.style.display === 'none') continue; // 필터링된 행 제외
+
+                const cells = row.querySelectorAll('td');
+                const rowData = [];
+
+                for (const cell of cells) {
+                    rowData.push(cell.textContent.trim());
+                }
+
+                excelData.push(rowData);
+            }
+
+            // SheetJS로 엑셀 파일 생성
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+            // 컬럼 너비 설정
+            ws['!cols'] = [
+                { wch: 12 }, // Code
+                { wch: 15 }, // Name
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, // wt
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, // swh
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, // wd
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, // ws
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 15 }  // at
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'tide_abs_region');
+
+            // 파일 다운로드
+            const today = new Date().toISOString().split('T')[0];
+            const filename = `tide_abs_region_${today}.xlsx`;
+            XLSX.writeFile(wb, filename);
+
+            console.log('엑셀 파일 다운로드 완료:', filename);
+        }
+
+        async function uploadToSupabase() {
+            const tbody = document.getElementById('editorTableBody');
+            const rows = tbody.querySelectorAll('tr');
+
+            if (rows.length === 0) {
+                alert('업로드할 데이터가 없습니다. 먼저 데이터를 불러와주세요.');
+                return;
+            }
+
+            const changedRows = document.querySelectorAll('#editorTableBody tr.highlight-changed');
+
+            if (changedRows.length === 0) {
+                alert('수정된 데이터가 없습니다.');
+                return;
+            }
+
+            if (!confirm(`${changedRows.length}개 조석관측소의 수정사항을 업로드하시겠습니까?\n\n⚠️ 테이블에서 수정한 값이 그대로 반영됩니다.`)) {
+                return;
+            }
+
+            const uploadBtn = document.getElementById('uploadBtn');
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = '업로드 중...';
+
+            try {
+                const updates = [];
+                const fields = ['wt', 'swh', 'wd', 'ws', 'at'];
+                const columnMapping = {
+                    'id': 'STN_ID',
+                    'lat': '위도(LAT)',
+                    'lon': '경도(LON)',
+                    'name': '지역명(한글)'
+                };
+
+                let successCount = 0;
+                let errorCount = 0;
+
+                // 수정된 행만 업로드
+                for (const row of changedRows) {
+                    const stationCode = row.getAttribute('data-station-code');
+                    if (!stationCode) continue;
+
+                    const updateData = {};
+                    const cells = row.querySelectorAll('td[contenteditable="true"]');
+
+                    for (const cell of cells) {
+                        const field = cell.getAttribute('data-field');
+                        const column = cell.getAttribute('data-column');
+                        const dbColumn = cell.getAttribute('data-db-column');
+                        const value = cell.textContent.trim();
+
+                        if (!field || !column || !dbColumn) continue;
+
+                        // 빈 값은 null로 처리
+                        if (value === '') {
+                            updateData[dbColumn] = null;
+                        } else {
+                            // 위도/경도는 숫자로 변환
+                            if (column === 'lat' || column === 'lon') {
+                                const numValue = parseFloat(value);
+                                if (isNaN(numValue)) {
+                                    console.warn(`Invalid number for ${dbColumn}: ${value}`);
+                                    updateData[dbColumn] = null;
+                                } else if (column === 'lat' && (numValue < -90 || numValue > 90)) {
+                                    console.warn(`Latitude out of range for ${stationCode}: ${numValue}`);
+                                    alert(`⚠️ ${stationCode}의 위도 값이 범위를 벗어났습니다 (-90 ~ 90): ${numValue}`);
+                                    throw new Error(`Invalid latitude: ${numValue}`);
+                                } else if (column === 'lon' && (numValue < -180 || numValue > 180)) {
+                                    console.warn(`Longitude out of range for ${stationCode}: ${numValue}`);
+                                    alert(`⚠️ ${stationCode}의 경도 값이 범위를 벗어났습니다 (-180 ~ 180): ${numValue}`);
+                                    throw new Error(`Invalid longitude: ${numValue}`);
+                                } else {
+                                    updateData[dbColumn] = numValue;
+                                }
+                            } else {
+                                updateData[dbColumn] = value;
+                            }
+                        }
+                    }
+
+                    console.log(`Updating ${stationCode}:`, updateData);
+
+                    const { error } = await supabaseClient
+                        .from('tide_abs_region')
+                        .update(updateData)
+                        .eq('Code', stationCode);
+
+                    if (error) {
+                        console.error(`Failed to update ${stationCode}:`, error);
+                        errorCount++;
+                    } else {
+                        successCount++;
+                        row.classList.remove('highlight-changed');
+                    }
+                }
+
+                if (errorCount === 0) {
+                    alert(`✅ 업로드 완료!\n${successCount}개 조석관측소의 매칭 정보가 업데이트되었습니다.`);
+                    updateSummary();
+                    updateStats();
+                } else {
+                    alert(`⚠️ 업로드 완료 (일부 실패)\n성공: ${successCount}개\n실패: ${errorCount}개\n\n콘솔에서 에러 로그를 확인하세요.`);
+                }
+
+            } catch (error) {
+                console.error('업로드 실패:', error);
+                alert('업로드 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = '📤 Supabase에 업로드';
+            }
+        }
+    </script>
+</body>
+</html>

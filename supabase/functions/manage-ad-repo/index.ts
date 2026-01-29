@@ -20,6 +20,10 @@ interface AdCampaign {
   image_a_url?: string;
   image_b_url?: string;
   landing_url?: string;
+  landing_page_type?: string;  // 'external' | 'auto'
+  landing_page_title?: string;
+  landing_page_content?: string;
+  landing_page_image_url?: string;
   display_start_date: string;
   display_end_date: string;
   is_active?: boolean;
@@ -38,38 +42,221 @@ serve(async (req) => {
     return new Response('ok', { headers });
   }
 
-  // 관리자 인증 검증
-  if (!validateAdminAuth(req)) {
-    return createUnauthorizedResponse(headers);
-  }
-
-  // Rate limiting (IP 기반, 분당 50회 - 관리 작업은 낮은 한도)
-  const clientIp = getClientIp(req);
-  const rateLimit = checkRateLimit(`admin:${clientIp}`, 50, 60000);
-  if (!rateLimit.allowed) {
-    console.warn(`Rate limit exceeded for admin IP: ${clientIp}`);
-    return createRateLimitResponse(headers);
-  }
-
   try {
     // Supabase 클라이언트 생성 - Service Role Key 사용 (RLS 우회)
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    // GET 요청: 기본 정보
+    // GET 요청: 랜딩 페이지 또는 기본 정보 (공개 접근 가능)
     if (req.method === 'GET') {
+      const url = new URL(req.url);
+      const campaignId = url.searchParams.get('id');
+
+      // id 파라미터가 있으면 자동 생성 랜딩 페이지 HTML 반환
+      if (campaignId) {
+        const { data: campaign, error } = await supabase
+          .from('ad_repo')
+          .select(`
+            id,
+            campaign_name,
+            landing_page_type,
+            landing_page_title,
+            landing_page_content,
+            landing_page_image_url,
+            landing_url,
+            partner_id
+          `)
+          .eq('id', campaignId)
+          .single();
+
+        if (error || !campaign) {
+          return new Response('Campaign not found', {
+            status: 404,
+            headers
+          });
+        }
+
+        // 외부 URL 타입이면 리다이렉트
+        if (campaign.landing_page_type === 'external' && campaign.landing_url) {
+          return new Response(null, {
+            status: 302,
+            headers: {
+              ...headers,
+              'Location': campaign.landing_url
+            }
+          });
+        }
+
+        // 자동 생성 랜딩 페이지 HTML 생성
+        const html = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${campaign.landing_page_title || campaign.campaign_name}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .header .campaign-name {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .image-section {
+            width: 100%;
+            max-height: 400px;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        .image-section img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .content-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .footer {
+            padding: 30px;
+            background: #f8f9fa;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .no-content-placeholder {
+            padding: 60px 30px;
+            text-align: center;
+            background: #f0f0f0;
+            color: #999;
+        }
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            .content {
+                padding: 30px 20px;
+            }
+            .content-text {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>${campaign.landing_page_title || campaign.campaign_name}</h1>
+            <div class="campaign-name">${campaign.campaign_name}</div>
+        </div>
+
+        ${campaign.landing_page_image_url ? `
+        <div class="image-section">
+            <img src="${campaign.landing_page_image_url}" alt="${campaign.landing_page_title || campaign.campaign_name}">
+        </div>
+        ` : ''}
+
+        <div class="content">
+            ${campaign.landing_page_content ? `
+            <div class="content-text">${campaign.landing_page_content}</div>
+            ` : `
+            <div class="no-content-placeholder">
+                <p>광고 내용이 준비 중입니다.</p>
+            </div>
+            `}
+        </div>
+
+        <div class="footer">
+            <p>제공: ${campaign.partner_id}</p>
+            <p style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
+                Powered by Marine Weather Platform
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+        `;
+
+        return new Response(html, {
+          status: 200,
+          headers: {
+            ...headers,
+            'Content-Type': 'text/html; charset=utf-8',
+            'Cache-Control': 'public, max-age=300' // 5분 캐싱
+          }
+        });
+      }
+
+      // id 파라미터 없으면 기본 API 정보 반환
       return new Response(JSON.stringify({
         message: '광고 캠페인 관리 API입니다. POST 요청으로 CRUD 작업을 수행하세요.',
-        actions: ['list', 'get', 'create', 'update', 'delete', 'list_partners', 'get_active']
+        actions: ['list', 'get', 'create', 'update', 'delete', 'list_partners', 'get_active'],
+        landing_page: 'GET 요청에 ?id={campaign_id} 파라미터를 추가하면 자동 생성 랜딩 페이지를 볼 수 있습니다.'
       }), {
         status: 200,
         headers: { ...headers, 'Content-Type': 'application/json' }
       });
     }
 
-    // POST 요청: CRUD 작업
+    // POST 요청: CRUD 작업 (관리자 인증 필요)
     if (req.method === 'POST') {
+      // 관리자 인증 검증
+      if (!validateAdminAuth(req)) {
+        return createUnauthorizedResponse(headers);
+      }
+
+      // Rate limiting (IP 기반, 분당 50회 - 관리 작업은 낮은 한도)
+      const clientIp = getClientIp(req);
+      const rateLimit = checkRateLimit(`admin:${clientIp}`, 50, 60000);
+      if (!rateLimit.allowed) {
+        console.warn(`Rate limit exceeded for admin IP: ${clientIp}`);
+        return createRateLimitResponse(headers);
+      }
+
       const body = await req.json();
       const { action } = body;
 
@@ -205,6 +392,23 @@ serve(async (req) => {
 
           console.log('광고 생성 성공:', data.id);
 
+          // 자동 생성 랜딩 페이지인 경우 landing_url 업데이트
+          if (campaignData.landing_page_type === 'auto') {
+            const autoLandingUrl = `https://mancool.netlify.app/ad-landing.html?id=${data.id}`;
+
+            const { error: updateError } = await supabase
+              .from('ad_repo')
+              .update({ landing_url: autoLandingUrl })
+              .eq('id', data.id);
+
+            if (updateError) {
+              console.error('랜딩 URL 업데이트 실패:', updateError);
+            } else {
+              console.log('자동 생성 랜딩 URL 설정:', autoLandingUrl);
+              data.landing_url = autoLandingUrl; // 응답 데이터 업데이트
+            }
+          }
+
           return new Response(JSON.stringify({
             success: true,
             data: data,
@@ -274,6 +478,23 @@ serve(async (req) => {
           }
 
           console.log('광고 업데이트 성공:', id);
+
+          // 자동 생성 랜딩 페이지로 변경된 경우 landing_url 업데이트
+          if (updateData.landing_page_type === 'auto') {
+            const autoLandingUrl = `https://mancool.netlify.app/ad-landing.html?id=${id}`;
+
+            const { error: urlUpdateError } = await supabase
+              .from('ad_repo')
+              .update({ landing_url: autoLandingUrl })
+              .eq('id', id);
+
+            if (urlUpdateError) {
+              console.error('랜딩 URL 업데이트 실패:', urlUpdateError);
+            } else {
+              console.log('자동 생성 랜딩 URL 설정:', autoLandingUrl);
+              data.landing_url = autoLandingUrl; // 응답 데이터 업데이트
+            }
+          }
 
           return new Response(JSON.stringify({
             success: true,

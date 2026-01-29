@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Locations>
+  <Location>
+    <Code>AD_0001</Code>
+    <Name>시화방조제</Name>
+    <Latitude>37.311241</Latitude>
+    <Longitude>126.607595</Longitude>
+    <marine_reg_name>서해북부</marine_reg_name>
+    <AddressA>경기도</AddressA>
+    <AddressB>안산시 단원구</AddressB>
+    <AddressC>대부동동 2110</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0002</Code>
+    <Name>삼길포항</Name>
+    <Latitude>37.003892</Latitude>
+    <Longitude>126.453104</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>서산시 대산읍</AddressB>
+    <AddressC>화곡리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0003</Code>
+    <Name>석문방조제</Name>
+    <Latitude>37.001554</Latitude>
+    <Longitude>126.643014</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>당진시 송산면</AddressB>
+    <AddressC>석문방조제로</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0004</Code>
+    <Name>대부도</Name>
+    <Latitude>37.207938</Latitude>
+    <Longitude>126.540241</Longitude>
+    <marine_reg_name>서해북부</marine_reg_name>
+    <AddressA>경기도</AddressA>
+    <AddressB>안산시 단원구</AddressB>
+    <AddressC>대부남동 1345</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0005</Code>
+    <Name>제부도</Name>
+    <Latitude>37.166686</Latitude>
+    <Longitude>126.616773</Longitude>
+    <marine_reg_name>서해북부</marine_reg_name>
+    <AddressA>경기도</AddressA>
+    <AddressB>화성시 서신면</AddressB>
+    <AddressC>제부리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0006</Code>
+    <Name>전곡항</Name>
+    <Latitude>37.187681</Latitude>
+    <Longitude>126.652290</Longitude>
+    <marine_reg_name>서해북부</marine_reg_name>
+    <AddressA>경기도</AddressA>
+    <AddressB>화성시 서신면</AddressB>
+    <AddressC>전곡리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0007</Code>
+    <Name>석모도</Name>
+    <Latitude>37.654450</Latitude>
+    <Longitude>126.327121</Longitude>
+    <marine_reg_name>서해북부</marine_reg_name>
+    <AddressA>인천광역시</AddressA>
+    <AddressB>강화군 삼산면</AddressB>
+    <AddressC>매음리 627-71</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0008</Code>
+    <Name>궁평항</Name>
+    <Latitude>37.116110</Latitude>
+    <Longitude>126.677130</Longitude>
+    <marine_reg_name>서해북부</marine_reg_name>
+    <AddressA>경기도</AddressA>
+    <AddressB>화성시 서신면</AddressB>
+    <AddressC>궁평항로 1049-24</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0009</Code>
+    <Name>자월도</Name>
+    <Latitude>37.244555</Latitude>
+    <Longitude>126.318354</Longitude>
+    <marine_reg_name>서해북부</marine_reg_name>
+    <AddressA>인천광역시</AddressA>
+    <AddressB>옹진군 자월면</AddressB>
+    <AddressC>자월리 306-10</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0010</Code>
+    <Name>왜목항</Name>
+    <Latitude>37.044797</Latitude>
+    <Longitude>126.527138</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>당진시 석문면</AddressB>
+    <AddressC>교로리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0011</Code>
+    <Name>도비도항</Name>
+    <Latitude>37.018513</Latitude>
+    <Longitude>126.462040</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>당진시 석문면</AddressB>
+    <AddressC>난지도리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0012</Code>
+    <Name>황금산</Name>
+    <Latitude>36.990378</Latitude>
+    <Longitude>126.327876</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>서산시</AddressB>
+    <AddressC>독곶리 산 230-2</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0013</Code>
+    <Name>벌천포해수욕장</Name>
+    <Latitude>36.968196</Latitude>
+    <Longitude>126.336212</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>서산시 대산읍</AddressB>
+    <AddressC>오지리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0014</Code>
+    <Name>이원방조제</Name>
+    <Latitude>36.904202</Latitude>
+    <Longitude>126.263425</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>태안군 이원면</AddressB>
+    <AddressC>포지리 1288</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0015</Code>
+    <Name>서산A지구방조제</Name>
+    <Latitude>36.602727</Latitude>
+    <Longitude>126.435026</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>홍성군 서부면</AddressB>
+    <AddressC>궁리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0016</Code>
+    <Name>서산B지구방조제</Name>
+    <Latitude>36.625471</Latitude>
+    <Longitude>126.360493</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>태안군 남면</AddressB>
+    <AddressC>당암리 980</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0018</Code>
+    <Name>가의도항</Name>
+    <Latitude>36.673562</Latitude>
+    <Longitude>126.064058</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>태안군 근흥면</AddressB>
+    <AddressC>가의도리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0019</Code>
+    <Name>학암포항</Name>
+    <Latitude>36.902522</Latitude>
+    <Longitude>126.206355</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>태안군 원북면</AddressB>
+    <AddressC>방갈리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0020</Code>
+    <Name>신진도항</Name>
+    <Latitude>36.902522</Latitude>
+    <Longitude>126.206355</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>태안군 근흥면</AddressB>
+    <AddressC>신진도리 75-12</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0021</Code>
+    <Name>드르니항</Name>
+    <Latitude>36.590059</Latitude>
+    <Longitude>126.314880</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>태안군 남면</AddressB>
+    <AddressC>신온리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0022</Code>
+    <Name>영목항</Name>
+    <Latitude>36.400043</Latitude>
+    <Longitude>126.426899</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>태안군 고남면</AddressB>
+    <AddressC>고남리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0023</Code>
+    <Name>대천항(무창포항)</Name>
+    <Latitude>36.328198</Latitude>
+    <Longitude>126.509917</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>보령시</AddressB>
+    <AddressC>신흑동 2245</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0024</Code>
+    <Name>무창포해수욕장</Name>
+    <Latitude>36.245178</Latitude>
+    <Longitude>126.536391</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>보령시 웅천읍</AddressB>
+    <AddressC>열린바다1길 10</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0025</Code>
+    <Name>홍원항</Name>
+    <Latitude>36.162883</Latitude>
+    <Longitude>126.499793</Longitude>
+    <marine_reg_name>서해중부</marine_reg_name>
+    <AddressA>충청남도</AddressA>
+    <AddressB>서천군 서면</AddressB>
+    <AddressC>도둔리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0026</Code>
+    <Name>새만금방조제</Name>
+    <Latitude>35.833138</Latitude>
+    <Longitude>126.484020</Longitude>
+    <marine_reg_name>서해남부</marine_reg_name>
+    <AddressA>전북특별자치도</AddressA>
+    <AddressB>군산시</AddressB>
+    <AddressC>비응도동 123</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0027</Code>
+    <Name>비안도선착장</Name>
+    <Latitude>35.735745</Latitude>
+    <Longitude> 126.461443</Longitude>
+    <marine_reg_name>서해남부</marine_reg_name>
+    <AddressA>전북특별자치도</AddressA>
+    <AddressB>군산시 옥도면</AddressB>
+    <AddressC>비안도리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0028</Code>
+    <Name>격포항</Name>
+    <Latitude>35.623433</Latitude>
+    <Longitude>126.463768</Longitude>
+    <marine_reg_name>서해남부</marine_reg_name>
+    <AddressA>전북특별자치도</AddressA>
+    <AddressB>부안군 변산면</AddressB>
+    <AddressC>격포리 788-15</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0029</Code>
+    <Name>구시포항</Name>
+    <Latitude>35.449806</Latitude>
+    <Longitude>126.435537</Longitude>
+    <marine_reg_name>서해남부</marine_reg_name>
+    <AddressA>전북특별자치도</AddressA>
+    <AddressB>고창군 상하면</AddressB>
+    <AddressC>자룡리 산 96</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0030</Code>
+    <Name>동호항</Name>
+    <Latitude>35.521553</Latitude>
+    <Longitude>126.486863</Longitude>
+    <marine_reg_name>서해남부</marine_reg_name>
+    <AddressA>전북특별자치도</AddressA>
+    <AddressB>고창군 해리면</AddressB>
+    <AddressC>동호리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0031</Code>
+    <Name>항화도항</Name>
+    <Latitude>35.167977</Latitude>
+    <Longitude>126.359493</Longitude>
+    <marine_reg_name>서해남부</marine_reg_name>
+    <AddressA>전라남도</AddressA>
+    <AddressB>영광군 염산면</AddressB>
+    <AddressC>옥실리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0032</Code>
+    <Name>비금도가산</Name>
+    <Latitude>34.760966</Latitude>
+    <Longitude>125.999144</Longitude>
+    <marine_reg_name>서해남부</marine_reg_name>
+    <AddressA>전라남도</AddressA>
+    <AddressB>신안군 비금면</AddressB>
+    <AddressC>가산리 180-58</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0033</Code>
+    <Name>송평항</Name>
+    <Latitude>34.426953</Latitude>
+    <Longitude>126.481791</Longitude>
+    <marine_reg_name>남해서부</marine_reg_name>
+    <AddressA>전라남도</AddressA>
+    <AddressB>해남군 화산면</AddressB>
+    <AddressC>평호리 395-39</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0034</Code>
+    <Name>갈두항</Name>
+    <Latitude>34.330291</Latitude>
+    <Longitude>126.534920</Longitude>
+    <marine_reg_name>남해서부</marine_reg_name>
+    <AddressA>전라남도</AddressA>
+    <AddressB>해남군 송지면</AddressB>
+    <AddressC>송호리 1127-22</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0035</Code>
+    <Name>동천항</Name>
+    <Latitude>34.203406</Latitude>
+    <Longitude>126.624946</Longitude>
+    <marine_reg_name>남해서부</marine_reg_name>
+    <AddressA>전라남도</AddressA>
+    <AddressB>완도군 노화읍</AddressB>
+    <AddressC>동천리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0036</Code>
+    <Name>정남진해양낚시공원</Name>
+    <Latitude>34.470784</Latitude>
+    <Longitude>126.976240</Longitude>
+    <marine_reg_name>남해서부</marine_reg_name>
+    <AddressA>전라남도</AddressA>
+    <AddressB>장흥군 회진면</AddressB>
+    <AddressC>해양낚시길 137</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0037</Code>
+    <Name>고흥만방조제</Name>
+    <Latitude>34.651229</Latitude>
+    <Longitude>127.213832</Longitude>
+    <marine_reg_name>남해서부</marine_reg_name>
+    <AddressA>전라남도</AddressA>
+    <AddressB>고흥군 도덕면</AddressB>
+    <AddressC>용동리 1454</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0038</Code>
+    <Name>용두항</Name>
+    <Latitude>34.835211</Latitude>
+    <Longitude>127.433247</Longitude>
+    <marine_reg_name>남해서부</marine_reg_name>
+    <AddressA>전라남도</AddressA>
+    <AddressB>순천시 별량면</AddressB>
+    <AddressC>구룡리 6-8</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0039</Code>
+    <Name>내지항</Name>
+    <Latitude>34.855647</Latitude>
+    <Longitude>128.180548</Longitude>
+    <marine_reg_name>남해동부</marine_reg_name>
+    <AddressA>경상남도</AddressA>
+    <AddressB>통영시 사량면</AddressB>
+    <AddressC>상도일주로 494</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0040</Code>
+    <Name>계도항</Name>
+    <Latitude>34.974278</Latitude>
+    <Longitude>128.517630</Longitude>
+    <marine_reg_name>남해동부</marine_reg_name>
+    <AddressA>경상남도</AddressA>
+    <AddressB>거제시 사등면</AddressB>
+    <AddressC>창호리 1070-24</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0041</Code>
+    <Name>가배항</Name>
+    <Latitude>34.785960</Latitude>
+    <Longitude>128.568371</Longitude>
+    <marine_reg_name>남해동부</marine_reg_name>
+    <AddressA>경상남도</AddressA>
+    <AddressB>거제시 동부면</AddressB>
+    <AddressC>가배리</AddressC>
+  </Location>
+  <Location>
+    <Code>AD_0042</Code>
+    <Name>다대포항</Name>
+    <Latitude>35.057047</Latitude>
+    <Longitude>128.979232</Longitude>
+    <marine_reg_name>남해동부</marine_reg_name>
+    <AddressA>경상남도</AddressA>
+    <AddressB>사하구</AddressB>
+    <AddressC>다대동</AddressC>
+  </Location>
+</Locations>

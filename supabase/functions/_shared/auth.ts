@@ -28,6 +28,42 @@ export function validateClientApiKey(req: Request): boolean {
 }
 
 /**
+ * 클라이언트 API 키 또는 관리자 인증 검증
+ * 클라이언트 앱 또는 관리자 페이지에서 호출 가능
+ *
+ * 환경 변수: CLIENT_API_KEY, ADMIN_SECRET
+ * 헤더: x-api-key 또는 x-admin-secret
+ */
+export function validateClientOrAdminAuth(req: Request): boolean {
+  // 먼저 클라이언트 API 키 확인
+  const clientApiKey = Deno.env.get('CLIENT_API_KEY');
+  const requestApiKey = req.headers.get('x-api-key');
+
+  if (clientApiKey && requestApiKey === clientApiKey) {
+    console.log('✅ Authenticated via CLIENT_API_KEY');
+    return true;
+  }
+
+  // 클라이언트 키가 없거나 일치하지 않으면 관리자 인증 확인
+  const adminSecret = Deno.env.get('ADMIN_SECRET');
+  const requestSecret = req.headers.get('x-admin-secret');
+
+  if (adminSecret && requestSecret === adminSecret) {
+    console.log('✅ Authenticated via ADMIN_SECRET');
+    return true;
+  }
+
+  // CLIENT_API_KEY가 설정되지 않은 경우 개발 모드로 통과
+  if (!clientApiKey && !adminSecret) {
+    console.warn('⚠️ No authentication configured - allowing request (development mode)');
+    return true;
+  }
+
+  console.error('❌ Invalid or missing authentication');
+  return false;
+}
+
+/**
  * 관리자 인증 검증
  * 관리 페이지에서 호출하는 API용 (광고 생성/수정/삭제, 파트너 관리 등)
  *

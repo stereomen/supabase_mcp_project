@@ -1,183 +1,299 @@
-# Supabase CLI
+# Marine Weather Observation Platform (MCP)
 
-[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
-](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
+해양 기상 관측 플랫폼 - 기상청 데이터 수집, 조석 정보 제공 및 위치 기반 광고 시스템
 
-[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
+[![Supabase](https://img.shields.io/badge/Supabase-Backend-green)](https://supabase.com)
+[![Netlify](https://img.shields.io/badge/Netlify-Admin%20UI-blue)](https://mancool.netlify.app)
 
-This repository contains all the functionality for Supabase CLI.
+## 개요
 
-- [x] Running Supabase locally
-- [x] Managing database migrations
-- [x] Creating and deploying Supabase Functions
-- [x] Generating types directly from your database schema
-- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
+Marine Weather Observation Platform은 한국 해양 기상 데이터를 수집하고 제공하는 종합 플랫폼입니다. 기상청 API로부터 실시간 해양 관측 데이터, 단기/중기 일기예보, 조석 정보를 수집하여 모바일 앱에 제공하며, 위치 기반 광고 시스템을 통합하여 제휴사 광고를 관리합니다.
 
-## Getting started
+**프로젝트 ID:** `iwpgvdtfpwazzfeniusk`
+**관리 페이지:** https://mancool.netlify.app
 
-### Install the CLI
+## 주요 기능
 
-Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
+### 🌊 해양 기상 데이터
+- 실시간 해양 관측 데이터 (수온, 파고, 풍향, 풍속 등)
+- 7일 단기 일기예보
+- 3-7일 중기 일기예보 (육상/기온/해상)
+- 14일 조석 정보
+
+### 📢 광고 시스템
+- 위치 기반 광고 타겟팅 (관측소/해역별)
+- 우선순위 기반 광고 노출
+- 실시간 성과 추적 (노출 수, 클릭 수, CTR)
+- 웹 기반 관리 대시보드
+
+### 🔔 Firebase 통합
+- FCM 푸시 알림 발송
+- Remote Config 관리
+
+## 시스템 아키텍처
+
+```
+┌─────────────────┐
+│   KMA API       │  기상청 데이터
+└────────┬────────┘
+         │
+         v
+┌─────────────────────────────┐
+│  Supabase Edge Functions    │
+│  - fetch-kma-data           │  데이터 수집 (스케줄)
+│  - fetch-openweather-data   │
+│  - get-ad-weather-data      │  광고 통합 API
+│  - manage-ad-repo           │  광고 관리
+│  - track-ad-event           │  이벤트 추적
+└────────┬────────────────────┘
+         │
+         v
+┌─────────────────────────────┐
+│  PostgreSQL Database        │
+│  - marine_observations      │  해양 관측
+│  - weather_forecasts        │  일기예보
+│  - tide_data                │  조석 정보
+│  - ad_repo                  │  광고 캠페인
+│  - ad_analytics             │  광고 성과
+└─────────────────────────────┘
+         │
+         v
+┌─────────────────────────────┐
+│  Client Applications        │
+│  - Android App              │
+│  - Web Admin UI (Netlify)   │
+└─────────────────────────────┘
+```
+
+## 빠른 시작
+
+### 1. 환경 변수 설정
 
 ```bash
-npm i supabase --save-dev
+# Supabase
+SUPABASE_URL=https://iwpgvdtfpwazzfeniusk.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# KMA API
+KMA_AUTH_KEY=your-kma-api-key
+
+# Firebase (선택사항)
+FIREBASE_SERVICE_ACCOUNT_KEY=your-firebase-service-account-json
+ADMIN_SECRET=your-admin-password
 ```
 
-To install the beta release channel:
+### 2. Edge Functions 배포
 
 ```bash
-npm i supabase@beta --save-dev
+# 프로젝트 연결
+supabase link --project-ref iwpgvdtfpwazzfeniusk
+
+# 전체 함수 배포
+supabase functions deploy
+
+# 또는 개별 배포
+supabase functions deploy get-ad-weather-data
+supabase functions deploy manage-ad-repo
+supabase functions deploy track-ad-event
 ```
 
-When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
+### 3. 데이터베이스 마이그레이션
 
+웹 UI를 통한 마이그레이션:
+https://mancool.netlify.app/run-migration.html
+
+또는 CLI:
+```bash
+supabase db push
 ```
-NODE_OPTIONS=--no-experimental-fetch yarn add supabase
-```
 
-> **Note**
-For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
-
-<details>
-  <summary><b>macOS</b></summary>
-
-  Available via [Homebrew](https://brew.sh). To install:
-
-  ```sh
-  brew install supabase/tap/supabase
-  ```
-
-  To install the beta release channel:
-  
-  ```sh
-  brew install supabase/tap/supabase-beta
-  brew link --overwrite supabase-beta
-  ```
-  
-  To upgrade:
-
-  ```sh
-  brew upgrade supabase
-  ```
-</details>
-
-<details>
-  <summary><b>Windows</b></summary>
-
-  Available via [Scoop](https://scoop.sh). To install:
-
-  ```powershell
-  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-  scoop install supabase
-  ```
-
-  To upgrade:
-
-  ```powershell
-  scoop update supabase
-  ```
-</details>
-
-<details>
-  <summary><b>Linux</b></summary>
-
-  Available via [Homebrew](https://brew.sh) and Linux packages.
-
-  #### via Homebrew
-
-  To install:
-
-  ```sh
-  brew install supabase/tap/supabase
-  ```
-
-  To upgrade:
-
-  ```sh
-  brew upgrade supabase
-  ```
-
-  #### via Linux packages
-
-  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
-
-  ```sh
-  sudo apk add --allow-untrusted <...>.apk
-  ```
-
-  ```sh
-  sudo dpkg -i <...>.deb
-  ```
-
-  ```sh
-  sudo rpm -i <...>.rpm
-  ```
-
-  ```sh
-  sudo pacman -U <...>.pkg.tar.zst
-  ```
-</details>
-
-<details>
-  <summary><b>Other Platforms</b></summary>
-
-  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
-
-  ```sh
-  go install github.com/supabase/cli@latest
-  ```
-
-  Add a symlink to the binary in `$PATH` for easier access:
-
-  ```sh
-  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
-  ```
-
-  This works on other non-standard Linux distros.
-</details>
-
-<details>
-  <summary><b>Community Maintained Packages</b></summary>
-
-  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
-  To install in your working directory:
-
-  ```bash
-  pkgx install supabase
-  ```
-
-  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
-</details>
-
-### Run the CLI
+### 4. 관리 페이지 배포
 
 ```bash
-supabase bootstrap
+cd netlify
+netlify deploy --prod --dir=.
 ```
 
-Or using npx:
+## API 엔드포인트
+
+### 날씨 + 광고 데이터 조회
+```bash
+GET /get-ad-weather-data?code=DT_0001&date=2025-12-23
+```
+
+### 광고 캠페인 관리
+```bash
+GET /manage-ad-repo          # 목록 조회
+POST /manage-ad-repo         # 캠페인 생성
+PUT /manage-ad-repo          # 캠페인 수정
+DELETE /manage-ad-repo       # 캠페인 삭제
+```
+
+### 광고 이벤트 추적
+```bash
+POST /track-ad-event
+Body: {
+  "ad_repo_id": "uuid",
+  "event_type": "click",
+  "station_id": "DT_0001"
+}
+```
+
+전체 API 문서: [docs/AD_SYSTEM_API.md](docs/AD_SYSTEM_API.md)
+
+## 데이터베이스 스키마
+
+### 핵심 테이블
+
+**해양 기상 데이터**
+- `marine_observations` - 실시간 해양 관측 데이터
+- `weather_forecasts` - 7일 일기예보
+- `medium_term_forecasts` - 중기예보 (3-7일)
+- `tide_data` - 조석 정보
+- `locations` - 관측소 마스터 데이터
+
+**광고 시스템**
+- `ad_partners` - 제휴사 정보
+- `ad_repo` - 광고 캠페인
+- `ad_analytics` - 이벤트 추적 (노출/클릭)
+- `ad_repo_view` - 캠페인 통합 뷰
+- `ad_analytics_campaign_summary` - 성과 집계
+
+## 관리 페이지
+
+https://mancool.netlify.app
+
+- 🔧 **Remote Config 관리** - Firebase 설정 관리
+- 📱 **푸시 알림 발송** - FCM 알림 전송
+- 📋 **알림 내역 목록** - 발송 히스토리
+- ⛵ **API 데이터 검증** - 날씨/조석 API 테스트
+- 📢 **광고 제휴사 관리** - 제휴사 등록/관리
+- 🎯 **광고 캠페인 등록** - 캠페인 생성/수정
+- 📊 **광고 성과 분석** - 실시간 성과 대시보드
+
+## 프로젝트 구조
+
+```
+supabase_mcp_project/
+├── supabase/
+│   ├── functions/           # Edge Functions
+│   │   ├── get-ad-weather-data/
+│   │   ├── manage-ad-repo/
+│   │   ├── track-ad-event/
+│   │   ├── fetch-kma-data/
+│   │   └── _shared/         # 공통 유틸리티
+│   └── migrations/          # 데이터베이스 마이그레이션
+├── netlify/                 # 웹 관리 UI
+│   ├── index.html
+│   ├── ad-partners.html
+│   ├── ad-post.html
+│   ├── ad-analytics.html
+│   └── run-migration.html
+├── docs/                    # 문서
+│   ├── AD_SYSTEM_API.md
+│   ├── AD_SYSTEM_DEPLOYMENT_GUIDE.md
+│   └── functions/
+├── CLAUDE.md               # AI 개발 가이드
+└── README.md               # 이 파일
+```
+
+## 개발 가이드
+
+### Edge Function 개발
 
 ```bash
-npx supabase bootstrap
+# 로컬 개발 서버 시작
+supabase start
+
+# 함수 로그 확인
+supabase functions logs get-ad-weather-data
+
+# 로컬 테스트
+curl http://localhost:54321/functions/v1/get-ad-weather-data?code=DT_0001&date=2025-12-23
 ```
 
-The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
+### 데이터베이스 변경
 
-## Docs
+```bash
+# 새 마이그레이션 생성
+supabase migration new add_new_feature
 
-Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
+# 로컬 DB 리셋
+supabase db reset
 
-## Breaking changes
-
-We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
-
-However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
-
-## Developing
-
-To run from source:
-
-```sh
-# Go >= 1.22
-go run . help
+# 원격 DB에 적용
+supabase db push
 ```
+
+### 코드 스타일
+
+- TypeScript + Deno 런타임
+- snake_case 데이터베이스 컬럼명
+- UTC/KST 타임존 동시 저장
+- 한글 주석 및 문서
+- RPC 함수를 통한 복잡한 쿼리
+
+자세한 내용: [CLAUDE.md](CLAUDE.md)
+
+## 광고 시스템 사용 예시
+
+### Android 앱 통합
+
+```kotlin
+// 1. 날씨 + 광고 조회
+val response = weatherApi.getWeatherWithAd(
+    code = "DT_0001",
+    date = "2025-12-23"
+)
+
+// 2. 광고 표시
+response.ad?.let { ad ->
+    displayAd(ad)
+    // impression 이벤트 자동 기록됨
+}
+
+// 3. 클릭 이벤트 전송
+fun onAdClick(adId: String) {
+    adApi.trackEvent(
+        ad_repo_id = adId,
+        event_type = "click",
+        station_id = "DT_0001"
+    )
+    openUrl(ad.landing_url)
+}
+```
+
+### 광고 타겟팅 전략
+
+1. **관측소 기반**: 특정 관측소 사용자에게만 노출
+2. **해역 기반**: 특정 해역(서해/남해/동해) 사용자에게 노출
+3. **전국**: 모든 사용자에게 노출
+4. **우선순위**: 여러 광고가 매칭되면 높은 priority 광고 노출
+
+## 문서
+
+- [광고 시스템 API 문서](docs/AD_SYSTEM_API.md)
+- [광고 시스템 배포 가이드](docs/AD_SYSTEM_DEPLOYMENT_GUIDE.md)
+- [get-ad-weather-data API](docs/GET-AD-WEATHER-DATA_MODIFICATION.md)
+- [KMA API 데이터 필드](docs/KMA_API_DATA_FIELDS.md)
+- [Firebase 알림 가이드](docs/NOTIFICATION_API_GUIDE.md)
+
+## 배포 상태
+
+- ✅ Supabase Edge Functions (2025-12-23)
+- ✅ Netlify 관리 페이지 (2025-12-23)
+- ✅ 광고 시스템 마이그레이션 (2025-12-23)
+- ✅ PostgreSQL 데이터베이스 스키마
+
+## 라이선스
+
+이 프로젝트는 Marine Weather Observation Platform의 일부입니다.
+
+## 기여자
+
+Marine Weather Observation Platform Team
+
+---
+
+**마지막 업데이트:** 2025-12-23

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stations>
+  <station>
+    <STN_ID>958</STN_ID>
+    <Name>갈매여</Name>
+    <Latitude>35.61333333</Latitude>
+    <Longitude>126.245</Longitude>
+    <associations>
+      <association type="B">
+        <tide_station_code>SO_0538</tide_station_code>
+        <tide_station_name>안마도</tide_station_name>
+      </association>
+    </associations>
+  </station>
+  <station>
+    <STN_ID>22101</STN_ID>
+    <Name>덕적도</Name>
+    <Latitude>37.2361</Latitude>
+    <Longitude>126.0188</Longitude>
+    <associations>
+      <association type="A">
+        <tide_station_code>SO_0563</tide_station_code>
+        <tide_station_name>울도</tide_station_name>
+      </association>
+      <association type="A">
+        <tide_station_code>DT_0038</tide_station_code>
+        <tide_station_name>굴업도</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>SO_0536</tide_station_code>
+        <tide_station_name>덕적도</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>SO_0563</tide_station_code>
+        <tide_station_name>울도</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>DT_0038</tide_station_code>
+        <tide_station_name>굴업도</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>DT_0065</tide_station_code>
+        <tide_station_name>덕적도</tide_station_name>
+      </association>
+    </associations>
+  </station>
+  <station>
+    <STN_ID>22102</STN_ID>
+    <Name>칠발도</Name>
+    <Latitude>34.7933</Latitude>
+    <Longitude>125.7769</Longitude>
+    <associations>
+      <association type="A">
+        <tide_station_code>SO_0548</tide_station_code>
+        <tide_station_name>우이도</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>SO_0548</tide_station_code>
+        <tide_station_name>우이도</tide_station_name>
+      </association>
+    </associations>
+  </station>
+  <station>
+    <STN_ID>22108</STN_ID>
+    <Name>외연도</Name>
+    <Latitude>36.25</Latitude>
+    <Longitude>125.75</Longitude>
+    <associations>
+      <association type="A">
+        <tide_station_code>DT_0045</tide_station_code>
+        <tide_station_name>격렬비열도</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>DT_0045</tide_station_code>
+        <tide_station_name>격렬비열도</tide_station_name>
+      </association>
+    </associations>
+  </station>
+  <station>
+    <STN_ID>22183</STN_ID>
+    <Name>신안</Name>
+    <Latitude>34.7333</Latitude>
+    <Longitude>126.2417</Longitude>
+    <associations>
+      <association type="A">
+        <tide_station_code>SO_0537</tide_station_code>
+        <tide_station_name>벽파진</tide_station_name>
+      </association>
+      <association type="A">
+        <tide_station_code>SO_0566</tide_station_code>
+        <tide_station_name>송공항</tide_station_name>
+      </association>
+      <association type="A">
+        <tide_station_code>SO_0576</tide_station_code>
+        <tide_station_name>화봉리</tide_station_name>
+      </association>
+      <association type="A">
+        <tide_station_code>DT_0007</tide_station_code>
+        <tide_station_name>목포</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>SO_0566</tide_station_code>
+        <tide_station_name>송공항</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>SO_0576</tide_station_code>
+        <tide_station_name>화봉리</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>SO_0631</tide_station_code>
+        <tide_station_name>암태도</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>SO_0752</tide_station_code>
+        <tide_station_name>검산항</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>SO_0753</tide_station_code>
+        <tide_station_name>하의도웅곡</tide_station_name>
+      </association>
+    </associations>
+  </station>
+  <station>
+    <STN_ID>22190</STN_ID>
+    <Name>울진</Name>
+    <Latitude>36.9069</Latitude>
+    <Longitude>129.8744</Longitude>
+    <associations>
+      <association type="A">
+        <tide_station_code>DT_0039</tide_station_code>
+        <tide_station_name>왕돌초</tide_station_name>
+      </association>
+    </associations>
+  </station>
+  <station>
+    <STN_ID>22298</STN_ID>
+    <Name>홍도</Name>
+    <Latitude>34.746667</Latitude>
+    <Longitude>125.245556</Longitude>
+    <associations>
+      <association type="A">
+        <tide_station_code>SO_0577</tide_station_code>
+        <tide_station_name>가거도</tide_station_name>
+      </association>
+      <association type="A">
+        <tide_station_code>SO_0701</tide_station_code>
+        <tide_station_name>홍도항</tide_station_name>
+      </association>
+      <association type="A">
+        <tide_station_code>DT_0035</tide_station_code>
+        <tide_station_name>흑산도</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>SO_0701</tide_station_code>
+        <tide_station_name>홍도항</tide_station_name>
+      </association>
+    </associations>
+  </station>
+  <station>
+    <STN_ID>22303</STN_ID>
+    <Name>풍도</Name>
+    <Latitude>37.15833</Latitude>
+    <Longitude>126.41</Longitude>
+    <associations>
+      <association type="A">
+        <tide_station_code>SO_0564</tide_station_code>
+        <tide_station_name>국화도</tide_station_name>
+      </association>
+      <association type="A">
+        <tide_station_code>DT_0002</tide_station_code>
+        <tide_station_name>평택</tide_station_name>
+      </association>
+      <association type="A">
+        <tide_station_code>DT_0008</tide_station_code>
+        <tide_station_name>안산</tide_station_name>
+      </association>
+      <association type="A">
+        <tide_station_code>DT_0043</tide_station_code>
+        <tide_station_name>영흥도</tide_station_name>
+      </association>
+      <association type="A">
+        <tide_station_code>DT_0052</tide_station_code>
+        <tide_station_name>인천송도</tide_station_name>
+      </association>
+      <association type="B">
+        <tide_station_code>SO_0562</tide_station_code>
+        <tide_station_name>승봉도</tide_station_name>
+      </association>
+    </associations>
+  </station>
+</stations>

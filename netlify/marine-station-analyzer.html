@@ -388,56 +388,270 @@
         anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3cGd2ZHRmcHdhenpmZW5pdXNrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNzEzOTQsImV4cCI6MjA2NjY0NzM5NH0.d0pjIvnOdPGbc_-cfqRNu9yOIutyO1eex848k1yNZJE'
     };
 
-    // A지점 목록 (파고, 수온)
+    // 해양관측소 목록 A - 총 139개 관측소 (주로 파고, 수온 데이터 제공)
     const A_STATIONS = [
-        {name: "목포", id: "530350", lat: 34.77805556, lon: 126.3925},
-        {name: "대흑산도", id: "535951", lat: 34.68388889, lon: 125.4358333},
-        {name: "완도", id: "537800", lat: 34.3125, lon: 126.76138889},
-        {name: "진도", id: "539800", lat: 34.3777, lon: 126.3086},
-        {name: "고흥", id: "548893", lat: 34.47666667, lon: 127.3475},
-        {name: "여수", id: "550070", lat: 34.74416667, lon: 127.76805555},
-        {name: "울릉도", id: "21229", lat: 37.4554, lon: 131.1144},
-        {name: "덕적도", id: "22101", lat: 37.2361, lon: 126.0188},
-        {name: "칠발도", id: "22102", lat: 34.7933, lon: 125.7769},
+        {name: "가거도", id: "22297", lat: 34.0275, lon: 125.214722},
+        {name: "가덕도", id: "618440", lat: 35.02166667, lon: 128.81305556},
+        {name: "가파도", id: "22476", lat: 33.1627, lon: 126.2637},
+        {name: "간절곶", id: "22483", lat: 35.3663, lon: 129.3752},
+        {name: "강릉", id: "22520", lat: 37.79833, lon: 129.06083},
         {name: "거문도", id: "22103", lat: 34.0014, lon: 127.5014},
+        {name: "거문도", id: "556851", lat: 34.025, lon: 127.31083333},
         {name: "거제도", id: "22104", lat: 34.7667, lon: 128.9},
-        {name: "동해", id: "22105", lat: 37.5442, lon: 130},
-        {name: "포항", id: "22106", lat: 36.35, lon: 129.7833},
-        {name: "마라도", id: "22107", lat: 33.0833, lon: 126.0333},
-        {name: "외연도", id: "22108", lat: 36.25, lon: 125.75},
-        {name: "신안", id: "22183", lat: 34.73333333, lon: 126.24166667},
-        {name: "추자도", id: "22184", lat: 33.79361, lon: 126.1411},
-        {name: "인천", id: "22185", lat: 37.0917, lon: 125.4289},
-        {name: "부안", id: "22186", lat: 35.6586, lon: 125.8139},
-        {name: "가덕도", id: "22187", lat: 35.0239, lon: 128.8111},
-        {name: "서귀포", id: "22188", lat: 33.2403, lon: 126.5653},
-        {name: "통영", id: "22189", lat: 34.8264, lon: 128.4236},
-        {name: "광양", id: "22190", lat: 34.9047, lon: 127.6853},
-        {name: "군산", id: "22191", lat: 35.9753, lon: 126.4858},
-        {name: "태안", id: "22192", lat: 36.8961, lon: 126.1397},
-        {name: "영광", id: "22193", lat: 35.4189, lon: 126.4247},
-        {name: "보령", id: "22194", lat: 36.3981, lon: 126.4858},
-        {name: "여수", id: "22195", lat: 34.7403, lon: 127.7658},
-        {name: "강릉", id: "22196", lat: 37.7544, lon: 128.9036},
-        {name: "속초", id: "22197", lat: 38.2072, lon: 128.5914},
-        {name: "목포항", id: "22303", lat: 34.7778, lon: 126.3778}
-    ];
-
-    // B지점 목록 (기온, 풍향, 풍속)
-    const B_STATIONS = [
-        {name: "인천(송도)", id: "406800", lat: 37.3381, lon: 126.5861},
-        {name: "영흥도", id: "409870", lat: 37.2367, lon: 126.4314},
-        {name: "영광", id: "513800", lat: 34.77666667, lon: 126.39388889},
-        {name: "부산신항", id: "516090", lat: 35.0744, lon: 128.7869},
-        {name: "목포", id: "530350", lat: 34.77805556, lon: 126.3925},
-        {name: "대흑산도", id: "535951", lat: 34.68388889, lon: 125.4358333},
-        {name: "완도", id: "537800", lat: 34.3125, lon: 126.76138889},
-        {name: "진도", id: "539800", lat: 34.3777, lon: 126.3086},
-        {name: "광양", id: "545711", lat: 34.90342, lon: 127.75483},
+        {name: "거제도", id: "626800", lat: 34.79888889, lon: 128.70166667},
+        {name: "고성", id: "22310", lat: 38.31722, lon: 128.639167},
         {name: "고흥", id: "548893", lat: 34.47666667, lon: 127.3475},
-        {name: "여수", id: "550070", lat: 34.74416667, lon: 127.76805555}
+        {name: "고흥", id: "22478", lat: 34.3752, lon: 127.1785},
+        {name: "구룡포", id: "22524", lat: 35.9687, lon: 129.5997},
+        {name: "구암", id: "22443", lat: 37.4792, lon: 130.8043},
+        {name: "군산", id: "22474", lat: 35.8878, lon: 126.4255},
+        {name: "군산외항", id: "573400", lat: 35.96833333, lon: 126.62666667},
+        {name: "금오도", id: "22466", lat: 34.567, lon: 127.7767},
+        {name: "기상1호", id: "22003", lat: 33.235279, lon: 126.569443},
+        {name: "기장", id: "22511", lat: 35.2187, lon: 129.2645},
+        {name: "김녕", id: "22491", lat: 33.5818, lon: 126.764},
+        {name: "나로도", id: "22502", lat: 34.4322, lon: 127.5892},
+        {name: "낙월", id: "22494", lat: 35.2003, lon: 126.21},
+        {name: "남해", id: "22498", lat: 34.6963, lon: 127.9923},
+        {name: "남해111", id: "22309", lat: 33.775, lon: 128.375},
+        {name: "남해239", id: "22300", lat: 32.83, lon: 124.73},
+        {name: "남해244", id: "22304", lat: 32.72222, lon: 127.27222},
+        {name: "남해465", id: "22301", lat: 31.666667, lon: 126.4},
+        {name: "내파수도", id: "22446", lat: 36.45139, lon: 126.24},
+        {name: "노화도", id: "22477", lat: 34.2415, lon: 126.4918},
+        {name: "녹도", id: "22526", lat: 36.264, lon: 126.2075},
+        {name: "다대포", id: "22460", lat: 35.0213, lon: 128.955},
+        {name: "당사", id: "22518", lat: 35.5777, lon: 129.5032},
+        {name: "대산", id: "356870", lat: 37.00472222, lon: 126.35444444},
+        {name: "대치마도", id: "22489", lat: 35.0175, lon: 126.0319},
+        {name: "대흑산도", id: "535951", lat: 34.68388889, lon: 125.4358333},
+        {name: "덕적도", id: "22101", lat: 37.2361, lon: 126.0188},
+        {name: "독도", id: "22441", lat: 37.2375, lon: 131.8695},
+        {name: "동해", id: "22105", lat: 37.5442, lon: 130.0},
+        {name: "동해57", id: "22305", lat: 38.366667, lon: 129.6},
+        {name: "동해78", id: "22302", lat: 36.966667, lon: 130.516667},
+        {name: "두미도", id: "22450", lat: 34.7098, lon: 128.1497},
+        {name: "마라도", id: "22107", lat: 33.0833, lon: 126.0333},
+        {name: "마산", id: "630651", lat: 35.19694444, lon: 128.58},
+        {name: "맹골수도", id: "22481", lat: 34.2262, lon: 125.9545},
+        {name: "맹방", id: "22479", lat: 37.4015, lon: 129.2288},
+        {name: "모슬포", id: "699835", lat: 33.21444444, lon: 126.25111111},
+        {name: "목포", id: "530350", lat: 34.77805556, lon: 126.3925},
+        {name: "묵호", id: "240050", lat: 37.5475, lon: 129.11861111},
+        {name: "변산", id: "22497", lat: 35.659, lon: 126.4588},
+        {name: "보령", id: "355844", lat: 36.40305555, lon: 126.4880555},
+        {name: "볼음도", id: "22525", lat: 37.6117, lon: 126.1335},
+        {name: "부산", id: "158650", lat: 35.09305556, lon: 129.0375},
+        {name: "부안", id: "22186", lat: 35.6586, lon: 125.8139},
+        {name: "불무도", id: "22503", lat: 34.318, lon: 126.1737},
+        {name: "비안도", id: "22492", lat: 35.74, lon: 126.3518},
+        {name: "사량도", id: "22501", lat: 34.861, lon: 128.1382},
+        {name: "삼척", id: "22311", lat: 37.46389, lon: 129.31805},
+        {name: "삼천포", id: "52565", lat: 34.924056, lon: 128.069722},
+        {name: "삽시도", id: "22445", lat: 36.3712, lon: 126.338},
+        {name: "서귀포", id: "22187", lat: 33.1281, lon: 127.0228},
+        {name: "서귀포", id: "697010", lat: 33.23666667, lon: 126.56361111},
+        {name: "서천", id: "22473", lat: 36.1668, lon: 126.3327},
+        {name: "서해143", id: "22193", lat: 37.5, lon: 124.0167},
+        {name: "서해170", id: "22191", lat: 36.13333, lon: 124.05694},
+        {name: "서해190", id: "22299", lat: 35.0, lon: 124.13},
+        {name: "서해206", id: "22192", lat: 34.0, lon: 123.2625},
+        {name: "성산포", id: "699903", lat: 33.475, lon: 126.92777778},
+        {name: "소매물도", id: "22485", lat: 34.62138889, lon: 128.538},
+        {name: "속초", id: "217800", lat: 38.20444444, lon: 128.59666667},
+        {name: "신산", id: "22495", lat: 33.3775, lon: 126.906},
+        {name: "신안", id: "22183", lat: 34.73333333, lon: 126.24166667},
+        {name: "신진도", id: "22444", lat: 36.6047, lon: 126.126},
+        {name: "신창", id: "22516", lat: 33.366, lon: 126.1092},
+        {name: "안면도", id: "22488", lat: 36.5367, lon: 126.2982},
+        {name: "안산", id: "445310", lat: 37.18944444, lon: 126.64972222},
+        {name: "안흥", id: "357945", lat: 36.67, lon: 126.135},
+        {name: "어청도", id: "573819", lat: 36.1169, lon: 125.9847},
+        {name: "여수", id: "550070", lat: 34.74416667, lon: 127.76805555},
+        {name: "연곡", id: "22451", lat: 37.8673, lon: 128.8855},
+        {name: "연평도", id: "22522", lat: 37.61944444, lon: 125.64833333},
+        {name: "연화도", id: "22499", lat: 34.6738, lon: 128.3648},
+        {name: "영광", id: "22475", lat: 35.4353, lon: 126.176},
+        {name: "영락", id: "22505", lat: 33.2383, lon: 126.195},
+        {name: "오륙도", id: "22459", lat: 35.0948, lon: 129.1282},
+        {name: "완도", id: "537800", lat: 34.3125, lon: 126.76138889},
+        {name: "외연도", id: "22108", lat: 36.25, lon: 125.75},
+        {name: "우도", id: "22469", lat: 33.5223, lon: 126.9662},
+        {name: "울릉도", id: "21229", lat: 37.4554, lon: 131.1144},
+        {name: "울릉도", id: "799801", lat: 37.49333333, lon: 130.91388889},
+        {name: "울릉읍", id: "22464", lat: 37.4717, lon: 130.9005},
+        {name: "울산", id: "22189", lat: 35.3453, lon: 129.8414},
+        {name: "울산", id: "695851", lat: 35.50055556, lon: 129.38944444},
+        {name: "울진", id: "22190", lat: 36.9069, lon: 129.8744},
+        {name: "월포", id: "22490", lat: 36.2163, lon: 129.4012},
+        {name: "위도", id: "22504", lat: 35.6582, lon: 126.2607},
+        {name: "위도동부", id: "22510", lat: 35.64297, lon: 126.358611},
+        {name: "위미", id: "22515", lat: 33.22369, lon: 126.71119},
+        {name: "이작도", id: "22461", lat: 37.1653, lon: 126.2067},
+        {name: "인천", id: "22185", lat: 37.0917, lon: 125.4289},
+        {name: "인천", id: "400031", lat: 37.44916667, lon: 126.59416667},
+        {name: "인천(송도)", id: "406800", lat: 37.3381, lon: 126.5861},
+        {name: "자월도", id: "22472", lat: 37.3043, lon: 126.158},
+        {name: "자은", id: "22493", lat: 34.91917, lon: 125.86806},
+        {name: "잠도", id: "22484", lat: 35.0578, lon: 128.6807},
+        {name: "장봉도", id: "22496", lat: 37.4897, lon: 126.3532},
+        {name: "장안", id: "22454", lat: 35.2972, lon: 129.2883},
+        {name: "제주", id: "690704", lat: 33.52416667, lon: 126.54527778},
+        {name: "제주항", id: "22457", lat: 33.5255, lon: 126.4942},
+        {name: "조도", id: "22500", lat: 34.2867, lon: 126.1138},
+        {name: "죽변", id: "22523", lat: 37.10278, lon: 129.45944},
+        {name: "중문", id: "22458", lat: 33.2253, lon: 126.3923},
+        {name: "지심도", id: "22512", lat: 34.82777778, lon: 128.775},
+        {name: "진도", id: "539800", lat: 34.3777, lon: 126.3086},
+        {name: "진도", id: "22449", lat: 34.4418, lon: 126.0568},
+        {name: "천수만", id: "22487", lat: 36.4672, lon: 126.4395},
+        {name: "청산도", id: "22456", lat: 34.138, lon: 126.744},
+        {name: "초도", id: "22507", lat: 34.1512, lon: 127.2187},
+        {name: "추자도", id: "22184", lat: 33.79361, lon: 126.1411},
+        {name: "추자도", id: "22468", lat: 33.9732, lon: 126.2788},
+        {name: "추자도", id: "680050", lat: 33.95861111, lon: 126.30222222},
+        {name: "칠발도", id: "22102", lat: 34.7933, lon: 125.7769},
+        {name: "토성", id: "22471", lat: 38.2772, lon: 128.5753},
+        {name: "통영", id: "22188", lat: 34.3917, lon: 128.225},
+        {name: "통영", id: "650804", lat: 34.82472222, lon: 128.43694444},
+        {name: "평택", id: "451821", lat: 36.96388889, lon: 126.82472222},
+        {name: "포항", id: "22106", lat: 36.35, lon: 129.7833},
+        {name: "포항", id: "37716", lat: 36.01777778, lon: 129.39916667},
+        {name: "표류25011", id: "22946", lat: 29.12392, lon: 131.41194},
+        {name: "표류25016", id: "22601", lat: 6.05024, lon: 102.40561},
+        {name: "표류25019", id: "22604", lat: 21.2811, lon: 136.05235},
+        {name: "표류25020", id: "22605", lat: 21.06382, lon: 125.3735},
+        {name: "표류25023", id: "22683", lat: 23.07905, lon: 132.08839},
+        {name: "풍도", id: "22303", lat: 37.15833, lon: 126.41},
+        {name: "한산도", id: "22467", lat: 34.7055, lon: 128.4953},
+        {name: "해금강", id: "22455", lat: 34.735, lon: 128.691},
+        {name: "혈암", id: "22442", lat: 37.5413, lon: 130.8542},
+        {name: "협재", id: "22486", lat: 33.4007, lon: 126.2092},
+        {name: "홍도", id: "22298", lat: 34.746667, lon: 125.245556},
+        {name: "후포", id: "22465", lat: 36.7195, lon: 129.4883},
+        {name: "후포", id: "767800", lat: 36.67444444, lon: 129.45555556},
     ];
 
+    // 해양관측소 목록 B - 총 117개 관측소 (주로 기온, 풍향, 풍속 데이터 제공)
+    const B_STATIONS = [
+        {name: "가거도", id: "22297", lat: 34.0275, lon: 125.214722},
+        {name: "가대암", id: "956", lat: 36.77, lon: 125.9767},
+        {name: "가덕도", id: "618440", lat: 35.02166667, lon: 128.81305556},
+        {name: "간여암", id: "961", lat: 34.285, lon: 127.85778},
+        {name: "갈매여", id: "958", lat: 35.61333333, lon: 126.245},
+        {name: "강릉", id: "22520", lat: 37.79833, lon: 129.06083},
+        {name: "거문도", id: "22103", lat: 34.0014, lon: 127.5014},
+        {name: "거문도", id: "556851", lat: 34.025, lon: 127.31083333},
+        {name: "거제도", id: "22104", lat: 34.7667, lon: 128.9},
+        {name: "거제도", id: "626800", lat: 34.79888889, lon: 128.70166667},
+        {name: "격포", id: "33004", lat: 35.61902, lon: 126.46304},
+        {name: "고성", id: "22310", lat: 38.31722, lon: 128.639167},
+        {name: "고흥", id: "548893", lat: 34.47666667, lon: 127.3475},
+        {name: "광양", id: "545711", lat: 34.90342, lon: 127.75483},
+        {name: "교본초", id: "650940", lat: 34.70167, lon: 128.31},
+        {name: "구룡포", id: "33021", lat: 35.95183, lon: 129.54965},
+        {name: "군산외항", id: "573400", lat: 35.96833333, lon: 126.62666667},
+        {name: "기상1호", id: "22003", lat: 33.235279, lon: 126.569443},
+        {name: "남해111", id: "22309", lat: 33.775, lon: 128.375},
+        {name: "남해239", id: "22300", lat: 32.83, lon: 124.73},
+        {name: "남해244", id: "22304", lat: 32.72222, lon: 127.27222},
+        {name: "남해465", id: "22301", lat: 31.666667, lon: 126.4},
+        {name: "내파수도", id: "22446", lat: 36.45139, lon: 126.24},
+        {name: "대산", id: "356870", lat: 37.00472222, lon: 126.35444444},
+        {name: "대산", id: "33001", lat: 37.0275, lon: 126.3625},
+        {name: "대치마도", id: "22489", lat: 35.0175, lon: 126.0319},
+        {name: "대흑산도", id: "535951", lat: 34.68388889, lon: 125.4358333},
+        {name: "덕적도", id: "22101", lat: 37.2361, lon: 126.0188},
+        {name: "동해", id: "22105", lat: 37.5442, lon: 130.0},
+        {name: "동해57", id: "22305", lat: 38.366667, lon: 129.6},
+        {name: "동해78", id: "22302", lat: 36.966667, lon: 130.516667},
+        {name: "동해항", id: "240130", lat: 37.495, lon: 129.1439},
+        {name: "마라도", id: "22107", lat: 33.0833, lon: 126.0333},
+        {name: "마산", id: "630651", lat: 35.19694444, lon: 128.58},
+        {name: "말도", id: "33003", lat: 35.85391, lon: 126.31797},
+        {name: "모슬포", id: "699835", lat: 33.21444444, lon: 126.25111111},
+        {name: "목포", id: "530350", lat: 34.77805556, lon: 126.3925},
+        {name: "묵호", id: "240050", lat: 37.5475, lon: 129.11861111},
+        {name: "백령도", id: "23102", lat: 37.9556, lon: 124.7361},
+        {name: "법성포", id: "33018", lat: 35.352, lon: 126.3874},
+        {name: "보령", id: "355844", lat: 36.40305555, lon: 126.4880555},
+        {name: "부산", id: "158650", lat: 35.09305556, lon: 129.0375},
+        {name: "부산신항", id: "516090", lat: 35.0744, lon: 128.7869},
+        {name: "부안", id: "22186", lat: 35.6586, lon: 125.8139},
+        {name: "삼척", id: "22311", lat: 37.46389, lon: 129.31805},
+        {name: "삼천포", id: "52565", lat: 34.924056, lon: 128.069722},
+        {name: "서귀포", id: "22187", lat: 33.1281, lon: 127.0228},
+        {name: "서귀포", id: "697010", lat: 33.23666667, lon: 126.56361111},
+        {name: "서귀포", id: "33015", lat: 33.2635, lon: 126.6426},
+        {name: "서수도", id: "955", lat: 37.325, lon: 126.39333333},
+        {name: "서천(마량)", id: "325894", lat: 36.1286, lon: 126.4956},
+        {name: "서해143", id: "22193", lat: 37.5, lon: 124.0167},
+        {name: "서해170", id: "22191", lat: 36.13333, lon: 124.05694},
+        {name: "서해190", id: "22299", lat: 35.0, lon: 124.13},
+        {name: "서해206", id: "22192", lat: 34.0, lon: 123.2625},
+        {name: "성산포", id: "699903", lat: 33.475, lon: 126.92777778},
+        {name: "소매물도", id: "22485", lat: 34.62138889, lon: 128.538},
+        {name: "속초", id: "217800", lat: 38.20444444, lon: 128.59666667},
+        {name: "신안", id: "22183", lat: 34.73333333, lon: 126.24166667},
+        {name: "신안", id: "33017", lat: 34.727, lon: 125.9009},
+        {name: "실리도", id: "33019", lat: 35.06265, lon: 128.63935},
+        {name: "십이동파", id: "957", lat: 35.98666667, lon: 126.225},
+        {name: "안산", id: "445310", lat: 37.18944444, lon: 126.64972222},
+        {name: "안흥", id: "357945", lat: 36.67, lon: 126.135},
+        {name: "어청도", id: "573819", lat: 36.1169, lon: 125.9847},
+        {name: "여수", id: "550070", lat: 34.74416667, lon: 127.76805555},
+        {name: "여수", id: "33014", lat: 34.5242, lon: 127.7303},
+        {name: "연평도", id: "22522", lat: 37.61944444, lon: 125.64833333},
+        {name: "연평도", id: "23108", lat: 37.6577, lon: 125.7144},
+        {name: "영광", id: "513800", lat: 34.77666667, lon: 126.39388889},
+        {name: "영덕", id: "33008", lat: 36.33874, lon: 129.38274},
+        {name: "영흥도", id: "409870", lat: 37.2367, lon: 126.4314},
+        {name: "오륙도", id: "984", lat: 35.091, lon: 129.127},
+        {name: "완도", id: "537800", lat: 34.3125, lon: 126.76138889},
+        {name: "왕돌초", id: "132129", lat: 36.71667, lon: 129.735},
+        {name: "외연도", id: "22108", lat: 36.25, lon: 125.75},
+        {name: "울릉도", id: "21229", lat: 37.4554, lon: 131.1144},
+        {name: "울릉도", id: "799801", lat: 37.49333333, lon: 130.91388889},
+        {name: "울산", id: "22189", lat: 35.3453, lon: 129.8414},
+        {name: "울산", id: "695851", lat: 35.50055556, lon: 129.38944444},
+        {name: "울산", id: "33016", lat: 35.581, lon: 129.4563},
+        {name: "울진", id: "22190", lat: 36.9069, lon: 129.8744},
+        {name: "위도", id: "579911", lat: 35.6153, lon: 126.3039},
+        {name: "위도동부", id: "22510", lat: 35.64297, lon: 126.358611},
+        {name: "위미", id: "22515", lat: 33.22369, lon: 126.71119},
+        {name: "이덕서", id: "963", lat: 35.5667, lon: 129.475},
+        {name: "인천", id: "22185", lat: 37.0917, lon: 125.4289},
+        {name: "인천", id: "400031", lat: 37.44916667, lon: 126.59416667},
+        {name: "인천(송도)", id: "406800", lat: 37.3381, lon: 126.5861},
+        {name: "자은", id: "22493", lat: 34.91917, lon: 125.86806},
+        {name: "장항", id: "325903", lat: 36.00694444, lon: 126.6875},
+        {name: "정동진", id: "33020", lat: 37.68472, lon: 129.04444},
+        {name: "제주", id: "690704", lat: 33.52416667, lon: 126.54527778},
+        {name: "죽도", id: "33002", lat: 36.27511, lon: 126.53792},
+        {name: "죽변", id: "22523", lat: 37.10278, lon: 129.45944},
+        {name: "지귀도", id: "960", lat: 33.22333, lon: 126.6542},
+        {name: "지산", id: "33006", lat: 34.44957, lon: 126.1184},
+        {name: "지심도", id: "22512", lat: 34.82777778, lon: 128.775},
+        {name: "진도", id: "539800", lat: 34.3777, lon: 126.3086},
+        {name: "진해군항", id: "645600", lat: 35.14722, lon: 128.64306},
+        {name: "추자도", id: "22184", lat: 33.79361, lon: 126.1411},
+        {name: "추자도", id: "680050", lat: 33.95861111, lon: 126.30222222},
+        {name: "칠발도", id: "22102", lat: 34.7933, lon: 125.7769},
+        {name: "태안", id: "357914", lat: 36.9133, lon: 126.2386},
+        {name: "통영", id: "22188", lat: 34.3917, lon: 128.225},
+        {name: "통영", id: "650804", lat: 34.82472222, lon: 128.43694444},
+        {name: "통영", id: "33009", lat: 34.76516, lon: 128.4048},
+        {name: "판포", id: "33011", lat: 33.36686, lon: 126.20052},
+        {name: "평택", id: "451821", lat: 36.96388889, lon: 126.82472222},
+        {name: "포항", id: "22106", lat: 36.35, lon: 129.7833},
+        {name: "포항", id: "37716", lat: 36.01777778, lon: 129.39916667},
+        {name: "풍도", id: "22303", lat: 37.15833, lon: 126.41},
+        {name: "해남", id: "33013", lat: 34.3157, lon: 126.5145},
+        {name: "해수서", id: "959", lat: 34.26333333, lon: 126.02666667},
+        {name: "홍도", id: "22298", lat: 34.746667, lon: 125.245556},
+        {name: "후포", id: "767800", lat: 36.67444444, lon: 129.45555556},
+        {name: "흑산도", id: "33010", lat: 34.65088, lon: 125.39348},
+    ];
     // 조석관측소 목록 (locations_with_addresses.xml) - 총 178개
     const TIDE_STATIONS = [
         {code: "SO_0326", name: "미조항", lat: 34.706389, lon: 128.048611, marine_reg: "남해동부", address: "경상남도 남해군 방파제길"},
@@ -620,13 +834,57 @@
         {code: "AD_0042", name: "다대포항", lat: 35.057047, lon: 128.979232, marine_reg: "남해동부", address: "경상남도 사하구 다대동"}
     ];
     </script>
+
+    <!-- jQuery (Select2 requires jQuery) - jsdelivr CDN을 사용하여 CSP 준수 -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        /* Select2 커스텀 스타일 */
+        .select2-container--default .select2-selection--single {
+            height: 42px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 38px;
+            padding-left: 12px;
+            color: #333;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 38px;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #667eea;
+        }
+        .select2-container {
+            width: 100% !important;
+        }
+        .select2-dropdown {
+            border: 2px solid #667eea;
+            border-radius: 8px;
+        }
+        .select2-search--dropdown .select2-search__field {
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 8px;
+        }
+        .select2-results__option--highlighted {
+            background-color: #667eea !important;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <a href="/" class="back-button">← 대시보드</a>
             <h1>🌊 해양관측소 데이터 분석기</h1>
-            <p>조석관측소-해양관측소 매칭을 위한 데이터 가용성 분석</p>
+            <p>해양관측소별 데이터 가용성 분석 및 조석관측소 매칭 추천</p>
         </div>
 
         <div class="content">
@@ -634,13 +892,6 @@
             <div class="filters">
                 <h2>🔍 분석 설정</h2>
                 <div class="filter-row">
-                    <div class="filter-group">
-                        <label for="stationType">관측소 분류</label>
-                        <select id="stationType" onchange="updateStationList()">
-                            <option value="A">A지점 (파고/수온 제공)</option>
-                            <option value="B">B지점 (기온/풍향/풍속 제공)</option>
-                        </select>
-                    </div>
                     <div class="filter-group">
                         <label for="stationSelect">해양관측소 선택</label>
                         <select id="stationSelect">
@@ -676,19 +927,19 @@
                 <div class="stats">
                     <div class="stat-card">
                         <div class="stat-value" id="coverageRate">-</div>
-                        <div class="stat-label">데이터 제공률</div>
+                        <div class="stat-label">일평균 수집 횟수</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="totalHours">-</div>
-                        <div class="stat-label">총 분석 시간</div>
+                        <div class="stat-label">분석 기간</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="providedHours">-</div>
-                        <div class="stat-label">제공된 시간</div>
+                        <div class="stat-label">총 수집 횟수</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="missingHours">-</div>
-                        <div class="stat-label">누락된 시간</div>
+                        <div class="stat-label">상태</div>
                     </div>
                 </div>
 
@@ -704,9 +955,9 @@
                     <div class="timeline" id="timeline"></div>
                 </div>
 
-                <!-- 누락 시간대 -->
+                <!-- 데이터 수집 정보 -->
                 <div class="analysis-section">
-                    <h3>⚠️ 누락된 시간대</h3>
+                    <h3>📊 데이터 수집 정보</h3>
                     <div class="missing-times" id="missingTimes"></div>
                 </div>
 
@@ -746,21 +997,64 @@
 
         // 관측소 목록 업데이트
         function updateStationList() {
-            const type = document.getElementById('stationType').value;
-            const select = document.getElementById('stationSelect');
-            const stations = type === 'A' ? A_STATIONS : B_STATIONS;
+            const select = $('#stationSelect');
+            // A_STATIONS와 B_STATIONS를 모두 합침 (중복 제거)
+            const allStations = [...A_STATIONS, ...B_STATIONS];
 
-            select.innerHTML = '<option value="">관측소를 선택하세요</option>';
-            stations.forEach(station => {
-                const option = document.createElement('option');
-                option.value = JSON.stringify(station);
-                option.textContent = `${station.name} (${station.id})`;
-                select.appendChild(option);
+            // 중복 제거 (id 기준)
+            const uniqueStationsMap = new Map();
+            allStations.forEach(station => {
+                const key = `${station.id}_${station.name}`;
+                if (!uniqueStationsMap.has(key)) {
+                    uniqueStationsMap.set(key, station);
+                }
+            });
+            const stations = Array.from(uniqueStationsMap.values());
+
+            // Select2 제거 (재초기화를 위해)
+            if (select.hasClass("select2-hidden-accessible")) {
+                select.select2('destroy');
+            }
+
+            // 기존 옵션 제거
+            select.empty();
+
+            // 기본 옵션 추가
+            select.append('<option value="">관측소를 선택하세요</option>');
+
+            // 가나다순으로 정렬
+            const sortedStations = [...stations].sort((a, b) => {
+                return a.name.localeCompare(b.name, 'ko-KR');
+            });
+
+            // 옵션 추가
+            sortedStations.forEach(station => {
+                const option = $('<option></option>')
+                    .val(JSON.stringify(station))
+                    .text(`${station.name} (${station.id})`);
+                select.append(option);
+            });
+
+            // Select2 초기화 (검색 기능 활성화)
+            select.select2({
+                placeholder: '관측소를 선택하거나 검색하세요',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "검색 결과가 없습니다";
+                    },
+                    searching: function() {
+                        return "검색 중...";
+                    }
+                },
+                width: '100%'
             });
         }
 
-        // 초기 로드
-        updateStationList();
+        // 초기 로드 (DOM이 준비된 후 실행)
+        $(document).ready(function() {
+            updateStationList();
+        });
 
         // 거리 계산 (Haversine formula)
         function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -781,7 +1075,7 @@
                 document.getElementById('errorMessage').style.display = 'none';
                 document.getElementById('results').style.display = 'none';
 
-                const stationJson = document.getElementById('stationSelect').value;
+                const stationJson = $('#stationSelect').val();
                 const dateFrom = document.getElementById('dateFrom').value;
                 const dateTo = document.getElementById('dateTo').value;
 
@@ -793,10 +1087,18 @@
                 }
 
                 const station = JSON.parse(stationJson);
-                const startDate = new Date(dateFrom + 'T00:00:00Z');
-                const endDate = new Date(dateTo + 'T23:59:59.999Z');
 
-                console.log(`분석 시작: ${station.name} (${station.id}), ${dateFrom} ~ ${dateTo}`);
+                // KST 날짜를 UTC로 변환 (KST = UTC+9)
+                // KST 2026-01-17 00:00 = UTC 2026-01-16 15:00
+                const kstStartDate = new Date(dateFrom + 'T00:00:00+09:00');
+                const kstEndDate = new Date(dateTo + 'T23:59:59.999+09:00');
+
+                // UTC로 변환
+                const startDate = new Date(kstStartDate.toISOString());
+                const endDate = new Date(kstEndDate.toISOString());
+
+                console.log(`분석 시작: ${station.name} (${station.id}), ${dateFrom} ~ ${dateTo} (KST)`);
+                console.log(`UTC 범위: ${startDate.toISOString()} ~ ${endDate.toISOString()}`);
 
                 // abs_fetch_log에서 데이터 조회 (페이지네이션)
                 let allData = [];
@@ -837,8 +1139,8 @@
                 // 원본 데이터 저장 (모달에서 사용)
                 currentRawData = allData;
 
-                // 데이터 분석
-                const analysis = analyzeData(allData, startDate, endDate, station);
+                // 데이터 분석 (KST 날짜 문자열 전달)
+                const analysis = analyzeData(allData, dateFrom, dateTo, station);
                 currentAnalysisData = analysis;
 
                 // 결과 표시
@@ -854,19 +1156,25 @@
         }
 
         // 데이터 분석
-        function analyzeData(data, startDate, endDate, station) {
-            // 예상 데이터 수 계산 (기상청 해상관측정보 API: 매시 정시/30분 2회 제공)
-            // 날짜 범위의 전체 일수를 계산 (종료일 포함)
+        function analyzeData(data, dateFrom, dateTo, station) {
+            // 날짜 범위 계산
+            const startDate = new Date(dateFrom);
+            const endDate = new Date(dateTo);
             const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-            const totalHours = daysDiff * 24 * 2; // 하루 48회 (24시간 × 2회/시간)
 
-            // 실제 제공된 고유 시간 수 계산 (중복 제거)
-            const uniqueTimes = new Set(data.map(row => row.request_time));
+            // 실제 제공된 고유 시간 수 계산 (중복 제거, observation_time_kst 사용)
+            // 각 station_id는 고유한 데이터 제공 패턴을 가지므로 실제 수집된 데이터만 카운트
+            const uniqueTimes = new Set(
+                data
+                    .filter(row => row.observation_time_kst)
+                    .map(row => row.observation_time_kst)
+            );
             const providedHours = uniqueTimes.size;
-            const missingHours = totalHours - providedHours;
-            const coverageRate = totalHours > 0 ? (providedHours / totalHours * 100) : 0;
 
-            // 제공된 데이터 항목 분석
+            // 일평균 수집 횟수 계산
+            const avgPerDay = daysDiff > 0 ? (providedHours / daysDiff).toFixed(1) : 0;
+
+            // 제공된 데이터 항목 분석 (중복 제거 - 고유 시간대별로만 카운트)
             const fieldCounts = {
                 'significant_wave_height_available': 0,
                 'wind_direction_available': 0,
@@ -878,19 +1186,38 @@
                 'humidity_available': 0
             };
 
+            // 시간대별로 중복 제거하여 카운트
+            const timeBasedFields = {};
             data.forEach(row => {
+                if (!row.observation_time_kst) return;
+
+                if (!timeBasedFields[row.observation_time_kst]) {
+                    timeBasedFields[row.observation_time_kst] = {};
+                    Object.keys(fieldCounts).forEach(field => {
+                        // true인 경우만 true로, 나머지(false/null/undefined)는 모두 false로
+                        timeBasedFields[row.observation_time_kst][field] = row[field] === true;
+                    });
+                }
+            });
+
+            // 고유 시간대에서 필드 존재 여부 카운트 (true인 경우만)
+            Object.values(timeBasedFields).forEach(fields => {
                 Object.keys(fieldCounts).forEach(field => {
-                    if (row[field]) fieldCounts[field]++;
+                    if (fields[field] === true) fieldCounts[field]++;
                 });
             });
 
-            // 일별 커버리지 계산 (시간별 중복 제거)
+            // 일별 커버리지 계산 (시간별 중복 제거, observation_time_kst 사용)
             const dailyCoverage = {};
             const dailyTimeSet = {}; // 날짜별 고유 시간 추적
 
             data.forEach(row => {
-                const date = row.request_time.substring(0, 10);
-                const dateTime = row.request_time; // 전체 타임스탬프
+                // observation_time_kst에서 날짜 추출 (YYYYMMDDHHMI -> YYYY-MM-DD)
+                if (!row.observation_time_kst || row.observation_time_kst.length < 8) return;
+
+                const kstDateStr = row.observation_time_kst.substring(0, 8); // YYYYMMDD
+                const date = `${kstDateStr.substring(0, 4)}-${kstDateStr.substring(4, 6)}-${kstDateStr.substring(6, 8)}`; // YYYY-MM-DD
+                const dateTime = row.observation_time_kst; // 전체 타임스탬프 (KST)
 
                 if (!dailyCoverage[date]) {
                     dailyCoverage[date] = { total: 0, complete: 0 };
@@ -902,42 +1229,37 @@
                     dailyTimeSet[date].add(dateTime);
                     dailyCoverage[date].total++;
 
-                    // 완전한 데이터 판단 (주요 항목이 있으면)
-                    const hasData = row.significant_wave_height_available ||
-                                   row.water_temperature_available ||
-                                   row.air_temperature_available ||
-                                   row.wind_speed_available;
+                    // 완전한 데이터 판단 (주요 항목이 true인 경우만)
+                    const hasData = row.significant_wave_height_available === true ||
+                                   row.water_temperature_available === true ||
+                                   row.air_temperature_available === true ||
+                                   row.wind_speed_available === true;
                     if (hasData) {
                         dailyCoverage[date].complete++;
                     }
                 }
             });
 
-            // 누락 시간대 추출
-            const providedTimes = new Set(data.map(d => d.request_time));
-            const missingTimes = [];
-
-            // 시간별로 체크 (기상청 API: 매시 정시/30분 제공)
-            // 실제로는 정시와 30분 시간대별로 체크해야 하지만, 여기서는 전체 누락 수만 계산
+            // 데이터 제공률 계산 (일평균 수집 횟수 기준, 24시간 = 100%)
+            const coverageRate = Math.min(100, ((avgPerDay / 24) * 100).toFixed(1));
 
             return {
-                totalHours,
+                daysDiff,
                 providedHours,
-                missingHours,
-                coverageRate: coverageRate.toFixed(2),
+                avgPerDay,
+                coverageRate,
                 fieldCounts,
-                dailyCoverage,
-                missingTimes: missingHours
+                dailyCoverage
             };
         }
 
         // 결과 표시
         function displayResults(analysis, station) {
             // 통계 업데이트
-            document.getElementById('coverageRate').textContent = analysis.coverageRate + '%';
-            document.getElementById('totalHours').textContent = analysis.totalHours + '시간';
+            document.getElementById('coverageRate').textContent = analysis.avgPerDay + '회/일';
+            document.getElementById('totalHours').textContent = analysis.daysDiff + '일';
             document.getElementById('providedHours').textContent = analysis.providedHours + '회';
-            document.getElementById('missingHours').textContent = analysis.missingHours + '회';
+            document.getElementById('missingHours').textContent = '-';
 
             // 데이터 항목 표시
             const fieldLabels = {
@@ -991,10 +1313,16 @@
 
             document.getElementById('timeline').innerHTML = timelineHtml;
 
-            // 누락 정보
-            document.getElementById('missingTimes').innerHTML = analysis.missingHours > 0
-                ? `<div class="missing-time-item">총 ${analysis.missingHours}회의 데이터가 누락되었습니다. (기상청 API 제공 기준: 매시 정시/30분)</div>`
-                : '<div style="color: #28a745; font-weight: bold; text-align: center; padding: 20px;">✅ 모든 시간대에 데이터가 있습니다! (매시 정시/30분 완전 수집)</div>';
+            // 수집 정보 표시
+            document.getElementById('missingTimes').innerHTML = `
+                <div style="color: #666; font-weight: normal; text-align: center; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
+                    ℹ️ 이 관측소는 ${analysis.daysDiff}일간 총 <strong>${analysis.providedHours}회</strong> 데이터를 제공했습니다.
+                    (평균 <strong>${analysis.avgPerDay}회/일</strong>)
+                    <br><small style="color: #999; margin-top: 5px; display: block;">
+                    각 관측소는 고유한 데이터 제공 패턴을 가지며, observation_time_kst 기준으로 분석됩니다.
+                    </small>
+                </div>
+            `;
 
             // 조석관측소 매칭 - 가장 가까운 조석관측소 찾기
             const tidesWithDistance = TIDE_STATIONS.map(tide => ({
@@ -1002,10 +1330,31 @@
                 distance: calculateDistance(station.lat, station.lon, tide.lat, tide.lon)
             })).sort((a, b) => a.distance - b.distance);
 
-            // 가장 가까운 5개의 조석관측소 표시
-            const nearestTides = tidesWithDistance.slice(0, 5);
+            // 가장 가까운 30개의 조석관측소 표시
+            const nearestTides = tidesWithDistance.slice(0, 30);
 
-            const tideListHtml = nearestTides.map((tide, index) => `
+            const tideListHtml = nearestTides.map((tide, index) => {
+                // 거리 판정
+                let distanceJudgment = '';
+                let distanceColor = '#28a745';
+                if (tide.distance < 5) {
+                    distanceJudgment = ' (동일 지점)';
+                    distanceColor = '#28a745';
+                } else if (tide.distance < 20) {
+                    distanceJudgment = ' (인접)';
+                    distanceColor = '#20c997';
+                } else if (tide.distance < 50) {
+                    distanceJudgment = ' (보통)';
+                    distanceColor = '#ffc107';
+                } else if (tide.distance < 100) {
+                    distanceJudgment = ' (다소 멀음)';
+                    distanceColor = '#fd7e14';
+                } else {
+                    distanceJudgment = ' (매우 멀음)';
+                    distanceColor = '#dc3545';
+                }
+
+                return `
                 <tr style="background: ${index === 0 ? '#e8f5e9' : 'white'};">
                     <td style="padding: 10px; text-align: center; font-weight: ${index === 0 ? 'bold' : 'normal'};">
                         ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1)}
@@ -1015,8 +1364,8 @@
                         <small style="color: #666;">${tide.code}</small>
                     </td>
                     <td style="padding: 10px; text-align: center;">
-                        <span class="badge" style="background: ${tide.distance < 10 ? '#28a745' : tide.distance < 30 ? '#ffc107' : '#dc3545'};">
-                            ${tide.distance.toFixed(1)} km
+                        <span style="display: inline-block; padding: 5px 10px; border-radius: 5px; background: ${distanceColor}; color: white; font-weight: bold;">
+                            ${tide.distance.toFixed(1)} km${distanceJudgment}
                         </span>
                     </td>
                     <td style="padding: 10px;">
@@ -1026,7 +1375,33 @@
                         <small style="color: #777;">${tide.address}</small>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
+
+            // 가장 가까운 조석관측소 거리 경고
+            const closestDistance = nearestTides[0].distance;
+            let distanceWarning = '';
+            if (closestDistance > 100) {
+                distanceWarning = `
+                    <div style="padding: 15px; margin: 15px 0; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
+                        ⚠️ <strong>경고:</strong> 가장 가까운 조석관측소가 ${closestDistance.toFixed(1)}km 떨어져 있습니다.
+                        조석 데이터의 정확도가 낮을 수 있으니 참고용으로만 사용하세요.
+                    </div>
+                `;
+            } else if (closestDistance > 50) {
+                distanceWarning = `
+                    <div style="padding: 15px; margin: 15px 0; background: #e7f3ff; border-left: 4px solid #2196F3; border-radius: 5px;">
+                        ℹ️ <strong>안내:</strong> 가장 가까운 조석관측소가 ${closestDistance.toFixed(1)}km 떨어져 있습니다.
+                        인접 해역의 조석 데이터로 참고하시기 바랍니다.
+                    </div>
+                `;
+            } else if (closestDistance < 10) {
+                distanceWarning = `
+                    <div style="padding: 15px; margin: 15px 0; background: #d4edda; border-left: 4px solid #28a745; border-radius: 5px;">
+                        ✅ <strong>우수:</strong> 가장 가까운 조석관측소가 ${closestDistance.toFixed(1)}km 거리에 있어 신뢰도 높은 조석 데이터를 제공할 수 있습니다.
+                    </div>
+                `;
+            }
 
             const matchingHtml = `
                 <div class="distance-calc">
@@ -1039,10 +1414,18 @@
                     </p>
                 </div>
 
+                ${distanceWarning}
+
                 <div style="margin-top: 20px;">
-                    <h4>🎯 가까운 조석관측소 매칭 추천 (TOP 5)</h4>
+                    <h4>🎯 가까운 조석관측소 매칭 추천 (TOP 30)</h4>
                     <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">
-                        해양관측소에서 가장 가까운 조석관측소들입니다. 거리와 데이터 신뢰도를 고려하여 매칭하세요.
+                        해양관측소에서 가장 가까운 조석관측소들입니다.
+                        <strong>거리 판정:</strong>
+                        <span style="color: #28a745;">■ 5km 이내(동일지점)</span>,
+                        <span style="color: #20c997;">■ 20km 이내(인접)</span>,
+                        <span style="color: #ffc107;">■ 50km 이내(보통)</span>,
+                        <span style="color: #fd7e14;">■ 100km 이내(다소 멀음)</span>,
+                        <span style="color: #dc3545;">■ 100km 이상(매우 멀음)</span>
                     </p>
                     <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
                         <thead style="background: #f8f9fa;">
@@ -1075,7 +1458,6 @@
 
             document.getElementById('dateFrom').valueAsDate = sevenDaysAgo;
             document.getElementById('dateTo').valueAsDate = today;
-            document.getElementById('stationType').value = 'A';
             updateStationList();
             document.getElementById('results').style.display = 'none';
         }
@@ -1099,59 +1481,75 @@
                 'humidity_available': '습도'
             };
 
-            // 해당 날짜의 데이터 필터링
-            const dateData = currentRawData.filter(row => row.request_time.startsWith(date));
-
-            // 시간별 데이터 맵 생성 (request_time을 키로)
-            const timeDataMap = {};
-            dateData.forEach(row => {
-                const time = row.request_time.substring(11, 16); // HH:MM 추출
-                timeDataMap[time] = row;
+            // 해당 날짜의 데이터 필터링 (observation_time_kst 사용, YYYYMMDD 형식으로 변환)
+            const dateStr = date.replace(/-/g, ''); // '2026-01-17' -> '20260117'
+            const dateData = currentRawData.filter(row => {
+                // observation_time_kst는 'YYYYMMDDHHMI' 형식
+                return row.observation_time_kst && row.observation_time_kst.startsWith(dateStr);
             });
 
-            // 00:00부터 23:30까지 48개 시간대 생성
-            const allTimes = [];
-            for (let hour = 0; hour < 24; hour++) {
-                for (let minute of [0, 30]) {
-                    const timeStr = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-                    allTimes.push(timeStr);
+            // 시간별 데이터 맵 생성 및 시간 목록 추출 (observation_time_kst 기준)
+            const timeDataMap = {};
+            const timeSet = new Set();
+
+            dateData.forEach(row => {
+                if (row.observation_time_kst && row.observation_time_kst.length >= 12) {
+                    // 'YYYYMMDDHHMI' 형식에서 'HH:MI' 추출
+                    const hour = row.observation_time_kst.substring(8, 10);
+                    const minute = row.observation_time_kst.substring(10, 12);
+                    const time = `${hour}:${minute}`;
+
+                    // 같은 시간에 여러 행이 있을 수 있으므로 데이터 병합
+                    if (!timeDataMap[time]) {
+                        timeDataMap[time] = row;
+                    } else {
+                        // 기존 데이터와 병합 (null이 아닌 값 우선)
+                        Object.keys(row).forEach(key => {
+                            if (row[key] !== null && row[key] !== undefined) {
+                                timeDataMap[time][key] = row[key];
+                            }
+                        });
+                    }
+                    timeSet.add(time);
                 }
-            }
+            });
+
+            // 실제 데이터가 있는 시간만 오름차순 정렬
+            const actualTimes = Array.from(timeSet).sort((a, b) => {
+                // HH:MM 형식을 숫자로 변환하여 비교
+                const [aHour, aMin] = a.split(':').map(Number);
+                const [bHour, bMin] = b.split(':').map(Number);
+                return (aHour * 60 + aMin) - (bHour * 60 + bMin);
+            });
 
             // HTML 생성
             let html = `
                 <p style="color: #666; margin-bottom: 15px;">
-                    총 <strong>${allTimes.length}개</strong> 시간대 중 <strong>${Object.keys(timeDataMap).length}개</strong> 시간대에 데이터가 있습니다.
-                    (커버리지: <strong>${(Object.keys(timeDataMap).length / allTimes.length * 100).toFixed(1)}%</strong>)
+                    총 <strong>${actualTimes.length}개</strong> 시간대에 데이터가 수집되었습니다.
                 </p>
                 <div class="hourly-grid">
             `;
 
-            allTimes.forEach(time => {
+            actualTimes.forEach((time, index) => {
                 const rowData = timeDataMap[time];
-                const hasData = !!rowData;
-                const itemClass = hasData ? 'has-data' : 'no-data';
+                const itemClass = 'has-data';
+
+                // 사용 가능한 데이터 필드 표시 (true인 필드만)
+                const availableFields = Object.keys(fieldLabels).filter(field => rowData[field] === true);
 
                 html += `
                     <div class="hourly-item ${itemClass}">
                         <div class="hourly-time">${time}</div>
                 `;
 
-                if (hasData) {
-                    // 사용 가능한 데이터 필드 표시
-                    const availableFields = Object.keys(fieldLabels).filter(field => rowData[field]);
-
-                    if (availableFields.length > 0) {
-                        html += '<div class="hourly-fields">';
-                        availableFields.forEach(field => {
-                            html += `<span class="field-tag">${fieldLabels[field]}</span>`;
-                        });
-                        html += '</div>';
-                    } else {
-                        html += '<div class="no-data-text">데이터 필드 없음</div>';
-                    }
+                if (availableFields.length > 0) {
+                    html += '<div class="hourly-fields">';
+                    availableFields.forEach(field => {
+                        html += `<span class="field-tag">${fieldLabels[field]}</span>`;
+                    });
+                    html += '</div>';
                 } else {
-                    html += '<div class="no-data-text">데이터 없음</div>';
+                    html += '<div class="no-data-text">데이터 필드 없음</div>';
                 }
 
                 html += `</div>`;
@@ -1160,7 +1558,7 @@
             html += '</div>';
 
             // 모달에 표시
-            document.getElementById('modalTitle').textContent = `${date} 상세 데이터 (30분 단위)`;
+            document.getElementById('modalTitle').textContent = `${date} 상세 데이터 (${actualTimes.length}개 시간대)`;
             document.getElementById('modalBody').innerHTML = html;
             document.getElementById('dailyDetailModal').style.display = 'block';
         }
@@ -1177,6 +1575,9 @@
                 closeDailyDetailModal();
             }
         }
+
+        // 페이지 로드 시 초기화
+        updateStationList();
 
         // iframe 안에서 로드될 때 헤더 숨기기
         if (window.self !== window.top) {

@@ -1,9 +1,18 @@
 // supabase/functions/get-weather-tide-data/index.ts
+// *** v17: 필수 필드 복원 - uuu, vvv, wav, reg_id, reg_sp, reg_name (2025-12-31) ***
+// *** v16: API 응답 최적화 - 61개 미사용 필드 제거 (2025-12-31) ***
 // *** v15: weatherapi 데이터 플래그로 제어 (기본값: false) ***
 // v14: OpenWeatherMap 데이터 추가
 // v13: a, b 데이터에 station_id 추가
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { corsHeaders } from '../_shared/cors.ts';
+import { corsHeaders, getCorsHeaders } from '../_shared/cors.ts';
+import {
+  validateClientOrAdminAuth,
+  createUnauthorizedResponse,
+  checkRateLimit,
+  createRateLimitResponse,
+  getClientIp
+} from '../_shared/auth.ts';
 
 // 기능 플래그
 const INCLUDE_WEATHERAPI = false; // weatherapi 데이터 포함 여부 (나중에 사용 가능)
@@ -47,18 +56,36 @@ function convertUtcToLocalWithOffset(utcString: string, timezoneOffset: number):
 
 // RPC 함수를 직접 쿼리로 대체하여 성능 향상
 Deno.serve(async (req)=>{
+  const requestOrigin = req.headers.get('origin');
+  const headers = getCorsHeaders(requestOrigin);
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
-      headers: corsHeaders
+      headers
     });
   }
   if (req.method !== 'GET') {
     return new Response(JSON.stringify({
       error: 'Method not allowed'
     }), {
-      status: 405
+      status: 405,
+      headers
     });
   }
+
+  // 클라이언트 API 키 또는 관리자 인증 검증
+  if (!validateClientOrAdminAuth(req)) {
+    return createUnauthorizedResponse(headers);
+  }
+
+  // Rate limiting (IP 기반, 분당 100회)
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(clientIp, 100, 60000);
+  if (!rateLimit.allowed) {
+    console.warn(`Rate limit exceeded for IP: ${clientIp}`);
+    return createRateLimitResponse(headers);
+  }
+
   try {
     const url = new URL(req.url);
     const params = url.searchParams;
@@ -128,12 +155,12 @@ Deno.serve(async (req)=>{
     console.log('Group 1: Fetching weather forecasts, tide data, and region IDs in parallel...');
     const [weatherResult, tideResult] = await Promise.all([
       supabaseClient.from('weather_forecasts').select(`
-        fcst_datetime_kr, 
+        fcst_datetime_kr,
         tmp, tmn, tmx, uuu, vvv, vec, wsd, sky, pty, pop, wav, pcp, reh, sno
       `).eq('location_code', locationCode).gte('fcst_datetime_kr', startDateKST).lt('fcst_datetime_kr', weatherExclusiveEndDateKST).order('fcst_datetime_kr', {
         ascending: true
       }),
-      
+
       supabaseClient.from('tide_data').select(`
         obs_date,
         lvl1, lvl2, lvl3, lvl4,
@@ -193,8 +220,7 @@ Deno.serve(async (req)=>{
       supabaseClient
         .from('medium_term_forecasts')
         .select(`
-          reg_id, reg_sp, reg_name, mod, tm_fc, tm_fc_kr, tm_ef, tm_ef_kr,
-          wh_a, wh_b, wf, sky, pre, conf, rn_st, forecast_type, location_code
+          tm_ef_kr, wh_a, wh_b, wf, reg_id, reg_sp, reg_name
         `)
         .eq('location_code', locationCode)
         .eq('forecast_type', 'marine')
@@ -206,9 +232,9 @@ Deno.serve(async (req)=>{
       supabaseClient
         .from('medium_term_forecasts')
         .select(`
-          reg_id, reg_sp, reg_name, mod, tm_fc, tm_fc_kr, tm_ef, tm_ef_kr, c,
+          tm_ef_kr, reg_id, reg_sp, reg_name,
           min_temp, max_temp, min_temp_l, min_temp_h, max_temp_l, max_temp_h,
-          sky, pre, conf, wf, rn_st, forecast_type, location_code
+          sky, pre, wf, rn_st
         `)
         .eq('location_code', locationCode)
         .eq('forecast_type', 'temperature')
@@ -237,15 +263,10 @@ Deno.serve(async (req)=>{
       supabaseClient
         .from('openweathermap_data')
         .select(`
-          observation_time_utc, observation_time_local, timezone_offset,
           forecast_date, forecast_time,
-          weather_id, weather_main, weather_description, weather_icon,
-          temp, feels_like, temp_min, temp_max,
-          pressure, humidity, sea_level, ground_level,
-          wind_speed, wind_deg, wind_gust,
-          clouds, visibility,
-          rain_1h, rain_3h, snow_1h, snow_3h, pop,
-          data_type
+          weather_main, weather_description, weather_icon,
+          temp, temp_min, temp_max,
+          humidity, wind_speed, wind_deg, pop
         `)
         .eq('location_code', locationCode)
         .gte('forecast_date', date)
@@ -279,23 +300,8 @@ Deno.serve(async (req)=>{
         return (a.forecast_time || '').localeCompare(b.forecast_time || '');
       });
 
-    // 8. OpenWeatherMap 데이터 가공
-    const openWeatherData = openWeatherResult?.data || [];
-
-    // 현재 날씨와 예보 데이터 분리 및 타임스탬프 변환
-    const openWeatherCurrent = openWeatherData
-      .filter(item => item.data_type === 'current')
-      .map(item => ({
-        ...item,
-        observation_time_local: convertUtcToLocalWithOffset(item.observation_time_utc, item.timezone_offset)
-      }));
-
-    const openWeatherForecast = openWeatherData
-      .filter(item => item.data_type === 'forecast' && item.forecast_time !== null)
-      .map(item => ({
-        ...item,
-        observation_time_local: convertUtcToLocalWithOffset(item.observation_time_utc, item.timezone_offset)
-      }))
+    // 8. OpenWeatherMap 데이터 가공 (이미 필요한 필드만 조회됨)
+    const openWeatherForecast = (openWeatherResult?.data || [])
       .sort((a, b) => {
         const dateCompare = (a.forecast_date || '').localeCompare(b.forecast_date || '');
         if (dateCompare !== 0) return dateCompare;
@@ -324,6 +330,7 @@ Deno.serve(async (req)=>{
 
     // 10. 최종 결과 반환
     const responseData = {
+      version: "2025-12-31-v5",  // 버전 확인용 (필수 필드 복원)
       weather_forecasts: weatherForecastData,
       tide_data: tideResult?.data || [],
       marine_observations: {
@@ -340,13 +347,12 @@ Deno.serve(async (req)=>{
       }),
       // OpenWeatherMap 데이터 추가
       openweathermap: {
-        current: openWeatherCurrent,
         forecast: openWeatherForecast
       }
     };
     return new Response(JSON.stringify(responseData), {
       headers: {
-        ...corsHeaders,
+        ...headers,
         'Content-Type': 'application/json'
       },
       status: 200
@@ -357,7 +363,7 @@ Deno.serve(async (req)=>{
       error: 'An unexpected critical error occurred.'
     }), {
       headers: {
-        ...corsHeaders,
+        ...headers,
         'Content-Type': 'application/json'
       },
       status: 500

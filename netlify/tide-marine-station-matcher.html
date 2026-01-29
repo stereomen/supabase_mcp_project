@@ -507,17 +507,76 @@
         }
 
         async function loadMatchingData() {
-            // JSON 파일에서 매칭 데이터 로드
+            // Firebase Storage에서 최신 조석관측소 목록 로드
             try {
-                const response = await fetch('station_matching_top10.json');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch matching data');
+                // 1. 최신 XML에서 조석관측소 목록 가져오기
+                const SUPABASE_URL = 'https://iwpgvdtfpwazzfeniusk.supabase.co';
+                // 캐시 우회를 위한 타임스탬프 추가
+                const timestamp = new Date().getTime();
+                const xmlUrl = `${SUPABASE_URL}/storage/v1/object/public/location-files/locations_latest.xml?t=${timestamp}`;
+
+                const xmlResponse = await fetch(xmlUrl, {
+                    cache: 'no-store',  // 캐시 사용 안 함
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache'
+                    }
+                });
+                if (!xmlResponse.ok) {
+                    throw new Error('Failed to fetch latest XML from Firebase Storage');
                 }
-                STATION_MATCHING_DATA = await response.json();
-                console.log('매칭 데이터 로드 완료:', Object.keys(STATION_MATCHING_DATA).length, '개 조석관측소');
+
+                const xmlText = await xmlResponse.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+                // XML 파싱하여 조석관측소 목록 추출
+                const locations = xmlDoc.getElementsByTagName('Location');
+                const tideStations = {};
+
+                for (let i = 0; i < locations.length; i++) {
+                    const location = locations[i];
+                    const code = location.getElementsByTagName('Code')[0]?.textContent;
+                    const name = location.getElementsByTagName('Name')[0]?.textContent;
+                    const latText = location.getElementsByTagName('Latitude')[0]?.textContent;
+                    const lonText = location.getElementsByTagName('Longitude')[0]?.textContent;
+                    const marineReg = location.getElementsByTagName('marine_reg_name')[0]?.textContent;
+
+                    if (code && name) {
+                        tideStations[code] = {
+                            tide_station_name: name,
+                            tide_station_lat: latText ? parseFloat(latText) : 0,
+                            tide_station_lon: lonText ? parseFloat(lonText) : 0,
+                            marine_reg_name: marineReg || '',
+                            nearest_marine_stations: []  // 매칭 정보는 JSON에서 가져올 예정
+                        };
+                    }
+                }
+
+                // 2. 매칭 정보 로드 (기존 JSON)
+                try {
+                    const jsonResponse = await fetch('station_matching_top10.json');
+                    if (jsonResponse.ok) {
+                        const matchingData = await jsonResponse.json();
+
+                        // XML에 있는 조석관측소의 매칭 정보만 병합
+                        for (const code in tideStations) {
+                            if (matchingData[code] && matchingData[code].nearest_marine_stations) {
+                                tideStations[code].nearest_marine_stations = matchingData[code].nearest_marine_stations;
+                            }
+                        }
+                    }
+                } catch (jsonError) {
+                    console.warn('매칭 JSON 로드 실패 (계속 진행):', jsonError);
+                }
+
+                STATION_MATCHING_DATA = tideStations;
+                console.log('조석관측소 목록 로드 완료:', Object.keys(STATION_MATCHING_DATA).length, '개 조석관측소');
+                console.log('데이터 소스: Firebase Storage (locations_latest.xml)');
+
             } catch (error) {
-                console.error('매칭 데이터 로드 실패:', error);
-                alert('매칭 데이터를 로드할 수 없습니다. station_matching_top10.json 파일을 확인해주세요.');
+                console.error('조석관측소 목록 로드 실패:', error);
+                alert('최신 조석관측소 목록을 로드할 수 없습니다.\n\nFirebase Storage에서 locations_latest.xml 파일을 확인해주세요.\n\n에러: ' + error.message);
             }
         }
 
@@ -545,7 +604,72 @@
             });
         }
 
-        function showNearestStations(tideStationCode) {
+        // Haversine 거리 계산 함수 (km)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // 지구 반지름 (km)
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // 실시간 가까운 해양관측소 계산
+        async function calculateNearestStations(tideLat, tideLon) {
+            try {
+                // Supabase에서 해양관측소 목록 가져오기 (최근 데이터에서 유니크한 station_id 추출)
+                const { data, error } = await supabaseClient
+                    .from('marine_observations')
+                    .select('station_id, station_name, latitude, longitude, water_temperature, significant_wave_height, wind_direction, wind_speed, air_temperature')
+                    .order('observation_time_kst', { ascending: false })
+                    .limit(1000);
+
+                if (error) throw error;
+
+                // 유니크한 관측소 목록 생성 (station_id 중복 제거)
+                const uniqueStations = {};
+                data.forEach(row => {
+                    if (row.station_id && row.latitude && row.longitude && !uniqueStations[row.station_id]) {
+                        // 제공하는 필드 확인
+                        const provides = [];
+                        if (row.water_temperature !== null) provides.push('wt');
+                        if (row.significant_wave_height !== null) provides.push('swh');
+                        if (row.wind_direction !== null) provides.push('wd');
+                        if (row.wind_speed !== null) provides.push('ws');
+                        if (row.air_temperature !== null) provides.push('at');
+
+                        uniqueStations[row.station_id] = {
+                            station_id: row.station_id,
+                            name: row.station_name || row.station_id,
+                            lat: row.latitude,
+                            lon: row.longitude,
+                            provides: [...new Set(provides)] // 중복 제거
+                        };
+                    }
+                });
+
+                // 거리 계산
+                const stationsWithDistance = Object.values(uniqueStations).map(station => {
+                    const distance = calculateDistance(tideLat, tideLon, station.lat, station.lon);
+                    return {
+                        ...station,
+                        distance_km: Math.round(distance * 100) / 100 // 소수점 2자리
+                    };
+                });
+
+                // 거리순 정렬 후 상위 10개
+                stationsWithDistance.sort((a, b) => a.distance_km - b.distance_km);
+                return stationsWithDistance.slice(0, 10);
+
+            } catch (error) {
+                console.error('가까운 관측소 계산 실패:', error);
+                return [];
+            }
+        }
+
+        async function showNearestStations(tideStationCode) {
             const section = document.getElementById('nearestStationsSection');
             const listDiv = document.getElementById('nearestStationsList');
 
@@ -564,8 +688,18 @@
             // 섹션 표시
             section.style.display = 'block';
 
-            // 가까운 관측소 목록 생성
-            const nearestStations = stationData.nearest_marine_stations || [];
+            // 로딩 표시
+            listDiv.innerHTML = '<div style="text-align: center; padding: 20px;">⏳ 가까운 해양관측소를 계산하는 중...</div>';
+
+            // 가까운 관측소 목록 생성 (사전 계산된 데이터가 있으면 사용, 없으면 실시간 계산)
+            let nearestStations = stationData.nearest_marine_stations || [];
+
+            // 사전 계산된 데이터가 없으면 실시간 계산
+            if (nearestStations.length === 0) {
+                nearestStations = await calculateNearestStations(stationData.tide_station_lat, stationData.tide_station_lon);
+                // 계산한 결과를 STATION_MATCHING_DATA에 저장 (팝업에서도 사용할 수 있도록)
+                STATION_MATCHING_DATA[tideStationCode].nearest_marine_stations = nearestStations;
+            }
 
             let html = `
                 <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
@@ -623,7 +757,7 @@
         }
 
         // 가까운 관측소 새 창으로 열기
-        function showNearestStationsPopup() {
+        async function showNearestStationsPopup() {
             const select = document.getElementById('tideStationSelect');
             const selectedOptions = Array.from(select.selectedOptions).map(opt => opt.value);
 
@@ -640,6 +774,20 @@
                 stationsToShow = selectedOptions;
             }
 
+            // 로딩 표시 (선택적)
+            const loadingMessage = document.createElement('div');
+            loadingMessage.style.position = 'fixed';
+            loadingMessage.style.top = '50%';
+            loadingMessage.style.left = '50%';
+            loadingMessage.style.transform = 'translate(-50%, -50%)';
+            loadingMessage.style.background = 'white';
+            loadingMessage.style.padding = '30px';
+            loadingMessage.style.borderRadius = '12px';
+            loadingMessage.style.boxShadow = '0 5px 20px rgba(0,0,0,0.3)';
+            loadingMessage.style.zIndex = '10000';
+            loadingMessage.innerHTML = '<div style="text-align: center;"><div class="spinner"></div><p style="margin-top: 15px; font-weight: 600;">가까운 관측소 목록을 생성하는 중...</p></div>';
+            document.body.appendChild(loadingMessage);
+
             let contentHtml = '';
 
             // 각 조석관측소별로 가까운 해양관측소 목록 생성
@@ -647,7 +795,14 @@
                 const stationData = STATION_MATCHING_DATA[stationCode];
                 if (!stationData) continue;
 
-                const nearestStations = stationData.nearest_marine_stations || [];
+                let nearestStations = stationData.nearest_marine_stations || [];
+
+                // 사전 계산된 데이터가 없으면 실시간 계산
+                if (nearestStations.length === 0) {
+                    nearestStations = await calculateNearestStations(stationData.tide_station_lat, stationData.tide_station_lon);
+                    // 계산한 결과를 STATION_MATCHING_DATA에 저장
+                    STATION_MATCHING_DATA[stationCode].nearest_marine_stations = nearestStations;
+                }
 
                 contentHtml += `
                     <div style="margin-bottom: 40px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; page-break-inside: avoid;">
@@ -821,6 +976,9 @@
 </body>
 </html>
             `;
+
+            // 로딩 메시지 제거
+            document.body.removeChild(loadingMessage);
 
             // 새 창 열기
             const newWindow = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');

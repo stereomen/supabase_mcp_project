@@ -1330,6 +1330,17 @@
                     throw new Error('Storage 업로드 실패: ' + uploadError.message);
                 }
 
+                // 최신 버전으로 고정 파일명 업로드 (tide-marine-station-matcher.html에서 사용)
+                const latestFileName = 'locations_latest.xml';
+                await supabaseClient
+                    .storage
+                    .from('location-files')
+                    .upload(latestFileName, blob, {
+                        contentType: 'application/xml',
+                        cacheControl: 'no-cache, no-store, must-revalidate',
+                        upsert: true  // 덮어쓰기
+                    });
+
                 // Public URL 생성
                 const { data: urlData } = supabaseClient
                     .storage

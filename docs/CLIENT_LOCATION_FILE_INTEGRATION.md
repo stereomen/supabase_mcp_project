@@ -1,33 +1,4 @@
-# 클라이언트 앱 - 지역 목록 파일 업데이트 구현 가이드
-
-## 개요
-
-앱 실행 시 Firebase Remote Config를 통해 최신 지역 목록(locations.xml) 파일을 자동으로 다운로드하는 기능입니다.
-
-### 작동 방식
-1. 앱 시작 시 Firebase Remote Config에서 `location_file_version` 값 확인
-2. 로컬에 저장된 버전과 비교
-3. 새 버전이 있으면 `location_file_url`에서 XML 다운로드
-4. 로컬 저장소에 저장하고 버전 업데이트
-
----
-
-## 1. Remote Config 파라미터
-
-### 설정된 키
-
-| 키 | 타입 | 설명 | 예시 값 |
-|---|---|---|---|
-| `location_file_version` | String | 현재 파일 버전 (정수) | `"1"`, `"2"`, `"3"` |
-| `location_file_data_base64` | String | Base64로 인코딩된 XML 전체 내용 | `"PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPExvY2F0aW9ucz4..."` |
-
-### 기본값 (Fallback)
-Remote Config를 가져오지 못한 경우 앱에 번들된 `locations_v1.xml`을 사용합니다.
-
-### 💡 중요: Base64 인코딩 방식
-관리자 페이지에서 XML 파일을 업로드한 후 "Base64 인코딩하여 Remote Config 배포" 버튼을 클릭하면, XML 전체 내용이 Base64로 인코딩되어 `location_file_data_base64` 파라미터에 저장됩니다. 클라이언트는 이 값을 가져와서 디코딩하여 사용합니다.
-
----
+w
 
 ## 2. Android (Kotlin) 구현
 
@@ -485,6 +456,7 @@ class LocationFileManager {
 
 enum UpdateResult {
     case updated(Int)
+    case updated(Int)₩₩
     case upToDate(Int)
     case initialSetup(Int)
     case downloadFailed

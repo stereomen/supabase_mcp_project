@@ -304,23 +304,29 @@
                 <div class="info-grid">
                     <div class="info-card">
                         <div class="info-card-value" id="stationsACount">-</div>
-                        <div class="info-card-label">파고+수온 커버리지 100% 지점</div>
+                        <div class="info-card-label">파고+수온 100% / 한번이라도 관측</div>
                     </div>
                     <div class="info-card">
                         <div class="info-card-value" id="stationsBCount">-</div>
-                        <div class="info-card-label">기온+풍향+풍속 커버리지 100% 지점</div>
+                        <div class="info-card-label">기온+풍향+풍속 100% / 한번이라도 관측</div>
                     </div>
                 </div>
                 <div class="actions">
                     <button class="btn btn-primary" onclick="loadStationData()" id="loadBtn">
                         테이블 분석 및 데이터 로드
                     </button>
-                    <button class="btn btn-secondary" onclick="downloadAStations()" id="downloadABtn" disabled style="background: #28a745;">
-                        📥 a지점 목록 다운
-                    </button>
-                    <button class="btn btn-secondary" onclick="downloadBStations()" id="downloadBBtn" disabled style="background: #17a2b8;">
-                        📥 b지점 목록 다운
-                    </button>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                        <button class="btn btn-secondary" onclick="downloadAStations()" id="downloadABtn" disabled style="background: #28a745;">
+                            📥 a지점 목록 다운
+                        </button>
+                        <small style="color: #666; font-size: 0.85em;">(한번이라도관측)</small>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                        <button class="btn btn-secondary" onclick="downloadBStations()" id="downloadBBtn" disabled style="background: #17a2b8;">
+                            📥 b지점 목록 다운
+                        </button>
+                        <small style="color: #666; font-size: 0.85em;">(한번이라도관측)</small>
+                    </div>
                 </div>
             </div>
 
@@ -334,6 +340,10 @@
                     <button class="btn btn-success" onclick="downloadCSV()" id="downloadBtn" disabled>
                         📄 CSV 다운로드
                     </button>
+                    <label for="csvUploadInput" class="btn btn-success" id="csvUploadBtn" style="margin: 0; cursor: pointer; background: #6c757d;">
+                        📁 CSV 업로드
+                    </label>
+                    <input type="file" id="csvUploadInput" accept=".csv" style="display: none;" onchange="handleCSVUpload(event)">
                     <button class="btn btn-success" onclick="downloadExcel()" id="downloadExcelBtn" disabled>
                         📊 Excel 다운로드
                     </button>
@@ -719,8 +729,8 @@
                     }
                 });
 
-                document.getElementById('stationsACount').textContent = absStationsA.length;
-                document.getElementById('stationsBCount').textContent = absStationsB.length;
+                document.getElementById('stationsACount').textContent = `${absStationsA.length} / ${allStationsA.length}`;
+                document.getElementById('stationsBCount').textContent = `${absStationsB.length} / ${allStationsB.length}`;
 
                 console.log(`A 지점 (100%): ${absStationsA.length}개, B 지점 (100%): ${absStationsB.length}개`);
                 console.log(`A 지점 (전체): ${allStationsA.length}개, B 지점 (전체): ${allStationsB.length}개`);
@@ -925,6 +935,141 @@
             link.click();
 
             URL.revokeObjectURL(url);
+        }
+
+        // CSV 업로드 처리
+        function handleCSVUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+
+                    // BOM 제거
+                    const csvText = text.replace(/^\uFEFF/, '');
+
+                    // CSV 파싱
+                    const lines = csvText.split('\n').filter(line => line.trim());
+                    if (lines.length < 2) {
+                        showError('CSV 파일이 비어있거나 형식이 올바르지 않습니다.');
+                        return;
+                    }
+
+                    const headers = lines[0].split(',');
+                    const data = [];
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = parseCSVLine(lines[i]);
+                        const row = {};
+                        headers.forEach((header, index) => {
+                            row[header.trim()] = values[index] ? values[index].trim() : '';
+                        });
+                        data.push(row);
+                    }
+
+                    // matchingResults 형식으로 변환
+                    matchingResults = data.map(row => {
+                        const tideLat = parseFloat(row['위도']) || 0;
+                        const tideLon = parseFloat(row['경도']) || 0;
+
+                        const closestA = row['a_STN ID'] ? {
+                            '지역명(한글)': row['a_지역명(한글)'] || '',
+                            'STN ID': row['a_STN ID'] || '',
+                            '위도(LAT)': parseFloat(row['a_위도(LAT)']) || 0,
+                            '경도(LON)': parseFloat(row['a_경도(LON)']) || 0
+                        } : null;
+
+                        const closestB = row['b_STN ID'] ? {
+                            '지역명(한글)': row['b_지역명(한글)'] || '',
+                            'STN ID': row['b_STN ID'] || '',
+                            '위도(LAT)': parseFloat(row['b_위도(LAT)']) || 0,
+                            '경도(LON)': parseFloat(row['b_경도(LON)']) || 0
+                        } : null;
+
+                        // 거리 계산: CSV에 있으면 사용, 없으면 자동 계산
+                        let distanceA = Infinity;
+                        if (row['a_거리'] && !isNaN(parseFloat(row['a_거리']))) {
+                            distanceA = parseFloat(row['a_거리']);
+                        } else if (closestA && tideLat && tideLon) {
+                            distanceA = calculateDistance(
+                                tideLat, tideLon,
+                                closestA['위도(LAT)'], closestA['경도(LON)']
+                            );
+                        }
+
+                        let distanceB = Infinity;
+                        if (row['b_거리'] && !isNaN(parseFloat(row['b_거리']))) {
+                            distanceB = parseFloat(row['b_거리']);
+                        } else if (closestB && tideLat && tideLon) {
+                            distanceB = calculateDistance(
+                                tideLat, tideLon,
+                                closestB['위도(LAT)'], closestB['경도(LON)']
+                            );
+                        }
+
+                        return {
+                            tide: {
+                                code: row.code || '',
+                                obsPostName: row.obsPostName || '',
+                                lat: tideLat,
+                                lon: tideLon,
+                                marine_reg_name: row.marine_reg_name || '',
+                                AddressA: row.AddressA || '',
+                                AddressB: row.AddressB || '',
+                                AddressC: row.AddressC || ''
+                            },
+                            closestA: closestA,
+                            closestB: closestB,
+                            distanceA: distanceA,
+                            distanceB: distanceB
+                        };
+                    });
+
+                    // 테이블 표시
+                    renderResults();
+
+                    // 버튼 활성화
+                    document.getElementById('downloadBtn').disabled = false;
+                    document.getElementById('downloadExcelBtn').disabled = false;
+                    document.getElementById('uploadBtn').disabled = false;
+
+                    showSuccess(`CSV 파일이 업로드되었습니다. (${matchingResults.length}개 행)`);
+
+                    // 파일 입력 초기화
+                    event.target.value = '';
+
+                } catch (error) {
+                    showError('CSV 파일 파싱 중 오류가 발생했습니다: ' + error.message);
+                    console.error('CSV 파싱 오류:', error);
+                }
+            };
+
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        // CSV 라인 파싱 (쉼표가 따옴표 안에 있는 경우 처리)
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+
+            return result;
         }
 
         // Excel 다운로드

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>거리 계산 테스트</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        table { border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #f0f0f0; }
+        .close { color: green; font-weight: bold; }
+        .far { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>조석관측소 거리 계산 검증</h1>
+    <div id="output"></div>
+
+    <script>
+        // 거리 계산 함수 (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // 지구 반지름 (km)
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // 테스트 케이스
+        const testCases = [
+            {
+                name: "목포 A지점 → 목포 DT_0007",
+                station: {name: "목포", lat: 34.77805556, lon: 126.3925},
+                tide: {code: "DT_0007", name: "목포", lat: 34.7797222222222, lon: 126.375556}
+            },
+            {
+                name: "인천 B지점 → 인천 DT_0001",
+                station: {name: "인천(송도)", lat: 37.3381, lon: 126.5861},
+                tide: {code: "DT_0001", name: "인천", lat: 37.451944, lon: 126.592222}
+            },
+            {
+                name: "여수 A지점 → 여수 DT_0016",
+                station: {name: "여수", lat: 34.74416667, lon: 127.76805555},
+                tide: {code: "DT_0016", name: "여수", lat: 34.747222, lon: 127.765556}
+            },
+            {
+                name: "울릉도 A지점 → 울릉도 DT_0013",
+                station: {name: "울릉도", lat: 37.4554, lon: 131.1144},
+                tide: {code: "DT_0013", name: "울릉도", lat: 37.491389, lon: 130.913611}
+            }
+        ];
+
+        // A_STATIONS 샘플
+        const mokpo = {name: "목포", id: "530350", lat: 34.77805556, lon: 126.3925};
+
+        // TIDE_STATIONS 샘플 (목포 주변)
+        const tideSamples = [
+            {code: "DT_0007", name: "목포", lat: 34.7797222222222, lon: 126.375556, marine_reg: "서해남부"},
+            {code: "DT_0028", name: "진도", lat: 34.377778, lon: 126.308611, marine_reg: "서해남부"},
+            {code: "SO_0537", name: "벽파진(벽파항)", lat: 34.539444, lon: 126.346111, marine_reg: "서해남부"},
+            {code: "SO_0539", name: "강화외포", lat: 37.700833, lon: 126.3725, marine_reg: "서해북부"}, // 멀리 있음
+            {code: "DT_0003", name: "영광", lat: 35.426111, lon: 126.420556, marine_reg: "서해남부"}
+        ];
+
+        // 목포 A지점에서 각 조석관측소까지 거리 계산
+        let html = '<h2>목포 A지점 (34.778°N, 126.393°E)에서 조석관측소까지 거리</h2>';
+        html += '<table><tr><th>순위</th><th>조석관측소</th><th>코드</th><th>위도</th><th>경도</th><th>거리 (km)</th><th>판정</th></tr>';
+
+        const distances = tideSamples.map(tide => ({
+            ...tide,
+            distance: calculateDistance(mokpo.lat, mokpo.lon, tide.lat, tide.lon)
+        })).sort((a, b) => a.distance - b.distance);
+
+        distances.forEach((tide, idx) => {
+            const judgment = tide.distance < 10 ? '<span class="close">✓ 가까움</span>' :
+                           tide.distance < 50 ? '보통' :
+                           '<span class="far">✗ 멀음</span>';
+            html += `<tr>
+                <td>${idx + 1}</td>
+                <td>${tide.name}</td>
+                <td>${tide.code}</td>
+                <td>${tide.lat.toFixed(4)}</td>
+                <td>${tide.lon.toFixed(4)}</td>
+                <td>${tide.distance.toFixed(2)}</td>
+                <td>${judgment}</td>
+            </tr>`;
+        });
+        html += '</table>';
+
+        // 개별 테스트 케이스 검증
+        html += '<h2>개별 테스트 케이스</h2>';
+        html += '<table><tr><th>테스트</th><th>해양관측소</th><th>조석관측소</th><th>거리 (km)</th><th>판정</th></tr>';
+
+        testCases.forEach(test => {
+            const dist = calculateDistance(
+                test.station.lat, test.station.lon,
+                test.tide.lat, test.tide.lon
+            );
+            const judgment = dist < 5 ? '<span class="close">✓ 정상 (동일 지점)</span>' :
+                           dist < 20 ? '✓ 정상 (인접 지점)' :
+                           '<span class="far">✗ 비정상 (너무 멀음)</span>';
+            html += `<tr>
+                <td>${test.name}</td>
+                <td>${test.station.name} (${test.station.lat.toFixed(4)}°N, ${test.station.lon.toFixed(4)}°E)</td>
+                <td>${test.tide.name} ${test.tide.code} (${test.tide.lat.toFixed(4)}°N, ${test.tide.lon.toFixed(4)}°E)</td>
+                <td>${dist.toFixed(2)}</td>
+                <td>${judgment}</td>
+            </tr>`;
+        });
+        html += '</table>';
+
+        document.getElementById('output').innerHTML = html;
+    </script>
+</body>
+</html>

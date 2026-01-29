@@ -119,3 +119,71 @@ ADMIN_SECRET=your-admin-password  # manage-firebase-remote-config 함수에 필�
 - 다양한 관측 유형을 위한 관측소 ID 매핑
 - 위치 기반 데이터 가용성 플래그
 - 다양한 데이터 소스(ABS, KMA) 간 지역 코드 매핑
+
+
+## Supabase Query Best Practices
+
+### Row Limit Warning
+**CRITICAL**: Supabase REST API has a default limit of **1000 rows** per query. When querying tables that may contain more than 1000 records, you MUST implement pagination to retrieve all data.
+
+**Common Issues:**
+- Date range queries that span multiple days may return incomplete results
+- Analytics and log tables (`abs_fetch_log`, `ad_analytics`, etc.) grow over time and will exceed 1000 rows
+- Admin UI pages that analyze full datasets need pagination
+
+**Solutions:**
+
+1. **JavaScript/TypeScript (Supabase JS Client):**
+```javascript
+// ❌ BAD - Only gets first 1000 rows
+const { data } = await supabase.from('abs_fetch_log').select('*');
+
+// ✅ GOOD - Pagination with range()
+let allData = [];
+let from = 0;
+const batchSize = 1000;
+let hasMore = true;
+
+while (hasMore) {
+    const { data, error } = await supabase
+        .from('abs_fetch_log')
+        .select('*')
+        .range(from, from + batchSize - 1);
+
+    if (error) throw error;
+    allData = allData.concat(data);
+
+    if (data.length < batchSize) {
+        hasMore = false;
+    } else {
+        from += batchSize;
+    }
+}
+```
+
+2. **REST API with fetch():**
+```javascript
+// ✅ GOOD - Pagination with offset/limit
+let allData = [];
+let offset = 0;
+const limit = 1000;
+let hasMore = true;
+
+while (hasMore) {
+    const url = `${SUPABASE_URL}/rest/v1/table_name?select=*&limit=${limit}&offset=${offset}`;
+    const response = await fetch(url, { headers: { ... } });
+    const pageData = await response.json();
+
+    allData = allData.concat(pageData);
+
+    if (pageData.length < limit) {
+        hasMore = false;
+    } else {
+        offset += limit;
+    }
+}
+```
+
+**Files that implement pagination correctly:**
+- `netlify/abs-fetch-log-coverage.html`: Date range analysis with pagination
+- `netlify/station-matcher.html`: Full table scan with pagination
